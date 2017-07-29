@@ -1,16 +1,22 @@
-import React, { Component } from 'react';
-import './App.css';
+import React, { Component } from 'react'
+import './App.css'
+import Board from './Board'
 
+  /*
 function choose(choices) {
-  var index = Math.floor(Math.random() * choices.length);
-  return choices[index];
-}
+  var index = Math.floor(Math.random() * choices.length)
+  return choices[index]
+}*/
 
 function Cell({ color = 'white' }) {
   return <div className='cell' style={{ backgroundColor: color }} />
 }
 
 /*
+let food = new Map([
+  [[5, 6], { weight: 3 }]
+])
+
 cell moves
 { up, down, left, right } | { pull, push }
 creature attrs:
@@ -18,64 +24,38 @@ creature attrs:
   //vision: []
 */
 
-const moves = {
-  'right': [ 0,  1],
-  'left':  [ 0, -1],
-  'up':    [-1,  0],
-  'down':  [ 1,  0],
-}
-
-function step(cells) {
-  let movedInto = []
-  for (let row = 0; row < cells.length; row++) {
-    let rowCells = cells[row]
-    for (let column = 0; column < rowCells.length; column++) {
-      let cell = rowCells[column]
-      if (!cell || movedInto.includes( row * 100 + column )) {
-        continue
-      }
-      let newCell = Object.assign(cell, { direction: choose(['right', 'left', 'up', 'down']) })
-      if(cell.direction) {
-        let [ dRow, dColumn ] = moves[ cell.direction ]
-        let newRow = row + dRow
-        let newColumn = column + dColumn
-        if (newRow > 0 && newColumn > 0) {
-          cells[ newRow ][ newColumn ] = newCell
-          movedInto.push( newRow * 100 + newColumn )
-          cells[row][column] = undefined
-        }
-      }
-    }
-  }
-  return cells
-}
 
 class App extends Component {
   constructor(props: SectionProps) {
     super(props)
 
-    let cells = Array(50).fill().map(_ => Array(50).fill()) 
-    cells[3][3] = {
+    let board = new Board({ rows: 50, columns: 50 })
+    board.addActor(3, 3, {
+      //force: 'push',
       color: 'blue',
-      force: 'push',
       direction: 'right',
       weight: 5 
-    }
+    })
+    board.addObject(3, 4, {
+      //force: 'push',
+      color: 'green',
+      weight: 5 
+    })
     this.state = {
       round: 0,
-      cells
+      board
     }
   }
 
   step = () => {
+    this.state.board.resolveMoves()
     this.setState({
       round: this.state.round + 1,
-      cells: step(this.state.cells)
     })
   }
 
   componentDidMount = () => {
-    this.interval = setInterval(this.step, 1000)
+    this.interval = setInterval(this.step.bind(this), 100)
   }
 
   componentWillUnmount = () => clearInterval(this.interval)
@@ -84,9 +64,9 @@ class App extends Component {
     return (
       <div className="App">
         <div className="grid">
-          { this.state.cells.map((row, rowIndex) => (
-            <div className="row">
-              { row.map((cell, columnIndex) => <Cell {...cell}/>) }
+          { this.state.board.board.map((row, rowIndex) => (
+            <div className="row" key={rowIndex}>
+              { row.map((cell, columnIndex) => <Cell {...cell}  key={columnIndex}/>) }
             </div>
             )
           ) }
