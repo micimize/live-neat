@@ -37,28 +37,69 @@ export default class Board {
     this.board[row][column] = cell
     this.actors.add([row, column].join(','))
   }
-  attemptMove({ force, direction, row, column }){
+  attemptMove({ force, action, direction, row, column }){
     // attempt to move cell from given row and column
     // has force & direction if part of a reaction chain, otherwise, we'll begin a chain with force equal to weight
     if (force === undefined && direction === undefined) {
-      let { weight, direction: d } = this.board[row][column]
+      let { weight, direction: d, action: a = 'push' } = this.board[row][column]
       force = weight
       direction = moves[ d ]
+      action = a
     }
     if(direction === undefined || force === undefined){
-      return false
+      return [ false, 0 ]
     }
     let targetRow = row + direction[0] // TODO hard to understand
     let targetColumn = column + direction[1]
 
-    // we can't move outside the board
+    // we can't push or pull outside the board
     if (
       targetRow < 0 ||
       targetColumn < 0 ||
       targetRow >= this.dimensions.rows ||
       targetColumn >= this.dimensions.columns
     ) {
-      return false
+      return [ false, 0 ]
+    }
+
+    if ( action === 'pull' ) {
+      let target = this.board[targetRow][targetColumn]
+      if (!target) {
+        this.board[row][column].direction = undefined
+        this.board[targetRow][targetColumn] = this.board[row][column]
+        this.board[row][column] = undefined
+        let sig = [row, column].join(',')
+        if (this.actors.has(sig)){
+          this.actors.delete(sig)
+          this.actors.add([targetRow, targetColumn].join(','))
+        }
+        return [ true, force ]
+      }
+      let backingIntoRow = row - direction[0] // TODO hard to understand
+      let backingIntoColumn = column - direction[1]
+      if (
+        backingIntoRow < 0 ||
+        backingIntoColumn < 0 ||
+        backingIntoRow >= this.dimensions.rows ||
+        backingIntoColumn >= this.dimensions.columns
+      ) {
+        return [ false, 0 ]
+      }
+      if(force < target.weight){
+        return [ false, 0 ]
+      } else {
+        this.board[backingIntoRow][backingIntoColumn] = this.board[row][column]
+        this.board[row][column] = this.board[targetRow][targetColumn]
+        this.board[targetRow][targetColumn] = undefined
+        let targetSig = [targetRow, targetColumn].join(',')
+        if (this.actors.has(targetSig)){
+          this.actors.delete(targetSig)
+        } else {
+          this.actors.delete([row, column].join(','))
+        }
+        this.actors.add([backingIntoRow, backingIntoColumn].join(','))
+        return [ true, force ] 
+      }
     }
 
     let target = this.board[targetRow][targetColumn]
@@ -66,21 +107,23 @@ export default class Board {
 
       // if we can't move the cell we're targetting, attempt fails
       if(force < target.weight){
-        return false
+        return [ false, 0 ]
       } else {
 
         // if we can't move whatever is behind the cell we're targetting, attempt fails
-        if (!this.attemptMove({
+        let [ success, f ] = this.attemptMove({
           force: force - target.weight,
           direction,
           row: targetRow,
           column: targetColumn
-        })){
-          return false
+        })
+        if (!success){
+          return [ false, 0 ]
         }
+        force = f
       }
     }
-    //this.board[row][column].direction = undefined
+    this.board[row][column].direction = undefined
     this.board[targetRow][targetColumn] = this.board[row][column]
     this.board[row][column] = undefined
     let sig = [row, column].join(',')
@@ -88,7 +131,7 @@ export default class Board {
       this.actors.delete(sig)
       this.actors.add([targetRow, targetColumn].join(','))
     }
-    return true
+    return [ true, force ] 
   }
 
   resolveMoves() {

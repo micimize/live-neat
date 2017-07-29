@@ -31,15 +31,18 @@ class App extends Component {
 
     let board = new Board({ rows: 50, columns: 50 })
     board.addActor(3, 3, {
-      //force: 'push',
+      action: 'push',
       color: 'blue',
       direction: 'right',
       weight: 5 
     })
     board.addObject(3, 4, {
-      //force: 'push',
       color: 'green',
-      weight: 5 
+      weight: 3 
+    })
+    board.addObject(3, 5, {
+      color: 'green',
+      weight: 1 
     })
     this.state = {
       round: 0,
