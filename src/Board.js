@@ -1,27 +1,19 @@
-function shuffle(array) {
-  var currentIndex = array.length, temporaryValue, randomIndex;
-
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
-
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-
-    // And swap it with the current element.
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-
-  return array;
-}
+import { shuffle } from './utils'
 
 const moves = {
   'right': [ 0,  1],
   'left':  [ 0, -1],
   'up':    [-1,  0],
   'down':  [ 1,  0],
+}
+
+function serializePosition({ row, column }){
+  return [row, column].join(',')
+}
+
+function deserializePosition(sig){
+  let [ row, column ] = sig.split(',').map(i => parseInt(i, 10))
+  return { row, column }
 }
 
 export default class Board {
@@ -37,6 +29,37 @@ export default class Board {
     this.board[row][column] = cell
     this.actors.add([row, column].join(','))
   }
+  moveActor({ from, to }){
+    let sig = serializePosition(from)
+    if (this.actors.has(sig)){
+      this.actors.delete(sig)
+      this.actors.add(serializePosition(to))
+    }
+  }
+  setCell({ row, column }, { merge, overwrite }){
+    if(merge){
+      let cell = this.board[row][column] || {}
+      this.board[row][column] = Object.assign(cell, merge)
+    } else {
+      this.board[row][column] = overwrite
+    }
+  }
+  getCell({ row, column }){
+    return this.board[row][column]
+  }
+  move({ from, to }){
+    this.setCell(from, { merge: { direction: undefined } })
+    this.setCell(to, { overwrite: this.getCell(from) })
+    this.setCell(from, { overwrite: undefined })
+    this.moveActor({ from, to })
+    return true
+  }
+  isInBounds({ row, column }){
+    return row < 0 ||
+      column < 0 ||
+      row >= this.dimensions.rows ||
+      column >= this.dimensions.columns
+  }
   attemptMove({ force, action, direction, row, column }){
     // attempt to move cell from given row and column
     // has force & direction if part of a reaction chain, otherwise, we'll begin a chain with force equal to weight
@@ -49,61 +72,39 @@ export default class Board {
     if(direction === undefined || force === undefined){
       return [ false, 0 ]
     }
-    let targetRow = row + direction[0] // TODO hard to understand
-    let targetColumn = column + direction[1]
-
+    let target = {
+      row: row + direction[0], // TODO hard to understand
+      column: column + direction[1]
+    }
     // we can't push or pull outside the board
-    if (
-      targetRow < 0 ||
-      targetColumn < 0 ||
-      targetRow >= this.dimensions.rows ||
-      targetColumn >= this.dimensions.columns
-    ) {
+    if (!this.isInBounds(target)) {
       return [ false, 0 ]
     }
 
     if ( action === 'pull' ) {
-      let target = this.board[targetRow][targetColumn]
-      if (!target) {
-        this.board[row][column].direction = undefined
-        this.board[targetRow][targetColumn] = this.board[row][column]
-        this.board[row][column] = undefined
-        let sig = [row, column].join(',')
-        if (this.actors.has(sig)){
-          this.actors.delete(sig)
-          this.actors.add([targetRow, targetColumn].join(','))
-        }
+      let targetCell = this.getCell(target)
+      if (!targetCell) {
+        this.move({ from: { row, column } }, { to: target })
         return [ true, force ]
       }
-      let backingIntoRow = row - direction[0] // TODO hard to understand
-      let backingIntoColumn = column - direction[1]
-      if (
-        backingIntoRow < 0 ||
-        backingIntoColumn < 0 ||
-        backingIntoRow >= this.dimensions.rows ||
-        backingIntoColumn >= this.dimensions.columns
-      ) {
+      let backingInto = {
+        row: row - direction[0], // TODO hard to understand
+        column: column - direction[1]
+      }
+      if (!this.isInBounds(backingInto)) {
         return [ false, 0 ]
       }
-      if(force < target.weight){
+      if(force < targetCell.weight){
         return [ false, 0 ]
       } else {
-        this.board[backingIntoRow][backingIntoColumn] = this.board[row][column]
-        this.board[row][column] = this.board[targetRow][targetColumn]
-        this.board[targetRow][targetColumn] = undefined
-        let targetSig = [targetRow, targetColumn].join(',')
-        if (this.actors.has(targetSig)){
-          this.actors.delete(targetSig)
-        } else {
-          this.actors.delete([row, column].join(','))
-        }
-        this.actors.add([backingIntoRow, backingIntoColumn].join(','))
+        this.move({ from: { row, column } }, { to: backingInto })
+        this.move({ from: target }, { to: { row, column } })
         return [ true, force ] 
       }
     }
 
-    let target = this.board[targetRow][targetColumn]
-    if (target){
+    let targetCell = this.getCell(target)
+    if (targetCell){
 
       // if we can't move the cell we're targetting, attempt fails
       if(force < target.weight){
@@ -112,10 +113,9 @@ export default class Board {
 
         // if we can't move whatever is behind the cell we're targetting, attempt fails
         let [ success, f ] = this.attemptMove({
-          force: force - target.weight,
+          force: force - targetCell.weight,
           direction,
-          row: targetRow,
-          column: targetColumn
+          ...target
         })
         if (!success){
           return [ false, 0 ]
@@ -123,21 +123,16 @@ export default class Board {
         force = f
       }
     }
-    this.board[row][column].direction = undefined
-    this.board[targetRow][targetColumn] = this.board[row][column]
-    this.board[row][column] = undefined
-    let sig = [row, column].join(',')
-    if (this.actors.has(sig)){
-      this.actors.delete(sig)
-      this.actors.add([targetRow, targetColumn].join(','))
-    }
+    this.move({ from: { row, column } }, { to: target })
     return [ true, force ] 
   }
 
   resolveMoves() {
     shuffle(Array.from(this.actors))
-      .map(sig => sig.split(',').map(i => parseInt(i, 10)))
-      .map(([row, column]) => 
-        this.attemptMove({ row, column }))
+      .map(deserializePosition)
+      .map(position => this.attemptMove(position))
+  }
+
+  vision() {
   }
 }

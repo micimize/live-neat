@@ -2,28 +2,9 @@ import React, { Component } from 'react'
 import './App.css'
 import Board from './Board'
 
-  /*
-function choose(choices) {
-  var index = Math.floor(Math.random() * choices.length)
-  return choices[index]
-}*/
-
 function Cell({ color = 'white' }) {
   return <div className='cell' style={{ backgroundColor: color }} />
 }
-
-/*
-let food = new Map([
-  [[5, 6], { weight: 3 }]
-])
-
-cell moves
-{ up, down, left, right } | { pull, push }
-creature attrs:
-  // brain: [],
-  //vision: []
-*/
-
 
 class App extends Component {
   constructor(props: SectionProps) {
