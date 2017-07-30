@@ -7,36 +7,43 @@ const moves = {
   'down':  [ 1,  0],
 }
 
-function serializePosition({ row, column }){
+function serializePiecePosition({ row, column }: PiecePosition){
   return [row, column].join(',')
 }
 
-function deserializePosition(sig){
+function deserializePiecePosition(sig: string){
   let [ row, column ] = sig.split(',').map(i => parseInt(i, 10))
   return { row, column }
 }
 
-export default class Board {
-  constructor({ rows, columns }) {
+export default class Board implements GameBoard {
+  dimensions: { rows: number, columns: number };
+  actors: Set<string>;
+  board: any[];
+  constructor({ rows, columns }: { rows: number, columns: number }) {
     this.dimensions = { rows, columns }
-    this.board = Array(rows).fill().map(_ => Array(columns).fill()) 
+    this.board = new Array(rows)
+      .fill(undefined)
+      .map(() => new Array(columns).fill(undefined)) 
     this.actors = new Set()
   }
-  addObject(row, column, object){
-    this.board[row][column] = object
+  addObject(piece: Piece){
+    let { row, column } = piece.position
+    this.board[row][column] = piece
   }
-  addActor(row, column, cell){
-    this.board[row][column] = cell
+  addActor(creature: Creature){
+    let { row, column } = creature.position
+    this.board[row][column] = creature
     this.actors.add([row, column].join(','))
   }
-  moveActor({ from, to }){
-    let sig = serializePosition(from)
+  moveActor({ from, to }: PieceMovement){
+    let sig = serializePiecePosition(from)
     if (this.actors.has(sig)){
       this.actors.delete(sig)
-      this.actors.add(serializePosition(to))
+      this.actors.add(serializePiecePosition(to))
     }
   }
-  setCell({ row, column }, { merge, overwrite }){
+  setCell({ row, column }: PiecePosition, { merge, overwrite }: { merge?: object, overwrite?: object }){
     if(merge){
       let cell = this.board[row][column] || {}
       this.board[row][column] = Object.assign(cell, merge)
@@ -44,23 +51,23 @@ export default class Board {
       this.board[row][column] = overwrite
     }
   }
-  getCell({ row, column }){
+  getCell({ row, column }: PiecePosition){
     return this.board[row][column]
   }
-  move({ from, to }){
+  move({ from, to }: PieceMovement){
     this.setCell(from, { merge: { direction: undefined } })
     this.setCell(to, { overwrite: this.getCell(from) })
     this.setCell(from, { overwrite: undefined })
     this.moveActor({ from, to })
     return true
   }
-  isInBounds({ row, column }){
+  isInBounds({ row, column }: PiecePosition){
     return row < 0 ||
       column < 0 ||
       row >= this.dimensions.rows ||
       column >= this.dimensions.columns
   }
-  attemptMove({ force, action, direction, row, column }){
+  attemptMove({ force, action, direction, row, column }: any){
     // attempt to move cell from given row and column
     // has force & direction if part of a reaction chain, otherwise, we'll begin a chain with force equal to weight
     if (force === undefined && direction === undefined) {
@@ -84,7 +91,7 @@ export default class Board {
     if ( action === 'pull' ) {
       let targetCell = this.getCell(target)
       if (!targetCell) {
-        this.move({ from: { row, column } }, { to: target })
+        this.move({ from: { row, column }, to: target })
         return [ true, force ]
       }
       let backingInto = {
@@ -97,8 +104,8 @@ export default class Board {
       if(force < targetCell.weight){
         return [ false, 0 ]
       } else {
-        this.move({ from: { row, column } }, { to: backingInto })
-        this.move({ from: target }, { to: { row, column } })
+        this.move({ from: { row, column }, to: backingInto })
+        this.move({ from: target, to: { row, column } })
         return [ true, force ] 
       }
     }
@@ -107,7 +114,7 @@ export default class Board {
     if (targetCell){
 
       // if we can't move the cell we're targetting, attempt fails
-      if(force < target.weight){
+      if(force < targetCell.weight){
         return [ false, 0 ]
       } else {
 
@@ -123,13 +130,13 @@ export default class Board {
         force = f
       }
     }
-    this.move({ from: { row, column } }, { to: target })
+    this.move({ from: { row, column }, to: target })
     return [ true, force ] 
   }
 
   resolveMoves() {
     shuffle(Array.from(this.actors))
-      .map(deserializePosition)
+      .map(deserializePiecePosition)
       .map(position => this.attemptMove(position))
   }
 

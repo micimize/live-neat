@@ -1,4 +1,4 @@
-export function shuffle(array) {
+export function shuffle(array: Array<any>) {
   var currentIndex = array.length, temporaryValue, randomIndex;
 
   // While there remain elements to shuffle...
@@ -17,7 +17,7 @@ export function shuffle(array) {
   return array;
 }
 
-export function choose(choices) {
+export function choose(choices: Array<any>) {
   var index = Math.floor(Math.random() * choices.length)
   return choices[index]
 }
