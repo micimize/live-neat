@@ -31,7 +31,7 @@ export default class Board implements GameBoard {
     let { row, column } = piece.position
     this.board[row][column] = piece
   }
-  addActor(creature: Creature){
+  addActor(creature: CreaturePiece){
     let { row, column } = creature.position
     this.board[row][column] = creature
     this.actors.add([row, column].join(','))

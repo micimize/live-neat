@@ -18,12 +18,12 @@ interface Food extends PieceBase {
   energy: number
 }
 
-interface Creature extends Food {
+interface CreaturePiece extends Food {
   action: 'push' | 'pull' | 'bite' | null ,
   direction: 'right' | 'left' | 'up' | 'down' ,
 }
 
-type Piece = PieceBase | Food | Creature
+type Piece = PieceBase | Food | CreaturePiece
 
 interface GameBoard {
   dimensions: { rows: number, columns: number },
