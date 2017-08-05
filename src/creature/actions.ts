@@ -13,7 +13,7 @@ function relativePosition({ row, column }: Position, [ x, y ]: [ number, number 
   }
 }
 
-function pull(position: Position, { force, direction }, board){
+export function pull(position: Position, { force, direction }, board){
 
   let target = relativePosition(position, direction)
   let backingInto = relativePosition(position, direction.map(d => -d))
@@ -24,38 +24,38 @@ function pull(position: Position, { force, direction }, board){
     !this.isInBounds(backingInto) ||
     this.getCell(backingInto)
   ) {
-    return [ false, 0 ]
+    return [ false, 0, position ]
   }
 
   let targetCell = this.getCell(target)
 
   if (!targetCell) {
     board.move({ from: position, to: target })
-    return [ true, force ]
+    return [ true, force, to ]
   }
 
   if(force < targetCell.weight){
-    return [ false, 0 ]
+    return [ false, 0, position ]
   } else {
     this.move({ from: position, to: backingInto })
     this.move({ from: target, to: position })
-    return [ true, force - targetCell.weight ] 
+    return [ true, force - targetCell.weight, backingInto ] 
   }
 }
 
-function push(position: Position, { force, direction }, board){
+export function push(position: Position, { force, direction }, board){
   let target = relativePosition(position, direction)
 
   // we can't push outside the board
   if (!board.isInBounds(target) ||) {
-    return [ false, 0 ]
+    return [ false, 0, position ]
   }
 
   let targetCell = this.getCell(target)
 
   if (!targetCell) {
     board.move({ from: position, to: target })
-    return [ true, force ]
+    return [ true, force, target ]
   }
 
   // if we can't move the cell we're targetting, attempt fails
@@ -78,34 +78,37 @@ function push(position: Position, { force, direction }, board){
   }
 
   this.move({ from: position, to: target })
-  return [ true, force ] 
+  return [ true, force, target ] 
 }
 
-function bite(position: Position, { force = 1, direction }, board){
+export function bite(position: Position, { force, direction }, board){
   // biting inorganic things hurts
   let target = relativePosition(position, direction)
 
   // we can't push outside the board
   if (!board.isInBounds(target) ||) {
-    return [ false, -5 ]
+    return [ false, -force, position ]
   }
 
   let targetCell = this.getCell(target)
+  let actor = this.getCell(position)
 
   if (!targetCell) {
-    return [ false, 0 ]
+    return [ false, force - 1, position ]
   }
-  if (!targetCell.energy) {
-    return [ false, -5 ]
+  if (!targetCell.energy || actor.color == target.color) {
+    return [ false, -force, position ]
   }
 
   let drainedEnergy = Math.floor(targetCell.energy / weight)
-  this.getCell(position).energy = targetCell.energy === drainedEnergy ?
+  let gainedEnergy = targetCell.energy === drainedEnergy ?
     drainedEnergy :
     Math.floor(drainedEnergy / 4)
-  targetCell.weight -= force
-  targetCell.energy -= drainedEnergy
-  return [ true, 0 ]
+  board.setCell(target, { merge: {
+    weight: weight - force
+    energy: energy - drainedEnergy
+  }})
+  return [ true, gainedEnergy, position ]
 
 }
 
