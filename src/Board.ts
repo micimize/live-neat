@@ -117,6 +117,9 @@ export default class Board implements GameBoard {
         age
       }})
       if(energy <= 0){
+        this.setCell(newPosition, { merge: {
+          color: 'grey',
+        }})
         this.killActor(newPosition)
       }
     }

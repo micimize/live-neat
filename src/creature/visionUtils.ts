@@ -1,5 +1,5 @@
 export function flattenRGBs(cells: any){
-  return cells.reduce((rgbs: any, { color = [ 0, 0, 0 ] }) =>
+  return cells.reduce((rgbs: any, { color = [ 0, 0, 0 ] } = {}) =>
     [...rgbs, ...color ], [])
 }
 
@@ -20,8 +20,8 @@ export function getSurroundings({ board, position: { row, column }, range }: any
       } else {
         cells.push({ color: [ null, null, null ] })
       }
-      current.row--
-      current.column--
+      current.row++
+      current.column++
     }
   }
   return cells

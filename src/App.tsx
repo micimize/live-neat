@@ -20,8 +20,7 @@ interface SectionState {
 class App extends React.Component<SectionProps, SectionState> {
   constructor(props: SectionProps) {
     super(props)
-
-    let board = generationBoard(genes())
+    let board = generationBoard(genes().filter((_, i: number = 100) => i < 10))
     this.state = {
       round: 0,
       board
@@ -29,6 +28,7 @@ class App extends React.Component<SectionProps, SectionState> {
   }
 
   step = () => {
+    debugger;
     this.state.board.turn()
     this.setState({
       round: this.state.round + 1,

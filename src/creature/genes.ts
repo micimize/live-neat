@@ -1,7 +1,7 @@
 import * as N from '../ml/neat.js'
 import { INPUT_VECTOR_SIZE, OUTPUT_VECTOR_SIZE } from './network'
 
-export default function genes(){
+export default function genes(): any[] {
   N.init({
     nInput: INPUT_VECTOR_SIZE,
     nOutput: OUTPUT_VECTOR_SIZE,
@@ -22,6 +22,6 @@ export default function genes(){
     extinction_rate : 0.5, // probably that the worst performing sub population goes extinct at each evolution cycle
   }); // the initial population of genomes is randomly created after N.NEATTrainer constructor is called.
 
-  return trainer.genes
+  return trainer.genes || []
 }
 
