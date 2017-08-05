@@ -17,9 +17,17 @@ function deserializePiecePosition(sig: string){
   return { row, column }
 }
 
+function randomPosition({ rows, columns }: { rows: number, columns: number }) {
+  return {
+    row: Math.floor(Math.random() * rows),
+    column: Math.floor(Math.random() * columns),
+  }
+}
+
 export default class Board implements GameBoard {
   dimensions: { rows: number, columns: number };
   actors: Set<string>;
+  deadActors: Set<string>;
   board: any[];
   constructor({ rows, columns }: { rows: number, columns: number }) {
     this.dimensions = { rows, columns }
@@ -44,6 +52,23 @@ export default class Board implements GameBoard {
       this.actors.add(serializePiecePosition(to))
     }
   }
+  killActor(position: Position){
+    let sig = serializePiecePosition(position)
+    if (this.actors.has(sig)){
+      this.actors.delete(sig)
+      this.deadActors.add(sig)
+    }
+  }
+  retrieveAllDeadActors(){
+    return Array.from(this.deadActors)
+      .map(deserializePiecePosition)
+      .map(position => this.getCell(position))
+  }
+  retrieveAllLivingActors(){
+    return Array.from(this.actors)
+      .map(deserializePiecePosition)
+      .map(position => this.getCell(position))
+  }
   setCell({ row, column }: PiecePosition, { merge, overwrite }: { merge?: object, overwrite?: object }){
     if(merge){
       let cell = this.board[row][column] || {}
@@ -54,6 +79,13 @@ export default class Board implements GameBoard {
   }
   getCell({ row, column }: PiecePosition){
     return this.board[row][column]
+  }
+  randomEmptyPosition(){
+    let position = randomPosition(this.dimensions)
+    while (this.getCell(position)){
+      position = randomPosition(this.dimensions)
+    }
+    return position
   }
   move({ from, to }: PieceMovement){
     this.setCell(from, { merge: { direction: undefined } })
@@ -75,18 +107,41 @@ export default class Board implements GameBoard {
     if(direction && action){
       direction = moves[direction]
       let [ _, remainingForce, newPosition ] = actions[action](position, { force, direction }, this)
+      let { energy, age } = this.getCell(newPosition)
+      age += 1
+      energy += (-force + remainingForce - Math.floor((age / 50) ** 2))
+      energy = energy < 0 ? 0 : energy
       board.setCell(newPosition, { merge: {
-        energy: this.getCell(newPosition).energy - force + remainingForce
+        direction: undefined,
+        action: undefined,
+        energy,
+        age
       }})
+      if(energy <= 0){
+        this.killActor(newPosition)
+      }
     }
   }
 
-  resolveMoves() {
-    shuffle(Array.from(this.actors))
+  resolveMoves(){
+    let actorPositions = shuffle(Array.from(this.actors))
       .map(deserializePiecePosition)
-      .map(position => this.attemptMove(position))
+    actorPositions.map(position =>
+      this.getCell(position).planMove(this.board))
+    actorPositions.map(position => this.attemptMove(position))
   }
 
-  vision() {
+  getState(){
+    return {
+      board: this.board,
+      living: this.retrieveAllLivingActors(),
+      dead: this.retrieveAllDeadActors()
+    }
   }
+
+  turn(){
+    this.resolveMoves()
+    return this.getState()
+  }
+
 }

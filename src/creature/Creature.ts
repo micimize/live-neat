@@ -16,9 +16,9 @@ export default class Creature implements CreaturePiece {
   age = 0;
   energy = 100;
 
-  constructor({ color, genome }: { color: [ number, number, number ] }) {
+  constructor({ /*color,*/ genome }: { /*color: [ number, number, number ],*/ genome: any }) {
     this.genome = genome
-    this.color = color
+    //this.color = color
     this.think = brain(genome) 
   }
 

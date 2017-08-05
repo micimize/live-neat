@@ -1,6 +1,7 @@
 import * as React from 'react';
 import './App.css'
-import Board from './Board'
+import generationBoard from './game'
+import genes from './creature/genes'
 
 function Cell({ color = 'white' }) {
   return <div className='cell' style={{ backgroundColor: color }} />
@@ -20,27 +21,7 @@ class App extends React.Component<SectionProps, SectionState> {
   constructor(props: SectionProps) {
     super(props)
 
-    let board = new Board({ rows: 50, columns: 50 })
-    board.addActor({
-      position: { row: 3, column: 3 },
-      action: 'push',
-      color: 'blue',
-      direction: 'right',
-      weight: 5, 
-      energy: 5 
-    })
-    board.addObject({
-      position: { row: 3, column: 3 },
-      color: 'green',
-      weight: 3,
-      energy: 3 
-    })
-    board.addObject({
-      position: { row: 3, column: 5 },
-      color: 'green',
-      weight: 1,
-      energy: 5 
-    })
+    let board = generationBoard(genes())
     this.state = {
       round: 0,
       board
@@ -48,7 +29,7 @@ class App extends React.Component<SectionProps, SectionState> {
   }
 
   step = () => {
-    this.state.board.resolveMoves()
+    this.state.board.turn()
     this.setState({
       round: this.state.round + 1,
     })

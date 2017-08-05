@@ -10,6 +10,7 @@ var trainer; // NEAT trainer object to be initalised later from initModel()
 var genome; // keep one genome around for good use.
 var solver = new R.Solver(); // the Solver uses RMSProp
 
+/*
 function genomeToNetwork(genome) {
   genome.setupModel(size); // setup the model so recurrent.js can use it. Size is the input vector size
   var G = new R.Graph(false); // setup the recurrent.js graph. if no backprop, faster.
@@ -18,6 +19,7 @@ function genomeToNetwork(genome) {
   var output = genome.getOutput(); // get the output from the network
   output[0] = G.sigmoid(output[0]); // in addition, take the sigmoid of the output, so output is in [0, 1]
 }
+*/
 
 function fitnessFunc(genomes, backpropMode = false, _nCycles = 1) {
   /*

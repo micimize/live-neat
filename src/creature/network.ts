@@ -8,6 +8,7 @@ function networkDecoder(options: object){
     return layer.decode(oneHot).reduce((total, action, i) =>
       Object.assign(total, {[actionClasses[i]]: action }), {})
   }
+  decodeDecision.outputSize = layer.outputSize
   return decodeDecision
 }
 
@@ -17,8 +18,12 @@ const decode = networkDecoder({
   direction: [ 'right', 'left', 'up', 'down' ]
 })
 
+
+export const INPUT_VECTOR_SIZE = (3 + (5 * 5 * 3))
+export const OUTPUT_VECTOR_SIZE = decode.outputSize
+
 export default function brain(genome){
-  genome.setupModel(3 + (5 * 5 * 3))
+  genome.setupModel(INPUT_VECTOR_SIZE)
   let G = new R.Graph(false);           // setup the recurrent.js graph without backprop
   function think(gameState: number[]) { // gameState is a flattened 5x5x3 array of color values
     genome.setInput(data)               // put the input data into the network
