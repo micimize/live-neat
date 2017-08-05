@@ -1,13 +1,14 @@
 import * as R from '../ml/recurrent.js'
 import { oneHotLayer } from '../ml/utils'
 
+interface Decoder { (oneHot: number[]): any; outputSize?: number; }
+
 function networkDecoder(options: object){
   let actionClasses = Object.keys(options)
   let layer = oneHotLayer(...actionClasses.map(c => options[c]))
-  function decodeDecision(oneHot: number[]){
-    return layer.decode(oneHot).reduce((total, action, i) =>
+  const decodeDecision: Decoder = (oneHot: number[]) => layer.decode(oneHot)
+    .reduce((total, action, i) =>
       Object.assign(total, {[actionClasses[i]]: action }), {})
-  }
   decodeDecision.outputSize = layer.outputSize
   return decodeDecision
 }
@@ -26,9 +27,9 @@ export default function brain(genome){
   genome.setupModel(INPUT_VECTOR_SIZE)
   let G = new R.Graph(false);           // setup the recurrent.js graph without backprop
   function think(gameState: number[]) { // gameState is a flattened 5x5x3 array of color values
-    genome.setInput(data)               // put the input data into the network
+    genome.setInput(gameState)          // put the input data into the network
     genome.forward(G)                   // propagates the network forward.
-    return decode(genome.getOutput())  // get the output from the network
+    return decode(genome.getOutput())   // get the output from the network
   }
   return think
 }

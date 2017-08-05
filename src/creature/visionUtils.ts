@@ -15,7 +15,11 @@ export function getSurroundings({ board, position: { row, column }, range }: any
   }
   while(current.row <= max.row){
     while(current.column <= max.column){
-      cells.push(board.getCell(current))
+      if(board.isInBounds(current)){
+        cells.push(board.getCell(current))
+      } else {
+        cells.push({ color: [ null, null, null ] })
+      }
       current.row--
       current.column--
     }

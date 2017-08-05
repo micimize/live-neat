@@ -9,12 +9,13 @@ import { flattenRGBs, getSurroundings } from './visionUtils'
 export default class Creature implements CreaturePiece {
 
   action: 'push' | 'pull' | 'bite' | null = null;
+  genome: any = null;
   direction: 'right' | 'left' | 'up' | 'down' = 'down';
-  position = { row: 0, column: 0 };
   color = 'blue';
   weight = 5;
   age = 0;
   energy = 100;
+  think = _ => _;
 
   constructor({ /*color,*/ genome }: { /*color: [ number, number, number ],*/ genome: any }) {
     this.genome = genome
@@ -22,15 +23,14 @@ export default class Creature implements CreaturePiece {
     this.think = brain(genome) 
   }
 
-  vision(board){
-    let position = this.position
+  vision(board, position: PiecePosition){
     return getSurroundings({ board, position, range: 2 })
   }
   thinkAbout(vision: any[]){
     return this.think([ this.age, this.weight, this.energy, ...flattenRGBs(vision) ])
   }
-  planMove(board){
-    let { direction, action } = this.thinkAbout(this.vision(board))
+  planMove(board, position: PiecePosition){
+    let { direction, action } = this.thinkAbout(this.vision(board, position))
     this.direction = direction
     this.action = action
   }

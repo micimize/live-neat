@@ -14,7 +14,8 @@ for the JavaScript code in this page.
 */
 
 import * as R from './recurrent.js'
-import kmediods from './kmedoids.js' 
+import * as kmedoids from './kmedoids.js' 
+
 // constants
 var NODE_INPUT = 0;
 var NODE_OUTPUT = 1;

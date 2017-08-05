@@ -4,8 +4,6 @@ import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import './index.css';
 
-import * as neat from './ml/reference/neat.js';
-
 ReactDOM.render(
   <App />,
   document.getElementById('root') as HTMLElement

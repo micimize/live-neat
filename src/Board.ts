@@ -36,12 +36,10 @@ export default class Board implements GameBoard {
       .map(() => new Array(columns).fill(undefined)) 
     this.actors = new Set()
   }
-  addObject(piece: Piece){
-    let { row, column } = piece.position
+  addObject({ row, column }: PiecePosition, piece: Piece){
     this.board[row][column] = piece
   }
-  addActor(creature: CreaturePiece){
-    let { row, column } = creature.position
+  addActor({ row, column }: PiecePosition,creature: CreaturePiece){
     this.board[row][column] = creature
     this.actors.add([row, column].join(','))
   }
@@ -51,8 +49,7 @@ export default class Board implements GameBoard {
       this.actors.delete(sig)
       this.actors.add(serializePiecePosition(to))
     }
-  }
-  killActor(position: Position){
+  } killActor(position: PiecePosition){
     let sig = serializePiecePosition(position)
     if (this.actors.has(sig)){
       this.actors.delete(sig)
@@ -95,12 +92,14 @@ export default class Board implements GameBoard {
     return true
   }
   isInBounds({ row, column }: PiecePosition){
-    return row < 0 ||
+    return !(
+      row < 0 ||
       column < 0 ||
       row >= this.dimensions.rows ||
       column >= this.dimensions.columns
+    )
   }
-  attemptMove(position: Position){
+  attemptMove(position: PiecePosition){
     // attempt to move cell from given row and column
     // has force & direction if part of a reaction chain, otherwise, we'll begin a chain with force equal to weight
     let { weight: force, direction, action } = this.getCell(position)
@@ -111,7 +110,7 @@ export default class Board implements GameBoard {
       age += 1
       energy += (-force + remainingForce - Math.floor((age / 50) ** 2))
       energy = energy < 0 ? 0 : energy
-      board.setCell(newPosition, { merge: {
+      this.setCell(newPosition, { merge: {
         direction: undefined,
         action: undefined,
         energy,
@@ -127,7 +126,7 @@ export default class Board implements GameBoard {
     let actorPositions = shuffle(Array.from(this.actors))
       .map(deserializePiecePosition)
     actorPositions.map(position =>
-      this.getCell(position).planMove(this.board))
+      this.getCell(position).planMove(this, position))
     actorPositions.map(position => this.attemptMove(position))
   }
 

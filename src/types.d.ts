@@ -9,7 +9,6 @@ interface PieceMovement {
 }
 
 interface PieceBase {
-  position: PiecePosition,
   color: string,
   weight: number
 }
@@ -22,6 +21,7 @@ interface Food extends PieceBase {
 interface CreaturePiece extends Food {
   action?: 'push' | 'pull' | 'bite' | null ,
   direction?: 'right' | 'left' | 'up' | 'down' ,
+  genome: any,
 }
 
 type Piece = PieceBase | Food | CreaturePiece
