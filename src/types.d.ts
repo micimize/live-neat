@@ -15,12 +15,13 @@ interface PieceBase {
 }
 
 interface Food extends PieceBase {
-  energy: number
+  energy: number,
+  age: number
 }
 
 interface CreaturePiece extends Food {
-  action: 'push' | 'pull' | 'bite' | null ,
-  direction: 'right' | 'left' | 'up' | 'down' ,
+  action?: 'push' | 'pull' | 'bite' | null ,
+  direction?: 'right' | 'left' | 'up' | 'down' ,
 }
 
 type Piece = PieceBase | Food | CreaturePiece

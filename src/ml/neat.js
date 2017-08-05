@@ -14,12 +14,12 @@ for the JavaScript code in this page.
 */
 
 import * as R from './recurrent.js'
-import kmediods from './kmedoids.js'
-
+import kmediods from './kmedoids.js' 
 // constants
 var NODE_INPUT = 0;
 var NODE_OUTPUT = 1;
 var NODE_BIAS = 2;
+
 // hidden layers
 var NODE_SIGMOID = 3;
 var NODE_TANH = 4;
@@ -1085,18 +1085,16 @@ NEATTrainer.prototype = {
     g.mutateWeights(this.mutation_rate, this.mutation_size);
   },
   applyFitnessFuncToList: function(f, geneList) {
-    var i, n;
-    var g;
-    for (i=0,n=geneList.length;i<n;i++) {
-      g = geneList[i];
-      g.fitness = f(g);
-    }
+    // modified to allow for bulk fitness functions
+    f(geneList).map((fitness, i) =>
+      geneList.fitness = fitness)
+    return geneList
   },
   getAllGenes: function() {
     // returns the list of all the genes plus hall(s) of fame
     return this.genes.concat(this.hallOfFame).concat(this.bestOfSubPopulation);
   },
-  applyFitnessFunc: function(f, _clusterMode) {
+  applyFitnessFunc: function(f, clusterMode = true) {
     // applies fitness function f on everyone including hall of famers
     // in the future, have the option to avoid hall of famers
     var i, n;
@@ -1104,14 +1102,11 @@ NEATTrainer.prototype = {
     var g;
     var K = this.num_populations;
 
-    var clusterMode = true; // by default, we would cluster stuff (takes time)
-    if (typeof _clusterMode !== 'undefined') {
-      clusterMode = _clusterMode;
-    }
+    this.genes = this.applyFitnessFuncToList(f, this.genes);
 
-    this.applyFitnessFuncToList(f, this.genes);
-    this.applyFitnessFuncToList(f, this.hallOfFame);
-    this.applyFitnessFuncToList(f, this.bestOfSubPopulation);
+    let offlineFitnessFunc = f.offline || f
+    this.hallOfFame = this.applyFitnessFuncToList(offlineFitnessFunc, this.hallOfFame);
+    this.bestOfSubPopulation = this.applyFitnessFuncToList(offlineFitnessFunc, this.bestOfSubPopulation);
 
     this.filterFitness();
     this.genes = this.genes.concat(this.hallOfFame);
@@ -1281,7 +1276,7 @@ NEATTrainer.prototype = {
       }
     }
   },
-  evolve: function(_mutateWeightsOnly) {
+  evolve: function(mutateWeightsOnly = false) {
     // this is where the magic happens!
     //
     // performs one step evolution of the entire population
@@ -1304,11 +1299,6 @@ NEATTrainer.prototype = {
     var bestFitness = -1e20;
     var bestCluster = -1;
 
-    var mutateWeightsOnly = false;
-
-    if (typeof _mutateWeightsOnly !== 'undefined') {
-      mutateWeightsOnly = _mutateWeightsOnly;
-    }
 
     K = this.num_populations;
     N = this.sub_population_size;
@@ -1321,7 +1311,7 @@ NEATTrainer.prototype = {
     var cluster = new Array(K);
 
     // put everything into new gene clusters
-    for (i=0;i<K;i++) {
+    for ( i = 0; i < K ; i++ ) {
       m = clusterIndices[i].length;
       cluster[i] = new Array(m);
       for (j=0;j<m;j++) {

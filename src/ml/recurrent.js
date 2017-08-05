@@ -240,8 +240,7 @@ var fillRandn = function(m, mu, std) { for(var i=0,n=m.w.length;i<n;i++) { m.w[i
 var fillRand = function(m, lo, hi) { for(var i=0,n=m.w.length;i<n;i++) { m.w[i] = randf(lo, hi); } };
 
 // Transformer definitions
-var Graph = function(needs_backprop) {
-  if(typeof needs_backprop === 'undefined') { needs_backprop = true; }
+var Graph = function(needs_backprop = true) {
   this.needs_backprop = needs_backprop;
 
   // this will store a list of functions that perform backprop,
