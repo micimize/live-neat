@@ -3,8 +3,8 @@ import './App.css'
 import generationBoard from './game'
 import genes from './creature/genes'
 
-function Cell({ color = 'white' }) {
-  return <div className='cell' style={{ backgroundColor: color }} />
+function Cell({ color = [ 255, 255, 255 ] }: { color: [ number, number, number ] }) {
+  return <div className='cell' style={{ backgroundColor: `rgb(${color.join(', ')})` }} />
 }
 
 
@@ -28,7 +28,6 @@ class App extends React.Component<SectionProps, SectionState> {
   }
 
   step = () => {
-    debugger;
     this.state.board.turn()
     this.setState({
       round: this.state.round + 1,

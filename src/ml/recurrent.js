@@ -93,7 +93,17 @@ var Mat = function(n,d) {
   this.d = d;
   this.w = zeros(n * d);
   this.dw = zeros(n * d);
-};
+  this.setFromArray = a => {
+    var i, j;
+    assert(this.n === a.length && this.d === a[0].length);
+    for (i=0;i<this.n;i++) {
+      for (j=0;j<this.d;j++) {
+        this.set(i, j, a[i][j]);
+      }
+    }
+  }
+}
+
 Mat.prototype = {
   get: function(row, col) {
     // slow but careful accessor function

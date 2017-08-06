@@ -11,10 +11,10 @@ export default class Creature implements CreaturePiece {
   action: 'push' | 'pull' | 'bite' | null = null;
   genome: any = null;
   direction: 'right' | 'left' | 'up' | 'down' = 'down';
-  color = 'blue';
+  color: [ number, number, number ] = [ 0, 0, 255 ];
   weight = 5;
   age = 0;
-  energy = 100;
+  energy = 1000;
   think = _ => _;
 
   constructor({ /*color,*/ genome }: { /*color: [ number, number, number ],*/ genome: any }) {

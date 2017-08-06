@@ -35,6 +35,7 @@ export default class Board implements GameBoard {
       .fill(undefined)
       .map(() => new Array(columns).fill(undefined)) 
     this.actors = new Set()
+    this.deadActors = new Set()
   }
   addObject({ row, column }: PiecePosition, piece: Piece){
     this.board[row][column] = piece

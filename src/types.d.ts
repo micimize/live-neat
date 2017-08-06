@@ -9,7 +9,7 @@ interface PieceMovement {
 }
 
 interface PieceBase {
-  color: string,
+  color: [ number, number, number ],
   weight: number
 }
 
