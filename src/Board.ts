@@ -38,6 +38,7 @@ export default class Board implements GameBoard {
     this.deadActors = new Set()
   }
   addObject({ row, column }: PiecePosition, piece: Piece){
+    piece.position = { row, column }
     this.board[row][column] = piece
   }
   addActor({ row, column }: PiecePosition, creature: CreaturePiece){
@@ -108,7 +109,6 @@ export default class Board implements GameBoard {
   attemptMove({ weight: force, direction, action, position }: CreaturePiece){
     // attempt to move cell from given row and column
     // has force & direction if part of a reaction chain, otherwise, we'll begin a chain with force equal to weight
-    
     let [ _, remainingForce, newPosition ] = (direction && action) ?
       actions[action](position, { force, direction: moves[direction] }, this) :
       [ true, force, position ]
@@ -120,15 +120,18 @@ export default class Board implements GameBoard {
       direction: undefined,
       action: undefined,
       energy,
+      color: [ 0, 0, 155 + Math.floor(energy / 10)],
       age
     }})
-    if(energy <= 0){
-      this.setCell(newPosition, { merge: {
-        color: [ 255, 0, 0 ],
-      }})
-      this.killActor(newPosition)
-    }
   }
+
+  checkForDeath(creature: CreaturePiece){
+    if(creature.energy <= 0){
+      creature.color = [ 0, 0, 100 ]
+      creature.genome.fitness = -(creature.age ** 2)
+      this.killActor(creature.position)
+    }
+  } 
 
   resolveMoves(){
     let actors = shuffle(Array.from(this.actors))
@@ -136,6 +139,7 @@ export default class Board implements GameBoard {
       .map(position => this.getCell(position))
     actors.forEach(a => a.planMove(this))
     actors.forEach(a => this.attemptMove(a))
+    actors.forEach(a => this.checkForDeath(a))
   }
 
   getState(){

@@ -1087,8 +1087,10 @@ NEATTrainer.prototype = {
   },
   applyFitnessFuncToList: function(f, geneList) {
     // modified to allow for bulk fitness functions
-    f(geneList).map((fitness, i) =>
-      geneList.fitness = fitness)
+    if(f){
+      f(geneList).map((fitness, i) =>
+        geneList[i].fitness = fitness)
+    }
     return geneList
   },
   getAllGenes: function() {
@@ -1105,7 +1107,7 @@ NEATTrainer.prototype = {
 
     this.genes = this.applyFitnessFuncToList(f, this.genes);
 
-    let offlineFitnessFunc = f.offline || f
+    let offlineFitnessFunc = f && f.offline ? f.offline : f
     this.hallOfFame = this.applyFitnessFuncToList(offlineFitnessFunc, this.hallOfFame);
     this.bestOfSubPopulation = this.applyFitnessFuncToList(offlineFitnessFunc, this.bestOfSubPopulation);
 
@@ -1304,7 +1306,7 @@ NEATTrainer.prototype = {
     K = this.num_populations;
     N = this.sub_population_size;
 
-    // increase the generaiton:
+    // increase the generation:
     incrementGenerationCounter();
 
     var clusterIndices = kmedoids.getCluster();

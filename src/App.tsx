@@ -1,10 +1,15 @@
 import * as React from 'react';
 import './App.css'
 import generationBoard from './game'
-import genes from './creature/genes'
+import trainer from './creature/genes'
 
-function Cell({ color = [ 255, 255, 255 ] }: { color: [ number, number, number ] }) {
-  return <div className='cell' style={{ backgroundColor: `rgb(${color.join(', ')})` }} />
+function Cell({ color = [ 255, 255, 255 ], size }: { color: [ number, number, number ], size: string }) {
+  let style = {
+    backgroundColor: `rgb(${color.join(', ')})`,
+    width: size,
+    height: size,
+  }
+  return <div className='cell' style={style} />
 }
 
 
@@ -14,42 +19,71 @@ interface SectionProps {
 interface SectionState {
     round: number,
     board: any,
-    interval?: any
+    species: any,
+    interval?: any,
+    stepInterval?: number
 }
 
 class App extends React.Component<SectionProps, SectionState> {
   constructor(props: SectionProps) {
     super(props)
-    let board = generationBoard(genes().filter((_, i: number = 100) => i < 10))
+    let species = trainer()
+    let board = generationBoard(species.genes)
     this.state = {
       round: 0,
-      board
+      board,
+      species,
+      stepInterval: 10
     }
   }
 
   step = () => {
-    this.state.board.turn()
-    this.setState({
-      round: this.state.round + 1,
-    })
+    let { living, dead } = this.state.board.turn()
+    let round = this.state.round + 1
+    if(!living.length){
+      let species = this.state.species
+      species.applyFitnessFunc() // fitness decided in game, already set by *shudders* reference
+      species.evolve()
+      let board = generationBoard(species.genes)
+      this.setState({ round, board, species })
+    } else {
+      this.setState({ round })
+    }
   }
 
   componentDidMount() {
-    this.setState({ interval: setInterval(this.step.bind(this), 100) })
+    this.setState({ interval: setInterval(this.step.bind(this), this.state.stepInterval) })
+  }
+
+  setInterval = () => {
+    clearInterval(this.state.interval)
+    this.setState({ interval: setInterval(this.step.bind(this), this.state.stepInterval) })
   }
 
   componentWillUnmount(){ clearInterval(this.state.interval) }
 
   render() {
+    let size = `${(1 / this.state.board.board[0].length) * 50}vw`
     return (
       <div className="App">
         <div className="grid">
           { this.state.board.board.map((row: Array<any>, rowIndex: number) => (
-            <div className="row" key={rowIndex}>
-              { row.map((cell: any, columnIndex: number) => <Cell {...cell}  key={columnIndex}/>) }
+            <div className="row" style={{ height: size }} key={rowIndex}>
+              { row.map((cell: any, columnIndex: number) => <Cell {...cell} size={size} key={columnIndex}/>) }
             </div>
             )
           ) }
+        </div>
+        <div>
+          <br/>
+          <input type='number' value={this.state.stepInterval}
+            onChange={e => this.setState({ stepInterval: Number(e.target.value) || 50 })} />
+          <button onClick={this.setInterval}>Set Interval</button>
+          <p>
+            Generation: {this.state.species.getNumGeneration()}
+            <br/>
+            Connections: ~{this.state.species.genes[0].connections.length}
+          </p>
         </div>
       </div>
     );

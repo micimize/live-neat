@@ -33,7 +33,7 @@ export function pull(position: PiecePosition, { force, direction }, board): Acti
 
   if (!targetCell) {
     board.move({ from: position, to: target })
-    return [ true, force, target ]
+    return [ true, force - 1, target ]
   }
 
   if(force < targetCell.weight){
@@ -57,7 +57,7 @@ export function push(position: PiecePosition, { force, direction }, board): Acti
 
   if (!targetCell) {
     board.move({ from: position, to: target })
-    return [ true, force, target ]
+    return [ true, force - 1, target ]
   }
 
   // if we can't move the cell we're targetting, attempt fails
@@ -87,30 +87,49 @@ export function bite(position: PiecePosition, { force, direction }, board): Acti
   // biting inorganic things hurts
   let target = relativePosition(position, direction)
 
-  // we can't push outside the board
+  // biting produces less force
+  let biteStrength = Math.ceil(force / 5)
+
+  // biting the outside hurts
   if (!board.isInBounds(target)) {
-    return [ false, -force, position ]
+    return [ false, -biteStrength, position ]
   }
 
   let targetCell = board.getCell(target)
   let actor = board.getCell(position)
 
   if (!targetCell) {
-    return [ false, force - 1, position ]
+    return [ false, force - biteStrength, position ]
   }
-  if (!targetCell.energy || actor.color == targetCell.color) {
-    return [ false, -force, position ]
+  // biting dead stuff hurts
+  if (!targetCell.energy){// || actor.color == targetCell.color) {
+    return [ false, -biteStrength, position ]
   }
 
   let drainedEnergy = Math.floor(targetCell.energy / targetCell.weight)
   let gainedEnergy = targetCell.energy === drainedEnergy ?
     drainedEnergy :
     Math.floor(drainedEnergy / 4)
+
+  let weight = targetCell.weight - force
+
   board.setCell(target, { merge: {
-    weight: targetCell.weight - force,
-    energy: targetCell.energy - drainedEnergy
+    weight: weight < 1 ? 1 : weight,
+    energy: weight < 1 ? 0 : targetCell.energy - drainedEnergy,
   }})
+  bitPlant(targetCell)
+
   return [ true, gainedEnergy, position ]
 
 }
+
+function bitPlant(targetCell){
+  let [ r, g, b ] = targetCell.color
+  if(g){
+    targetCell.color = targetCell.energy ?
+      [ 0, 155 + Math.floor(targetCell.energy / 10), 0] :
+      [ 0, 100, 0 ]
+  }
+}
+
 
