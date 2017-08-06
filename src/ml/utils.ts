@@ -12,12 +12,27 @@ function LazyCartesianProduct(this: any, sets: any){
   };
 }
 
-export function oneHotLayer(...actionLists: any[]){
+function indexOfMax(arr: number[]) {
+  if (arr.length === 0) {
+    return -1;
+  }
+  var max = arr[0]
+  var maxIndex = 0
+  for (var i = 1; i < arr.length; i++) {
+    if (arr[i] > max) {
+      maxIndex = i;
+      max = arr[i];
+    }
+  }
+  return maxIndex;
+}
+
+export function maxLayer(...actionLists: any[]){
   let product = new LazyCartesianProduct(actionLists)
   return {
     outputSize: product.length,
-    decode(oneHot: number[]){
-      return product.item(oneHot.indexOf(1))
+    decode(vector: any[]){
+      return product.item(indexOfMax(vector.map(v => v.get(0, 0))))
     }
   }
 }

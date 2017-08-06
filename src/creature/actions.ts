@@ -1,4 +1,6 @@
 
+type ActionResult = [ boolean , number, PiecePosition ]
+
 const moves = {
   'right': [ 0,  1],
   'left':  [ 0, -1],
@@ -13,7 +15,7 @@ function relativePosition({ row, column }: PiecePosition, [ x, y ]: [ number, nu
   }
 }
 
-export function pull(position: PiecePosition, { force, direction }, board){
+export function pull(position: PiecePosition, { force, direction }, board): ActionResult{
 
   let target = relativePosition(position, direction)
   let backingInto = relativePosition(position, direction.map(d => -d))
@@ -43,7 +45,7 @@ export function pull(position: PiecePosition, { force, direction }, board){
   }
 }
 
-export function push(position: PiecePosition, { force, direction }, board){
+export function push(position: PiecePosition, { force, direction }, board): ActionResult{
   let target = relativePosition(position, direction)
 
   // we can't push outside the board
@@ -60,7 +62,7 @@ export function push(position: PiecePosition, { force, direction }, board){
 
   // if we can't move the cell we're targetting, attempt fails
   if(force < targetCell.weight){
-    return [ false, 0 ]
+    return [ false, 0, position ]
   } else {
     // if we can't move whatever is behind the cell we're targetting, attempt fails
     let [ success, f ] = push(
@@ -72,7 +74,7 @@ export function push(position: PiecePosition, { force, direction }, board){
       board
     )
     if (!success){
-      return [ false, 0 ]
+      return [ false, 0, position ]
     }
     force = f
   }
@@ -81,7 +83,7 @@ export function push(position: PiecePosition, { force, direction }, board){
   return [ true, force, target ] 
 }
 
-export function bite(position: PiecePosition, { force, direction }, board){
+export function bite(position: PiecePosition, { force, direction }, board): ActionResult{
   // biting inorganic things hurts
   let target = relativePosition(position, direction)
 

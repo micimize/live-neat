@@ -9,6 +9,7 @@ interface PieceMovement {
 }
 
 interface PieceBase {
+  position: PiecePosition,
   color: [ number, number, number ],
   weight: number
 }

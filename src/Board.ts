@@ -40,7 +40,8 @@ export default class Board implements GameBoard {
   addObject({ row, column }: PiecePosition, piece: Piece){
     this.board[row][column] = piece
   }
-  addActor({ row, column }: PiecePosition,creature: CreaturePiece){
+  addActor({ row, column }: PiecePosition, creature: CreaturePiece){
+    creature.position = { row, column }
     this.board[row][column] = creature
     this.actors.add([row, column].join(','))
   }
@@ -86,9 +87,13 @@ export default class Board implements GameBoard {
     return position
   }
   move({ from, to }: PieceMovement){
-    this.setCell(from, { merge: { direction: undefined } })
-    this.setCell(to, { overwrite: this.getCell(from) })
+    let cell = this.getCell(from)
+    cell.position = to
+    cell.direction = undefined
+
+    this.setCell(to, { overwrite: cell })
     this.setCell(from, { overwrite: undefined })
+
     this.moveActor({ from, to })
     return true
   }
@@ -100,38 +105,37 @@ export default class Board implements GameBoard {
       column >= this.dimensions.columns
     )
   }
-  attemptMove(position: PiecePosition){
+  attemptMove({ weight: force, direction, action, position }: CreaturePiece){
     // attempt to move cell from given row and column
     // has force & direction if part of a reaction chain, otherwise, we'll begin a chain with force equal to weight
-    let { weight: force, direction, action } = this.getCell(position)
-    if(direction && action){
-      direction = moves[direction]
-      let [ _, remainingForce, newPosition ] = actions[action](position, { force, direction }, this)
-      let { energy, age } = this.getCell(newPosition)
-      age += 1
-      energy += (-force + remainingForce - Math.floor((age / 50) ** 2))
-      energy = energy < 0 ? 0 : energy
+    
+    let [ _, remainingForce, newPosition ] = (direction && action) ?
+      actions[action](position, { force, direction: moves[direction] }, this) :
+      [ true, force, position ]
+    let { energy, age } = this.getCell(newPosition)
+    age += 1
+    energy += (-force + remainingForce - Math.floor((age / 50) ** 2))
+    energy = energy < 0 ? 0 : energy
+    this.setCell(newPosition, { merge: {
+      direction: undefined,
+      action: undefined,
+      energy,
+      age
+    }})
+    if(energy <= 0){
       this.setCell(newPosition, { merge: {
-        direction: undefined,
-        action: undefined,
-        energy,
-        age
+        color: [ 255, 0, 0 ],
       }})
-      if(energy <= 0){
-        this.setCell(newPosition, { merge: {
-          color: 'grey',
-        }})
-        this.killActor(newPosition)
-      }
+      this.killActor(newPosition)
     }
   }
 
   resolveMoves(){
-    let actorPositions = shuffle(Array.from(this.actors))
+    let actors = shuffle(Array.from(this.actors))
       .map(deserializePiecePosition)
-    actorPositions.map(position =>
-      this.getCell(position).planMove(this, position))
-    actorPositions.map(position => this.attemptMove(position))
+      .map(position => this.getCell(position))
+    actors.forEach(a => a.planMove(this))
+    actors.forEach(a => this.attemptMove(a))
   }
 
   getState(){

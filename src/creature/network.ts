@@ -1,11 +1,11 @@
 import * as R from '../ml/recurrent.js'
-import { oneHotLayer } from '../ml/utils'
+import { maxLayer } from '../ml/utils'
 
 interface Decoder { (oneHot: number[]): any; outputSize?: number; }
 
 function networkDecoder(options: object){
   let actionClasses = Object.keys(options)
-  let layer = oneHotLayer(...actionClasses.map(c => options[c]))
+  let layer = maxLayer(...actionClasses.map(c => options[c]))
   const decodeDecision: Decoder = (oneHot: number[]) => layer.decode(oneHot)
     .reduce((total, action, i) =>
       Object.assign(total, {[actionClasses[i]]: action }), {})
