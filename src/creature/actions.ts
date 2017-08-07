@@ -109,7 +109,7 @@ export function bite(position: PiecePosition, { force, direction }, board): Acti
   let drainedEnergy = Math.floor(targetCell.energy / targetCell.weight)
   let gainedEnergy = targetCell.energy === drainedEnergy ?
     drainedEnergy :
-    Math.floor(drainedEnergy / 4)
+    Math.floor(drainedEnergy) /// 4)
 
   let weight = targetCell.weight - force
 

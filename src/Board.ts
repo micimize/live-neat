@@ -114,7 +114,7 @@ export default class Board implements GameBoard {
       [ true, force, position ]
     let { energy, age } = this.getCell(newPosition)
     age += 1
-    energy += (-force + remainingForce - Math.floor((age / 50) ** 2))
+    energy += (-force + remainingForce - Math.floor((age / 20) ** 2))
     energy = energy < 0 ? 0 : energy
     this.setCell(newPosition, { merge: {
       direction: undefined,

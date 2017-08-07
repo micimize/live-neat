@@ -15,7 +15,7 @@ export default class Creature implements CreaturePiece {
   color: [ number, number, number ] = [ 0, 0, 255 ];
   weight = 10;
   age = 0;
-  energy = 250;
+  energy = 200;
   think = _ => _;
 
   constructor({ /*color,*/ genome }: { /*color: [ number, number, number ],*/ genome: any }) {

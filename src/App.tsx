@@ -21,7 +21,8 @@ interface SectionState {
     board: any,
     species: any,
     interval?: any,
-    stepInterval?: number
+    stepInterval?: number,
+    maxes?: any,
 }
 
 class App extends React.Component<SectionProps, SectionState> {
@@ -42,10 +43,17 @@ class App extends React.Component<SectionProps, SectionState> {
     let round = this.state.round + 1
     if(!living.length){
       let species = this.state.species
+
+      const maxFit = genes =>
+        genes.map(({ fitness }) => Math.sqrt(-fitness))
+          .reduce((max, f = 0) => f > max ? f : max, 0)
+      let maxes = [ 'bestOfSubPopulation', 'hallOfFame', 'genes' ]
+        .reduce((maxes, k) => Object.assign(maxes, { [k]: maxFit(species[k]) }), {})
+
       species.applyFitnessFunc() // fitness decided in game, already set by *shudders* reference
       species.evolve()
       let board = generationBoard(species.genes)
-      this.setState({ round, board, species })
+      this.setState({ round, board, species, maxes })
     } else {
       this.setState({ round })
     }
@@ -83,6 +91,9 @@ class App extends React.Component<SectionProps, SectionState> {
             Generation: {this.state.species.getNumGeneration()}
             <br/>
             Connections: ~{this.state.species.genes[0].connections.length}
+            <br/>
+            Previous round's stats:<br/>
+            { Object.keys(this.state.maxes || {}).map(k => <span key={k}>{k} max age: {this.state.maxes[k]}<br/></span>) }
           </p>
         </div>
       </div>
