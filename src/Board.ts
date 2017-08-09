@@ -114,7 +114,7 @@ export default class Board implements GameBoard {
       [ true, force, position ]
     let { energy, age } = this.getCell(newPosition)
     age += 1
-    energy += (-force + remainingForce - Math.floor((age / 20) ** 2))
+    energy += (-force + remainingForce - Math.floor(age / 5))
     energy = energy < 0 ? 0 : energy
     this.setCell(newPosition, { merge: {
       direction: undefined,
@@ -128,7 +128,7 @@ export default class Board implements GameBoard {
   checkForDeath(creature: CreaturePiece){
     if(creature.energy <= 0){
       creature.color = [ 0, 0, 100 ]
-      creature.genome.fitness = -(creature.age ** 2)
+      creature.genome.fitness = (creature.age ** 2)
       this.killActor(creature.position)
     }
   } 

@@ -23,22 +23,22 @@ const decode = networkDecoder({
 export const INPUT_VECTOR_SIZE = (3 + (5 * 5 * 3))
 export const OUTPUT_VECTOR_SIZE = decode.outputSize
 
-function toMatrix(array: number[]){
-  let mat: any = new R.Mat(1, INPUT_VECTOR_SIZE)
-  if (mat){
+function encodingLayer(inputSize: number){
+  const mat: any = new R.Mat(1, INPUT_VECTOR_SIZE)
+  return (array: number[]) =>  {
     mat.setFromArray([array])
+    return mat
   }
-  return mat
 }
 
 export default function brain(genome){
   genome.setupModel(1)
-  let G = new R.Graph(false);           // setup the recurrent.js graph without backprop
-  function think(gameState: number[]) { // gameState is a flattened 5x5x3 array of color values
-    let inputVector = toMatrix(gameState)
-    genome.setInput(inputVector)          // put the input data into the network
-    genome.forward(G)                   // propagates the network forward.
-    return decode(genome.getOutput())   // get the output from the network
+  let G = new R.Graph(false);                       // setup the recurrent.js graph without backprop
+  let inputLayer = encodingLayer(INPUT_VECTOR_SIZE)
+  function think(gameState: number[]) {             // gameState is a flattened 5x5x3 array of color values
+    genome.setInput(inputLayer(gameState))          // put the input data into the network
+    genome.forward(G)                               // propagates the network forward.
+    return decode(genome.getOutput())               // get the output from the network
   }
   return think
 }

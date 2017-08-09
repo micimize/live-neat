@@ -271,11 +271,9 @@ Genome.prototype = {
     if (sourceGenome.fitness) this.fitness = sourceGenome.fitness;
     if (sourceGenome.cluster) this.cluster = sourceGenome.cluster;
   },
-  mutateWeights: function(mutationRate_, mutationSize_) {
+  mutateWeights: function(mRate = mutationRate, mSize = mutationSize) {
     // mutates each weight of current genome with a probability of mutationRate
     // by adding a gaussian noise of zero mean and mutationSize stdev to it
-    var mRate = mutationRate_ || mutationRate;
-    var mSize = mutationSize_ || mutationSize;
 
     var i, n;
     for (i=0,n=this.connections.length;i<n;i++) {
@@ -1039,7 +1037,7 @@ var NEATTrainer = function(options_, initGenome_) {
     genome.mutateWeights(1.0, this.mutation_size); // burst mutate init weights
 
     // stamp meta info into the genome
-    genome.fitness = -1e20;
+    genome.fitness = 0;
     genome.cluster = R.randi(0, K);
     this.genes.push(genome);
 
@@ -1057,7 +1055,7 @@ var NEATTrainer = function(options_, initGenome_) {
     }
 
     // stamp meta info into the genome
-    genome.fitness = -1e20;
+    genome.fitness = 0;
     genome.cluster = 0; //R.randi(0, K);
     this.hallOfFame.push(genome);
   }
@@ -1108,8 +1106,8 @@ NEATTrainer.prototype = {
     this.genes = this.applyFitnessFuncToList(f, this.genes);
 
     let offlineFitnessFunc = f && f.offline ? f.offline : f
-    this.hallOfFame = this.applyFitnessFuncToList(offlineFitnessFunc, this.hallOfFame);
-    this.bestOfSubPopulation = this.applyFitnessFuncToList(offlineFitnessFunc, this.bestOfSubPopulation);
+    //this.hallOfFame = this.applyFitnessFuncToList(offlineFitnessFunc, this.hallOfFame);
+    //this.bestOfSubPopulation = this.applyFitnessFuncToList(offlineFitnessFunc, this.bestOfSubPopulation);
 
     this.filterFitness();
     this.genes = this.genes.concat(this.hallOfFame);
@@ -1181,13 +1179,13 @@ NEATTrainer.prototype = {
     // parents based on their inverse fitness normalised probabilities
 
     var i, n;
-    var epsilon = 1e-10;
+    var epsilon = 0;
     var g;
     function tempProcess(g) {
-      var fitness = -1e20;
+      var fitness = 0;
       if (typeof g.fitness !== 'undefined' && isNaN(g.fitness) === false) {
-        fitness = -Math.abs(g.fitness);
-        fitness = Math.min(fitness, -epsilon);
+        fitness = Math.abs(g.fitness);
+        fitness = Math.max(fitness, epsilon);
       }
       g.fitness = fitness;
     }
@@ -1228,7 +1226,7 @@ NEATTrainer.prototype = {
     for (i=0;i<n;i++) {
       g = genes[i];
       if (byCluster === false || g.cluster === cluster) {
-        g.normFitness = 1/(-g.fitness+slack);
+        g.normFitness = 1/(g.fitness+slack);
         //g.normFitness *= g.normFitness; // square this bitch, so crappy solutions have less chances...
         totalProb += g.normFitness;
       }
@@ -1296,10 +1294,10 @@ NEATTrainer.prototype = {
     var newGenes = []; // new population array
     var i, n, j, m, K, N, idx;
 
-    var worstFitness = 1e20;
+    var worstFitness = Infinity;
     var worstCluster = -1;
 
-    var bestFitness = -1e20;
+    var bestFitness = 0;
     var bestCluster = -1;
 
 

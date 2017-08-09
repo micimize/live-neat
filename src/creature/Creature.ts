@@ -13,9 +13,9 @@ export default class Creature implements CreaturePiece {
   genome: any = null;
   direction: 'right' | 'left' | 'up' | 'down' = 'down';
   color: [ number, number, number ] = [ 0, 0, 255 ];
-  weight = 10;
+  weight = 5;
   age = 0;
-  energy = 200;
+  energy = 100;
   think = _ => _;
 
   constructor({ /*color,*/ genome }: { /*color: [ number, number, number ],*/ genome: any }) {
