@@ -112,11 +112,9 @@ export function bite(position: PiecePosition, { force, direction }, board): Acti
     Math.floor(drainedEnergy) /// 4)
 
   let weight = targetCell.weight - force
+  targetCell.weight = weight < 1 ? 1 : weight
+  targetCell.weight < 1 ? 0 : targetCell.energy - drainedEnergy
 
-  board.setCell(target, { merge: {
-    weight: weight < 1 ? 1 : weight,
-    energy: weight < 1 ? 0 : targetCell.energy - drainedEnergy,
-  }})
   bitPlant(targetCell)
 
   return [ true, gainedEnergy, position ]
@@ -127,7 +125,7 @@ function bitPlant(targetCell){
   let [ r, g, b ] = targetCell.color
   if(g){
     targetCell.color = targetCell.energy ?
-      [ 0, 155 + Math.floor(targetCell.energy / 10), 0] :
+      [ 0, 155 + Math.floor(targetCell.energy / 100), 0] :
       [ 0, 100, 0 ]
   }
 }

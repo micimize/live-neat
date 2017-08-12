@@ -11,6 +11,8 @@ MIT License.
 
 @licend  The above is the entire license notice
 for the JavaScript code in this page.
+
+Changes made after July 27th, 2017 owned by Michael Rosenthal
 */
 
 import * as R from './recurrent.js'

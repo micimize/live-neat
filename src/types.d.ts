@@ -22,6 +22,9 @@ interface Food extends PieceBase {
 interface CreaturePiece extends Food {
   action?: 'push' | 'pull' | 'bite' | null ,
   direction?: 'right' | 'left' | 'up' | 'down' ,
+  isDead: () => boolean,
+  consumed: number,
+  plan: (GameBoard) => Promise<boolean>,
   genome: any,
 }
 
@@ -30,5 +33,6 @@ type Piece = PieceBase | Food | CreaturePiece
 interface GameBoard {
   dimensions: { rows: number, columns: number },
   board: any,
-  actors: Set<string>
+  moving: boolean,
+  actors: Set<CreaturePiece>
 }

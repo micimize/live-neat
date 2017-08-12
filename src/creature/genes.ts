@@ -16,10 +16,10 @@ export default function trainer() {
     new_node_rate : 0.1, // probability of a new node created for each genome during each evolution cycle
     new_connection_rate : 0.5, // probability of a new connection created for each genome during each evolution cycle, if it can be created
     num_populations: 3, // cluster the population into 5 sub populations that are similar using k-medoids
-    sub_population_size : 10, // each sub population has 20 members, so 100 genomes in total
-    init_weight_magnitude : 0.25, // randomise initial weights to be gaussians with zero mean, and this stdev.
+    sub_population_size : 15, // each sub population has 20 members, so 100 genomes in total
+    init_weight_magnitude : 0.55, // randomise initial weights to be gaussians with zero mean, and this stdev.
     mutation_rate : 0.9, // probability of mutation for weights (for this example i made it large)
-    mutation_size : 0.005, // if weights are mutated, how much we mutate them by in stdev? (I made it very small for this example)
+    mutation_size : 0.05, // if weights are mutated, how much we mutate them by in stdev? (I made it very small for this example)
     extinction_rate : 0.5, // probably that the worst performing sub population goes extinct at each evolution cycle
   }); // the initial population of genomes is randomly created after N.NEATTrainer constructor is called.
 

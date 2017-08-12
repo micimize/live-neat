@@ -21,7 +21,7 @@ const decode = networkDecoder({
 
 
 export const INPUT_VECTOR_SIZE = (3 + (5 * 5 * 3))
-export const OUTPUT_VECTOR_SIZE = decode.outputSize
+export const OUTPUT_VECTOR_SIZE = decode.outputSize || 0
 
 function encodingLayer(inputSize: number){
   const mat: any = new R.Mat(1, INPUT_VECTOR_SIZE)
@@ -35,12 +35,22 @@ export default function brain(genome){
   genome.setupModel(1)
   let G = new R.Graph(false);                       // setup the recurrent.js graph without backprop
   let inputLayer = encodingLayer(INPUT_VECTOR_SIZE)
-  function think(gameState: number[]) {             // gameState is a flattened 5x5x3 array of color values
-    genome.setInput(inputLayer(gameState))          // put the input data into the network
-    genome.forward(G)                               // propagates the network forward.
-    return decode(genome.getOutput())               // get the output from the network
+
+  let nodes = genome.getNodesInUse().length || (INPUT_VECTOR_SIZE + OUTPUT_VECTOR_SIZE)
+  let connections = genome.connections.length || (INPUT_VECTOR_SIZE * OUTPUT_VECTOR_SIZE)
+  const complexity = (nodes - (INPUT_VECTOR_SIZE + OUTPUT_VECTOR_SIZE)) +
+    ((connections - INPUT_VECTOR_SIZE * OUTPUT_VECTOR_SIZE) / 10)
+
+  return {
+    think(gameState: number[]) {             // gameState is a flattened 5x5x3 array of color values
+      genome.setInput(inputLayer(gameState))          // put the input data into the network
+      genome.forward(G)                               // propagates the network forward.
+      return decode(genome.getOutput())               // get the output from the network
+    },
+    complexity,
+    nodes,
+    connections,
   }
-  return think
 }
 
 

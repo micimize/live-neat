@@ -8,15 +8,6 @@ const moves = {
   'down':  [ 1,  0],
 }
 
-function serializePiecePosition({ row, column }: PiecePosition){
-  return [row, column].join(',')
-}
-
-function deserializePiecePosition(sig: string){
-  let [ row, column ] = sig.split(',').map(i => parseInt(i, 10))
-  return { row, column }
-}
-
 function randomPosition({ rows, columns }: { rows: number, columns: number }) {
   return {
     row: Math.floor(Math.random() * rows),
@@ -26,9 +17,10 @@ function randomPosition({ rows, columns }: { rows: number, columns: number }) {
 
 export default class Board implements GameBoard {
   dimensions: { rows: number, columns: number };
-  actors: Set<string>;
-  deadActors: Set<string>;
+  actors: Set<CreaturePiece>;
+  deadActors: Set<CreaturePiece>;
   board: any[];
+  moving: boolean = false;
   constructor({ rows, columns }: { rows: number, columns: number }) {
     this.dimensions = { rows, columns }
     this.board = new Array(rows)
@@ -41,41 +33,16 @@ export default class Board implements GameBoard {
     piece.position = { row, column }
     this.board[row][column] = piece
   }
-  addActor({ row, column }: PiecePosition, creature: CreaturePiece){
-    creature.position = { row, column }
-    this.board[row][column] = creature
-    this.actors.add([row, column].join(','))
+  addActor(position: PiecePosition, creature: CreaturePiece){
+    this.addObject(position, creature)
+    this.actors.add(creature)
   }
-  moveActor({ from, to }: PieceMovement){
-    let sig = serializePiecePosition(from)
-    if (this.actors.has(sig)){
-      this.actors.delete(sig)
-      this.actors.add(serializePiecePosition(to))
-    }
-  } killActor(position: PiecePosition){
-    let sig = serializePiecePosition(position)
-    if (this.actors.has(sig)){
-      this.actors.delete(sig)
-      this.deadActors.add(sig)
-    }
+  killActor(creature: CreaturePiece){
+    this.actors.delete(creature)
+    this.deadActors.add(creature)
   }
-  retrieveAllDeadActors(){
-    return Array.from(this.deadActors)
-      .map(deserializePiecePosition)
-      .map(position => this.getCell(position))
-  }
-  retrieveAllLivingActors(){
-    return Array.from(this.actors)
-      .map(deserializePiecePosition)
-      .map(position => this.getCell(position))
-  }
-  setCell({ row, column }: PiecePosition, { merge, overwrite }: { merge?: object, overwrite?: object }){
-    if(merge){
-      let cell = this.board[row][column] || {}
-      this.board[row][column] = Object.assign(cell, merge)
-    } else {
-      this.board[row][column] = overwrite
-    }
+  setCell({ row, column }: PiecePosition, value: any){
+    this.board[row][column] = value
   }
   getCell({ row, column }: PiecePosition){
     return this.board[row][column]
@@ -90,12 +57,9 @@ export default class Board implements GameBoard {
   move({ from, to }: PieceMovement){
     let cell = this.getCell(from)
     cell.position = to
-    cell.direction = undefined
+    this.setCell(to, cell)
+    this.setCell(from, undefined)
 
-    this.setCell(to, { overwrite: cell })
-    this.setCell(from, { overwrite: undefined })
-
-    this.moveActor({ from, to })
     return true
   }
   isInBounds({ row, column }: PiecePosition){
@@ -112,46 +76,35 @@ export default class Board implements GameBoard {
     let [ _, remainingForce, newPosition ] = (direction && action) ?
       actions[action](position, { force, direction: moves[direction] }, this) :
       [ true, force, position ]
-    let { energy, age } = this.getCell(newPosition)
-    age += 1
-    energy += (-force + remainingForce - Math.floor(age / 5))
-    energy = energy < 0 ? 0 : energy
-    this.setCell(newPosition, { merge: {
-      direction: undefined,
-      action: undefined,
-      energy,
-      color: [ 0, 0, 155 + Math.floor(energy / 10)],
-      age
-    }})
+    let creature = this.getCell(newPosition)
+    creature.process({ energy: remainingForce - force, action })
   }
 
   checkForDeath(creature: CreaturePiece){
-    if(creature.energy <= 0){
-      creature.color = [ 0, 0, 100 ]
-      creature.genome.fitness = (creature.age ** 2)
-      this.killActor(creature.position)
+    if(creature.isDead()){
+      this.killActor(creature)
     }
   } 
 
-  resolveMoves(){
-    let actors = shuffle(Array.from(this.actors))
-      .map(deserializePiecePosition)
-      .map(position => this.getCell(position))
-    actors.forEach(a => a.planMove(this))
-    actors.forEach(a => this.attemptMove(a))
-    actors.forEach(a => this.checkForDeath(a))
+  resolveMoves = async () => {
+    await Promise.all(Array.from(this.actors).map(a => a.plan(this)))
+    shuffle(Array.from(this.actors))
+      .forEach(a => this.attemptMove(a))
+    this.actors.forEach(a => this.checkForDeath(a))
   }
 
   getState(){
     return {
       board: this.board,
-      living: this.retrieveAllLivingActors(),
-      dead: this.retrieveAllDeadActors()
+      living: this.actors,
+      dead: this.deadActors
     }
   }
 
-  turn(){
+  turn = async () => {
+    this.moving = true
     this.resolveMoves()
+    this.moving = false
     return this.getState()
   }
 
