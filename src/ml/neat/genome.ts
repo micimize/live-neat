@@ -1,6 +1,26 @@
+interface NodeInnovation {
+  activation: number
+}
 
-interface ConnectionGene {
-w
+interface ConnectionInnovation {
+  from: number,
+  to: number,
+  weight: number,
+  active: boolean,
+}
+
+interface GeneticHistory {
+  nodes: Array<NodeInnovation>,
+  connections: Array<ConnectionInnovation>
+}
+
+
+function connection({ innovation, weight, active = true }: { innovation: number, weight?: number, active: boolean }): Connection {
+  return {
+    innovation,
+    weight: weight || R.randn(initMu, initStdev)
+    active
+  }
 }
 
 class Genome {
