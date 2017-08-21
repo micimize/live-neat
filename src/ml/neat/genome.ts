@@ -1,30 +1,108 @@
-interface NodeInnovation {
-  activation: number
+import GeneticHistory from './genetic-history'
+
+function mixPools(left, right) {
+  let [ longer, shorter ] = left.length > right.length ?
+    [ left, right ] :
+    [ right, left ] :
+  let total = Math.ceil(
+    shorter.length + (longer.length - shorter.length) / 2
+  )
+  return [
+    ...shuffle(longer).slice(0, Math.ceil(total)),
+    ...shuffle(shorter).slice(0, Math.floor(total))
+  ]
 }
 
-interface ConnectionInnovation {
-  from: number,
-  to: number,
-  weight: number,
-  active: boolean,
+function connectionTracker(){
+  let seen = (connection) => {
+    let sig = [ connection.from, connection.to ].sort().join(',')
+    if (seen.connections[sig]){
+      return seen.connections[sig]
+    } else {
+      seen.connections[sig] = connection
+      return false
+    }
+  }
+  seen.connections = {}
+  return seen
 }
 
-interface GeneticHistory {
-  nodes: Array<NodeInnovation>,
-  connections: Array<ConnectionInnovation>
+function arbitrary(a, b){
+  return Math.random() > 0.50 ? a : b
 }
 
+function weightedLeft(a, b){
+  return Math.random() > 0.75 ? a : b
+}
 
-function connection({ innovation, weight, active = true }: { innovation: number, weight?: number, active: boolean }): Connection {
-  return {
-    innovation,
-    weight: weight || R.randn(initMu, initStdev)
-    active
+function selectGene(a, b){
+  if (!a.active){
+    if (!b.active){
+      return arbitrary(a, b)
+    } else {
+      return weightedLeft(a, b)
+    }
+  } else { // if (a.active) {
+    if (!b.active){
+      return weightedLeft(b, a)
+    } else {
+      return arbitrary(a, b)
+    }
   }
 }
 
+
+function pools(a, b){
+  // collects all genes that share innovation number or connection signature in shared
+  let shared = {}
+  let seen = connectionTracker()
+  // First collect all shared innovations
+  Object.keys(a).forEach(innovation => {
+    seen(innovation)
+    if(b[innovation]){
+      shared[innovation] = selectGene(a[innovation], b[innovation])
+      delete a[innovation]
+      delete b[innovation]
+    }
+  })
+  // Then collect all structurally identical connections
+  // A genome can't repeat the same connection, so only one pass is neede:w
+  Object.keys(b).forEach(innovation => {
+    let previouslySeen = seen(b[innovation])
+    if (previouslySeen){
+      if (a[previouslySeen.innovation]){
+        // structural sharing
+        shared[innovation] = selectGene(previouslySeen, b[innovation])
+      }
+      delete a[previouslySeen.innovation]
+      delete b[innovation]
+    }
+  })
+  return { shared, uniqueToA: a,  uniqueToB: b }
+}
+
+function mutateWeights(gene) {
+  // we need to clone genes anyways
+  let rate = 0.2
+  let size = 0.5
+  return Object.assign({}, gene, {
+    weight: Math.random() rate < gene.weight + R.randn(0, size) 
+  })
+}
+
+function structuralMutations(genome){
+  genome.geneticHistory.newNode()
+}
+
+function crossover(a, b) {
+  let { shared, uniqueToA, uniqueToB } = pools(Array.from(a), Array.from(b))
+  shared.append(mixPools(uniqueToA, uniqueToB))
+  return structuralMutations(shared.map(mutateWeights))
+}
+
 class Genome {
-  constructor(initGenome) {
+  constructor(a, b) {
+    crossover(a, b).map(mutate)
     var i, j;
     var n;
     var c; // connection storage.
@@ -65,56 +143,6 @@ class Genome {
     if (this.fitness) result.fitness = this.fitness;
     if (this.cluster) result.cluster = this.cluster;
     return result;
-  },
-  importConnections(cArray) {
-    var i, n;
-    this.connections = [];
-    var temp;
-    for (i=0,n=cArray.length;i<n;i++) {
-      temp = new R.zeros(3);
-      temp[0] = cArray[i][0];
-      temp[1] = cArray[i][1];
-      temp[2] = cArray[i][2];
-      this.connections.push(temp);
-    }
-  },
-  copyFrom(sourceGenome) {
-    // copies connection weights from sourceGenome to this genome, hence making a copy
-    this.importConnections(sourceGenome.connections);
-    if (sourceGenome.fitness) this.fitness = sourceGenome.fitness;
-    if (sourceGenome.cluster) this.cluster = sourceGenome.cluster;
-  },
-  mutateWeights(mRate = mutationRate, mSize = mutationSize) {
-    // mutates each weight of current genome with a probability of mutationRate
-    // by adding a gaussian noise of zero mean and mutationSize stdev to it
-
-    var i, n;
-    for (i=0,n=this.connections.length;i<n;i++) {
-      if (Math.random() < mRate) {
-        this.connections[i][IDX_WEIGHT] += R.randn(0, mSize);
-      }
-    }
-  },
-  clipWeights(maxWeight = 50.0) {
-    // weight clipping to +/- maxWeight_
-    // this function also checks if weights are NaN. if so, zero them out.
-    maxWeight = Math.abs(maxWeight)
-    var origWeight;
-
-    var detectedNaN = false;
-    for (var i = 0, i < this.connections.length; i++) {
-      origWeight = this.connections[i][IDX_WEIGHT];
-
-      R.assert(!isNaN(origWeight), 'weight had NaN.  backprop messed shit up.');
-
-      origWeight = Math.min(maxWeight, origWeight);
-      origWeight = Math.max(-maxWeight,origWeight);
-
-      this.connections[i][IDX_WEIGHT] = origWeight;
-    }
-  },
-  getAllConnections: function() {
-    return connections;
   },
   addRandomNode: function() {
     // adds a new random node and assigns it a random activation gate

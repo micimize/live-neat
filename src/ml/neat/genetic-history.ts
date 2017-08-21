@@ -5,19 +5,13 @@ interface NodeInnovation {
 interface ConnectionInnovation {
   from: number,
   to: number,
-  active: boolean,
 }
-
-interface GeneticHistoryInterface {
-  innovation: number,
-  nodes: Array<NodeInnovation>,
+interface GeneticHistoryInterface { innovation: number, nodes: Array<NodeInnovation>,
   connections: Array<ConnectionInnovation>
 }
 
 type ActivationRef = 'sigmoid' | 'tanh' | 'relu'
-
-interface Config {
-  inputs: number,
+interface Config { inputs: number,
   outputs: number,
   opener: 'single-connection' | 'single-hidden-node' | 'fully-connected',
   activations: Array<ActivationRef>
@@ -41,7 +35,8 @@ const activationFunctionMap: {
 export default class GeneticHistory implements GeneticHistoryInterface {
 
   innovation: number = 3;
-  activations: { [innovation: number]: ActivationRef } = { 0: 'INPUT', 1: 'BIAS', 2: 'OUTPUT' };
+  _activations = { 0: 'INPUT', 1: 'BIAS', 2: 'OUTPUT' };
+  activations: { [innovation: number]: ActivationRef };
   nodes: { [innovation: number]: NodeInnovation };
   connections: { [innovation: number]: ConnectionInnovation };
 
@@ -58,6 +53,7 @@ export default class GeneticHistory implements GeneticHistoryInterface {
 
   innovate(attribute: 'activations' | 'nodes' | 'connections', value){
     this[attribute][this.innovation++] = value
+    return this.innovation
   }
 
 
@@ -73,11 +69,7 @@ export default class GeneticHistory implements GeneticHistoryInterface {
   }
 
   connect(from: number, to: number){
-    this.innovate('connections', {
-      from,
-      to,
-      active: true
-    })
+    this.innovate('connections', { from, to })
   }
 
   fullyConnectedOpener(){
@@ -87,6 +79,11 @@ export default class GeneticHistory implements GeneticHistoryInterface {
       outputs.forEach(this.connect(input, output)))
   }
 
-
+  newNode(){
+    let activation = choose(this.activations)
+    let innovation = this.innovate('nodes', activation)
+    return { innovation, activation }
+  }
 
 }
+
