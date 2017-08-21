@@ -90,8 +90,13 @@ function mutateWeights(gene) {
   })
 }
 
+// TODO unfinished
 function structuralMutations(genome){
-  genome.geneticHistory.newNode()
+  if (Math.random() < newNodeRate)
+    addRandomNode(genome);
+  if (Math.random() < newConnectionRate)
+    addRandomConnection();
+  let newNode = genome.geneticHistory.newNode()
 }
 
 function crossover(a, b) {
