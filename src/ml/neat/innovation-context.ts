@@ -2,7 +2,7 @@ interface NodeInnovation {
   activation: number
 }
 
-interface ConnectionInnovation {
+export interface ConnectionInnovation {
   from: number,
   to: number,
 }

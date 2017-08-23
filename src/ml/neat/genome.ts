@@ -2,12 +2,11 @@ import InnovationContext, { InnovationMap } from './innovation-context'
 import { initializeConnection } from './connection-gene'
 import { RawGenome, crossover, randomPotentialConnection, randomConnection, initializeNode } from './raw-genome'
 
-// TODO unfinished
-function structuralMutations(genome: RawGenome, context: InnovationContext){
+function structuralMutations(genome: RawGenome, context: InnovationContext): RawGenome{
   if (Math.random() < newNodeRate) {
     let connection = randomConnection(genome)
     let mutated = initializeNode(connection, context.insertNode(connection))
-    genome = Object.assign(genome, mutated)
+    Object.assign(genome, mutated)
   }
   if (Math.random() < newConnectionRate) {
     let gene = initializeConnection(context.newConnection(randomPotentialConnection(genome)))
@@ -23,7 +22,7 @@ function mutate(genome: RawGenome, context: InnovationContext) {
   return genome
 } 
 
-class Genome {
+export default class Genome {
   innovationContext: InnovationContext;
   connections: RawGenome;
   constructor(a: Genome, b: Genome) {
@@ -33,14 +32,19 @@ class Genome {
     let inheritence = crossover(a.connections, b.connections).map(mutate)
     this.connections = mutate(inheritence, innovationContext)
   }
-  randomLiveConnection() {
-    var c = R.randi(0, this.connections.length)
-    while (!c.active) { // TODO generator
-      c = R.randi(0, this.connections.length)
-    }
-    return c
-
-  }
-
 }
 
+export function seedGenome(innovationContext: InnovationContext){
+  let connections = innovationContext.connections
+  Object.keys(connections).forEach(innovation =>
+    connections[innovaction] = initializeConnection(connections[innovation]))
+  let adam = {
+    innovationContext,
+    connections: mutate(connections, innovationContext)
+  }
+  let eve = {
+    innovationContext,
+    connections: mutate(connections, innovationContext)
+  }
+  return new Genome(adam, eve)
+}

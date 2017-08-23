@@ -1,3 +1,5 @@
+import { ConnectionInnovation } from './innovation-context'
+
 export interface ConnectionGene {
   from: number,
   to: number,
@@ -58,7 +60,7 @@ export function mutateWeights(gene: ConnectionGene) {
 }
 
 
-export function initializeConnection(gene) {
+export function initializeConnection(gene: ConnectionInnovation): ConnectionGene  {
   return Object.assign({
     active: true
     weight: Math.random() * 10
