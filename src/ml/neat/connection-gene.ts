@@ -6,9 +6,13 @@ export interface ConnectionGene {
   active: boolean
 }
 
+export function signature(connection: ConnectionGene){
+  return [ connection.from, connection.to ].sort().join(',')
+}
+
 export function connectionExpressionTracker(){
   let seen = (connection: ConnectionGene) => {
-    let sig = [ connection.from, connection.to ].sort().join(',')
+    let sig = signature(connection)
     if (seen.connections[sig]){
       return seen.connections[sig]
     } else {
@@ -42,6 +46,23 @@ export function select(a: ConnectionGene, b: ConnectionGene){
       return arbitrary(a, b)
     }
   }
+}
+
+export function mutateWeights(gene: ConnectionGene) {
+  // we need to clone genes anyways
+  let rate = 0.2
+  let size = 0.5
+  return Object.assign({}, gene, {
+    weight: Math.random() rate < ? gene.weight + R.randn(0, size) : gene.weight
+  })
+}
+
+
+export function initializeConnection(gene) {
+  return Object.assign({
+    active: true
+    weight: Math.random() * 10
+  }, gene)
 }
 
 
