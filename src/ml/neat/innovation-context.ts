@@ -6,12 +6,15 @@ interface ConnectionInnovation {
   from: number,
   to: number,
 }
-interface GeneticHistoryInterface { innovation: number, nodes: Array<NodeInnovation>,
-  connections: Array<ConnectionInnovation>
+
+export interface InnovationMap<T> {
+  [innovation: number]: T
 }
 
 type ActivationRef = 'sigmoid' | 'tanh' | 'relu'
-interface Config { inputs: number,
+
+interface Config {
+  inputs: number,
   outputs: number,
   opener: 'single-connection' | 'single-hidden-node' | 'fully-connected',
   activations: Array<ActivationRef>
@@ -32,13 +35,13 @@ const activationFunctionMap: {
 };
 */
 
-export default class GeneticHistory implements GeneticHistoryInterface {
+export default class InnovationContext {
 
   innovation: number = 3;
   _activations = { 0: 'INPUT', 1: 'BIAS', 2: 'OUTPUT' };
-  activations: { [innovation: number]: ActivationRef };
-  nodes: { [innovation: number]: NodeInnovation };
-  connections: { [innovation: number]: ConnectionInnovation };
+  activations: InnovationMap<ActivationRef>;
+  nodes: InnovationMap<NodeInnovation>;
+  connections: InnovationMap<ConnectionInnovation>;
 
   constructor({ inputs, outputs, opener = 'fully-connected', activations = ['sigmoid'] }: Config){
     activations.forEach(a => this.innovate('activations', a))
