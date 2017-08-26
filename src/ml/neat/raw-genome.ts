@@ -29,33 +29,37 @@ function mix(a: RawGenome, b: RawGenome) {
 }
 
 
-function pools(a: RawGenome, b: RawGenome): { shared: RawGenome, uniqueToA: RawGenome, uniqueToB: RawGenome } {
+export function pools(a: RawGenome, b: RawGenome, { structuralSharing = false }: { structuralSharing: boolean }): { shared: RawGenome, uniqueToA: RawGenome, uniqueToB: RawGenome } {
   // collects all genes that share innovation number or connection signature in shared
   let shared = {}
+  let uniqueToA = Object.assign({}, a)
+  let uniqueToB = Object.assign({}, b)
   let seen = connectionExpressionTracker()
   // First collect all shared innovations
-  Object.keys(a).forEach(innovation => {
+  Object.keys(uniqueToA).forEach(innovation => {
     seen(innovation)
-    if(b[innovation]){
-      shared[innovation] = selectGene(a[innovation], b[innovation])
-      delete a[innovation]
-      delete b[innovation]
+    if(uniqueToB[innovation]){
+      shared[innovation] = selectGene(uniqueToA[innovation], uniqueToB[innovation])
+      delete uniqueToA[innovation]
+      delete uniqueToB[innovation]
     }
   })
   // Then collect all structurally identical connections
-  // A genome can't repeat the same connection, so only one pass is neede:w
-  Object.keys(b).forEach(innovation => {
-    let previouslySeen = seen(b[innovation])
-    if (previouslySeen){
-      if (a[previouslySeen.innovation]){
-        // structural sharing
-        shared[innovation] = selectGene(previouslySeen, b[innovation])
+  // A genome can't repeat the same connection, so only one pass is needed
+  if (structuralSharing) {
+    Object.keys(uniqueToB).forEach(innovation => {
+      let previouslySeen = seen(uniqueToB[innovation])
+      if (previouslySeen){
+        if (uniqueToA[previouslySeen.innovation]){
+          // structural sharing
+          shared[innovation] = selectGene(previouslySeen, uniqueToB[innovation])
+        }
+        delete uniqueToA[previouslySeen.innovation]
+        delete uniqueToB[innovation]
       }
-      delete a[previouslySeen.innovation]
-      delete b[innovation]
-    }
-  })
-  return { shared, uniqueToA: a,  uniqueToB: b }
+    })
+  }
+  return { shared, uniqueToA,  uniqueToB }
 }
 
 
