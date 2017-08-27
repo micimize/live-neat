@@ -51,7 +51,7 @@ export function select(a: ConnectionGene, b: ConnectionGene){
   }
 }
 
-export function mutateWeights(gene: ConnectionGene) {
+export function mutateWeight(gene: ConnectionGene) {
   // we need to clone genes anyways
   let rate = 0.2
   let size = 0.5

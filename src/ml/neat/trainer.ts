@@ -36,6 +36,8 @@ class Trainer {
   population: Population;
   constructor(config) {
     let context = new InnovationContext(config.context)
+    let mutator = new Mutator(context, config.mutation)
+    let population = seedPopulation(mutator, config.population)
     this.population = seedPopulation(innovationContext, size: config.initialPopulationSize, speciesCount)
   }
   step({ dead, born }: { dead: Set<Genome>, born: number }) {

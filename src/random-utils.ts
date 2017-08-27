@@ -1,3 +1,4 @@
+
 export function shuffle(array: Array<any>) {
   var currentIndex = array.length, temporaryValue, randomIndex;
 
@@ -9,12 +10,15 @@ export function shuffle(array: Array<any>) {
     currentIndex -= 1;
 
     // And swap it with the current element.
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
+    temporaryValue = array[currentIndex]; array[currentIndex] = array[randomIndex]; array[randomIndex] = temporaryValue; }
 
   return array;
+}
+
+export function subset(obj: object, size: number) {
+  return shuffle(Object.keys(obj))
+    .slice(0, size)
+    .reduce((sub, key) => (sub[key] = obj[key], sub), {})
 }
 
 export function weightedChoice(weights) {
@@ -29,7 +33,7 @@ export function weightedChoice(weights) {
   }
 }
 
-export function choose(choices: Array<any>) {
+export function selection(choices: Array<any>) {
   var index = Math.floor(Math.random() * choices.length)
   return choices[index]
 }
