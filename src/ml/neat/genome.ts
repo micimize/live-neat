@@ -2,7 +2,7 @@ import InnovationContext, { InnovationMap } from './innovation-context'
 import { initializeConnection } from './connection-gene'
 import { RawGenome, crossover, randomPotentialConnection, randomConnection, initializeNode } from './raw-genome'
 
-function structuralMutations(genome: RawGenome, context: InnovationContext): RawGenome{
+function structuralMutations(genome: RawGenome, context: InnovationContext): RawGenome {
   if (Math.random() < newNodeRate) {
     let connection = randomConnection(genome)
     let mutated = initializeNode(connection, context.insertNode(connection))
@@ -24,27 +24,21 @@ function mutate(genome: RawGenome, context: InnovationContext) {
 
 export default class Genome {
   innovationContext: InnovationContext;
+  fitness: number;
   connections: RawGenome;
-  constructor(a: Genome, b: Genome) {
-    // can only crossover from the same innovation context
-    assert(a.innovationContext === b.innovationContext)
+  constructor(a: Genome, b?: Genome) {
     this.innovationContext = a.innovationContext
-    let inheritence = crossover(a.connections, b.connections).map(mutate)
-    this.connections = mutate(inheritence, innovationContext)
+    // can only crossover from the same innovation context
+    assert(!b || a.innovationContext === b.innovationContext)
+    let inheritence = b ? crossover(a.connections, b.connections) : a.connections
+    this.connections = mutate(inheritence, this.innovationContext)
   }
 }
 
-export function seedGenome(innovationContext: InnovationContext){
+export function seedGenomes(innovationContext: InnovationContext, count = 10): Set<Genome>{
   let connections = innovationContext.connections
   Object.keys(connections).forEach(innovation =>
     connections[innovaction] = initializeConnection(connections[innovation]))
-  let adam = {
-    innovationContext,
-    connections: mutate(connections, innovationContext)
-  }
-  let eve = {
-    innovationContext,
-    connections: mutate(connections, innovationContext)
-  }
-  return new Genome(adam, eve)
+  let seed = { connections, InnovationContext }
+  return new Set((new Array(count)).fill().map(_ => new Genome(seed)))
 }

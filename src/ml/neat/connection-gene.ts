@@ -5,7 +5,8 @@ export interface ConnectionGene {
   to: number,
   innovation: number,
   weight: number,
-  active: boolean
+  active: boolean,
+  recurrent: boolean
 }
 
 export function signature(connection: ConnectionGene){
@@ -62,7 +63,8 @@ export function mutateWeights(gene: ConnectionGene) {
 
 export function initializeConnection(gene: ConnectionInnovation): ConnectionGene  {
   return Object.assign({
-    active: true
+    active: true,
+    recurrent: false,
     weight: Math.random() * 10
   }, gene)
 }

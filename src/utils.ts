@@ -17,6 +17,18 @@ export function shuffle(array: Array<any>) {
   return array;
 }
 
+export function weightedChoice(weights) {
+  let scale = Object.values(weights).reduce((total, weight) => total + weight, 0)
+  let selector = Math.random()
+  for (let choice in shuffle(Object.keys(weights))) {
+    let weight = weights[choice] / scale
+    if (weight > selector){
+      return choice
+    }
+    rand -= weight
+  }
+}
+
 export function choose(choices: Array<any>) {
   var index = Math.floor(Math.random() * choices.length)
   return choices[index]

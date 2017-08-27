@@ -26,31 +26,45 @@ function distance(a: RawGenome, b: RawGenome) {
     sharedWeightDifferences * weightDifferenceCoefficient
 }
 
-function addToSpecies(species: Array<RawGenome>, genome: RawGenome){
-  for (let speciesMember of species) {
-    if (distance(speciesMember, genome) < compatibilityThreshold) { 
-      species.push(genome)
-      return [ species, true ]
-    }
+
+class Species {
+  genomes: Set<Genome>;
+  id: number;
+  fitness: number;
+  age: number = 1;
+	expectedOffspring: number = 0;
+  constructor(genome: Genome) {
+    this.genomes = new Set(genome)
   }
-  return [ species, false ]
+  add(genome: Genome): boolean {
+    for (let member of this.genomes){
+      if (distance(speciesMember.connections, genome.connections) < compatibilityThreshold){
+        this.genomes.add(genome)
+      }
+      return true
+    }
+    return false
+  }
 }
 
-function speciate(genomes: Array<RawGenome>){
-  let population = {}
-  let speciesId = 0
-  let success = false
-  for (let genome of genomes) {
-    for (let speciesId in population) {
-      [ species, success ] = addToSpecies(species, genome)
-      if (success) {
-        population[speciesId] = species
-        break // only breaks the inner loop
+
+class Population {
+  species: Set<Species>;
+  constructor(genomes: Set<Genome>) {
+    this.species = new Set()
+    for (let genome of genomes){
+      let speciated = false
+      for (let species of this.species){
+        speciated = species.add(genome)
+        if (speciated){
+          break
+        }
+      }
+      if (!speciated){
+        this.species.add(new Species(genome))
       }
     }
-    if (!success) {
-      population[speciesId++] = [genome]
-    }
   }
-  return population
 }
+
+
