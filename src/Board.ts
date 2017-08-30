@@ -1,4 +1,4 @@
-import { shuffle } from './utils'
+import { shuffle } from './random-utils'
 import * as actions from './creature/actions'
 
 const moves = {
