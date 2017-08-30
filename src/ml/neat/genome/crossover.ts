@@ -1,6 +1,6 @@
 import Genome from './type'
 import * as random from 'random-utils'
-import { connectionExpressionTracker } from './connection-gene'
+import { connectionExpressionTracker, select as selectGene } from './connection-gene'
 
 function mix(a: Genome, b: Genome) {
   let aLength = Object.keys(a).length
@@ -19,12 +19,11 @@ function mix(a: Genome, b: Genome) {
 
 interface Pool {
   shared: Genome,
-    uniqueToA: Genome,
-    uniqueToB: Genome
+  uniqueToA: Genome,
+  uniqueToB: Genome
 }
 
-function pools(a: Genome, b: Genome, selectGene: Function): Pool {
-  // collects all genes that share innovation number or connection signature in shared
+export function pools(a: Genome, b: Genome, { structuralSharing = false }): Pool {
   let shared = {}
   let uniqueToA = Object.assign({}, a)
   let uniqueToB = Object.assign({}, b)
@@ -40,31 +39,26 @@ function pools(a: Genome, b: Genome, selectGene: Function): Pool {
   })
   // Then collect all structurally identical connections
   // A genome can't repeat the same connection, so only one pass is needed
-  Object.keys(uniqueToB).forEach(innovation => {
-    let previouslySeen = seen(uniqueToB[innovation])
-    if (previouslySeen){
-      if (uniqueToA[previouslySeen.innovation]){
-        // structural sharing
-        shared[innovation] = selectGene(previouslySeen, uniqueToB[innovation])
+  if (structuralSharing) {
+    Object.keys(uniqueToB).forEach(innovation => {
+      let previouslySeen = seen(uniqueToB[innovation])
+      if (previouslySeen){
+        if (uniqueToA[previouslySeen.innovation]){
+          // structural sharing
+          shared[innovation] = selectGene(previouslySeen, uniqueToB[innovation])
+        }
+        delete uniqueToA[previouslySeen.innovation]
+        delete uniqueToB[innovation]
       }
-      delete uniqueToA[previouslySeen.innovation]
-      delete uniqueToB[innovation]
-    }
-  })
+    })
+  }
   return { shared, uniqueToA,  uniqueToB }
 }
 
 
-export default function crossover(a: Genome, b: Genome, selectGene: Function) {
-  let { shared, uniqueToA, uniqueToB } = pools(a, b, selectGene)
+export default function crossover(a: Genome, b: Genome) {
+  let { shared, uniqueToA, uniqueToB } = pools(a, b)
   return Object.assign(shared, mix(uniqueToA, uniqueToB)))
 }
 
 
-export function seed(innovationContext: InnovationContext, count = 10): Set<Genome>{
-  let connections = innovationContext.connections
-  Object.keys(connections).forEach(innovation =>
-    connections[innovaction] = initializeConnection(connections[innovation]))
-  let seed = { connections, InnovationContext }
-  return new Set((new Array(count)).fill().map(_ => new Genome(seed)))
-}

@@ -1,4 +1,5 @@
 import { ConnectionInnovation } from './innovation-context'
+import configurator from '../configurator'
 
 export interface ConnectionGene {
   from: number,
@@ -27,28 +28,26 @@ export function connectionExpressionTracker(){
   return seen
 }
 
-function arbitrary(a: ConnectionGene, b: ConnectionGene){
-  return Math.random() > 0.50 ? a : b
-}
-
-function weightedLeft(a: ConnectionGene, b: ConnectionGene){
-  return Math.random() > 0.75 ? a : b
-}
 
 export function select(a: ConnectionGene, b: ConnectionGene){
   if (!a.active){
     if (!b.active){
-      return arbitrary(a, b)
+      return Math.random() > 0.50 ? a : b
     } else {
-      return weightedLeft(a, b)
+      return Math.random() > configurator().mutation.reenable ? a : b
     }
   } else { // if (a.active) {
     if (!b.active){
-      return weightedLeft(b, a)
+      return Math.random() > configurator().mutation.reenable ? b : a
     } else {
-      return arbitrary(a, b)
+      return Math.random() > 0.50 ? a : b
     }
   }
+}
+
+function weightMutation(): number {
+  let { linkWeight } = configurator().mutation
+  Math.random() < linkWeight.rate ? R.randn(0, linkWeight.size) : 0
 }
 
 export function mutateWeight(gene: ConnectionGene) {
@@ -56,12 +55,12 @@ export function mutateWeight(gene: ConnectionGene) {
   let rate = 0.2
   let size = 0.5
   return Object.assign({}, gene, {
-    weight: Math.random() rate < ? gene.weight + R.randn(0, size) : gene.weight
+    weight: gene.weight + weightMutation()
   })
 }
 
 
-export function initializeConnection(gene: ConnectionInnovation): ConnectionGene  {
+export function initializeConnection(gene: ConnectionInnovation): ConnectionGene {
   return Object.assign({
     active: true,
     recurrent: false,

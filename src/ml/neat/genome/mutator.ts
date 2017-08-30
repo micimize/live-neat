@@ -1,5 +1,6 @@
 import * as random from 'random-utils'
 import { ConnectionGene, signature, initializeConnection } from './connection-gene'
+import configurator from './configurator'
 
 
 function randomConnection(genome: Genome): ConnectionGene {
@@ -7,8 +8,7 @@ function randomConnection(genome: Genome): ConnectionGene {
 }
 
 
-function randomPotentialConnection(genome: Genome) {
-  let signatures = new Set(Object.values(genome).map(signature))
+function randomPotentialConnection(genome: Genome) { let signatures = new Set(Object.values(genome).map(signature))
   let nodes = new Set(Object.values(genome).reduce((nodes, { from, to }) => (
     nodes[from] = true, nodes[to] = true, nodes
   ), {}))
@@ -31,20 +31,14 @@ function initializeNode(old: ConnectionGene, newConnections: Genome): Genome {
   return mutation
 }
 
-interface Configuration {
-  newNodeRate: number,
-  newConnectionRate: number,
-}
-
 export default class Mutator {
-  configuration: Configuration
 
-  constructor(props: { context: InnovationContext, configuration: Configuration }){
-    Object.assign(this, props)
+  constructor(context: InnovationContext){
+    this.context = context
   }
 
   node(genome: Genome){
-    if (Math.random() < this.configuration.newNodeRate) {
+    if (Math.random() < configurator().mutation.newNodeRate) {
       let connection = randomConnection(genome)
       let mutated = initializeNode(connection, context.insertNode(connection))
       Object.assign(genome, mutated)
@@ -53,7 +47,7 @@ export default class Mutator {
   }
 
   connection(genome: Genome){
-    if (Math.random() < this.configuration.newConnectionRate) {
+    if (Math.random() < configurator().mutation.newConnectionRate) {
       let potentialConnection = randomPotentialConnection(genome)
       let connection = this.context.newConnection(potentialConnection)
       let gene = initializeConnection(connection)
@@ -74,6 +68,19 @@ export default class Mutator {
 
   mutate(genome: Genome){
     return this.weights(this.structural(genome))
+  }
+
+  initializeConnections(){
+    let connections = this.context.connection
+    return Object.keys(connections).reduce(innovation => {
+      init[innovation] = initializeConnection(connections[innovation])
+      return init
+    }, {})
+  }
+
+  seed(size: number): Genome {
+    let seed = new Genome(this.initializeConnections())
+    return new Set((new Array(size)).fill().map(this.mutate(seed)))
   }
 
 }
