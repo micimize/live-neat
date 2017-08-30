@@ -33,11 +33,11 @@ export function weightedChoice(weights): any {
     if (weight > selector){
       return choice
     }
-    rand -= weight
+    selector -= weight
   }
 }
 
-export function selection(choices: Array<T>): T {
+export function selection<T>(choices: Array<T>): T {
   var index = Math.floor(Math.random() * choices.length)
   return choices[index]
 }
