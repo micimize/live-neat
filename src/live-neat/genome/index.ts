@@ -1,4 +1,7 @@
-export default from './type'
-export Mutator from './mutator'
-export differences from './differences'
-export crossover from './crossover'
+import Genome from './type'
+import Mutator from './mutator'
+import differences from './differences'
+import crossover from './crossover'
+
+export default Genome
+export { Mutator, differences crossover }

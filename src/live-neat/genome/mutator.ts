@@ -1,19 +1,23 @@
-import * as random from 'random-utils'
+import * as random from '../../random-utils'
 import { ConnectionGene, signature, initializeConnection } from './connection-gene'
-import configurator from './configurator'
+import Genome from './type'
+import configurator from '../configurator'
 
+function values(obj): any[] {
+  return Object.keys(obj).map(k => obj[k])
+}
 
 function randomConnection(genome: Genome): ConnectionGene {
-  return random.selection(Object.values(genome))
+  return random.selection(values(genome))
 }
 
 
-function randomPotentialConnection(genome: Genome) { let signatures = new Set(Object.values(genome).map(signature))
-  let nodes = new Set(Object.values(genome).reduce((nodes, { from, to }) => (
+function randomPotentialConnection(genome: Genome) { let signatures = new Set(values(genome).map(signature))
+  let nodes = new Set(values(genome).reduce((nodes, { from, to }) => (
     nodes[from] = true, nodes[to] = true, nodes
   ), {}))
-  for (let from of random.shuffle(Object.keys(nodes)) {
-    for (let to of random.shuffle(Object.keys(nodes)) {
+  for (let from of random.shuffle(Object.keys(nodes))) {
+    for (let to of random.shuffle(Object.keys(nodes))) {
       if (from !== to && !signatures.has(signature)){
         return { from, to }
       }

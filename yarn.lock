@@ -2,22 +2,6 @@
 # yarn lockfile v1
 
 
-"@gamestdio/clock@^1.1.8":
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/@gamestdio/clock/-/clock-1.1.8.tgz#bf99f2befffa5976c3173fe1de5a52d9dce169ef"
-
-"@gamestdio/timeline@^0.3.5":
-  version "0.3.5"
-  resolved "https://registry.yarnpkg.com/@gamestdio/timeline/-/timeline-0.3.5.tgz#35ffbe1621535b41dfb5d5009c4c52301bbb1fc6"
-  dependencies:
-    harmony-proxy "^1.0.1"
-
-"@gamestdio/timer@^1.1.7":
-  version "1.1.9"
-  resolved "https://registry.yarnpkg.com/@gamestdio/timer/-/timer-1.1.9.tgz#6335801e434904ed072b4b4337f81b0b4836f5d1"
-  dependencies:
-    "@gamestdio/clock" "^1.1.8"
-
 "@timer/detect-port@1.1.3":
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/@timer/detect-port/-/detect-port-1.1.3.tgz#1383abd67f9a5d683df5276f8a92d60bdf9abb90"
@@ -25,35 +9,11 @@
     address "^1.0.1"
     debug "^2.6.0"
 
-"@types/debug@^0.0.29":
-  version "0.0.29"
-  resolved "https://registry.yarnpkg.com/@types/debug/-/debug-0.0.29.tgz#a1e514adfbd92f03a224ba54d693111dbf1f3754"
-
-"@types/fossil-delta@^0.2.1":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@types/fossil-delta/-/fossil-delta-0.2.2.tgz#c6f3e87b818cfc93067f506716a22819ae2edbb5"
-  dependencies:
-    "@types/node" "*"
-
-"@types/ip@^0.0.29":
-  version "0.0.29"
-  resolved "https://registry.yarnpkg.com/@types/ip/-/ip-0.0.29.tgz#f3ee60d9a8f595be09cc3b7858ec9517d8bcea04"
-
 "@types/jest@^19.2.4":
   version "19.2.4"
   resolved "https://registry.yarnpkg.com/@types/jest/-/jest-19.2.4.tgz#543651712535962b7dc615e18e4a381fc2687442"
 
-"@types/mocha@^2.2.32":
-  version "2.2.41"
-  resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-2.2.41.tgz#e27cf0817153eb9f2713b2d3f6c68f1e1c3ca608"
-
-"@types/msgpack-lite@^0.1.1":
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/@types/msgpack-lite/-/msgpack-lite-0.1.4.tgz#0ffa12bb008f9b8765f7d6772c109baf38925de5"
-  dependencies:
-    "@types/node" "*"
-
-"@types/node@*", "@types/node@^7.0.18", "@types/node@^7.0.27":
+"@types/node@^7.0.27":
   version "7.0.39"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-7.0.39.tgz#8aced4196387038113f6f9aa4014ab4c51edab3c"
 
@@ -66,16 +26,6 @@
 "@types/react@*", "@types/react@^15.0.26":
   version "15.6.0"
   resolved "https://registry.yarnpkg.com/@types/react/-/react-15.6.0.tgz#3b3e92a60b65045e4df48fda324de84d83addbc4"
-
-"@types/shortid@0.0.29":
-  version "0.0.29"
-  resolved "https://registry.yarnpkg.com/@types/shortid/-/shortid-0.0.29.tgz#8093ee0416a6e2bf2aa6338109114b3fbffa0e9b"
-
-"@types/uws@^0.13.0":
-  version "0.13.0"
-  resolved "https://registry.yarnpkg.com/@types/uws/-/uws-0.13.0.tgz#657efe67ae34e417d903ce813a86ec09cd68cbee"
-  dependencies:
-    "@types/node" "*"
 
 abab@^1.0.3:
   version "1.0.3"
@@ -985,30 +935,6 @@ colyseus.js@^0.7.0:
     signals.js "^1.0.0"
     tiny-emitter "^1.1.0"
     websocket.js "^0.1.12"
-
-colyseus@^0.5.1:
-  version "0.5.1"
-  resolved "https://registry.yarnpkg.com/colyseus/-/colyseus-0.5.1.tgz#76719e3bb9cfb0f80ce49efdc1a23a4b12f788ba"
-  dependencies:
-    "@gamestdio/timeline" "^0.3.5"
-    "@gamestdio/timer" "^1.1.7"
-    "@types/debug" "^0.0.29"
-    "@types/fossil-delta" "^0.2.1"
-    "@types/ip" "^0.0.29"
-    "@types/mocha" "^2.2.32"
-    "@types/msgpack-lite" "^0.1.1"
-    "@types/node" "^7.0.18"
-    "@types/shortid" "0.0.29"
-    "@types/uws" "^0.13.0"
-    debug "^2.6.8"
-    fossil-delta "^0.2.5"
-    ip "^1.1.5"
-    memshared "^0.9.14"
-    msgpack-lite "^0.1.26"
-    nonenumerable "^1.0.1"
-    shortid "^2.2.6"
-    url-parse "^1.1.9"
-    uws "8.14.1"
 
 combined-stream@^1.0.5, combined-stream@~1.0.5:
   version "1.0.5"
@@ -2092,10 +2018,6 @@ har-validator@~4.2.1:
     ajv "^4.9.1"
     har-schema "^1.0.5"
 
-harmony-proxy@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/harmony-proxy/-/harmony-proxy-1.0.1.tgz#7bec8fb1981af32fbfc14233e080be43e5f7bcfa"
-
 has-ansi@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/has-ansi/-/has-ansi-2.0.0.tgz#34f5049ce1ecdf2b0649af3ef24e45ed35416d91"
@@ -2387,10 +2309,6 @@ invariant@^2.2.0:
 invert-kv@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-1.0.0.tgz#104a8e4aaca6d3d8cd157a8ef8bfab2d7a3ffdb6"
-
-ip@^1.1.5:
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/ip/-/ip-1.1.5.tgz#bdded70114290828c0a039e72ef25f5aaec4354a"
 
 ipaddr.js@1.4.0:
   version "1.4.0"
@@ -3180,10 +3098,6 @@ memory-fs@^0.4.0, memory-fs@~0.4.1:
     errno "^0.1.3"
     readable-stream "^2.0.1"
 
-memshared@^0.9.14:
-  version "0.9.14"
-  resolved "https://registry.yarnpkg.com/memshared/-/memshared-0.9.14.tgz#e41024153d1e7761b2dae7c60bf1448df9ba0448"
-
 meow@^3.7.0:
   version "3.7.0"
   resolved "https://registry.yarnpkg.com/meow/-/meow-3.7.0.tgz#72cb668b425228290abbfa856892587308a801fb"
@@ -3304,7 +3218,7 @@ ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
 
-msgpack-lite@^0.1.20, msgpack-lite@^0.1.26:
+msgpack-lite@^0.1.20:
   version "0.1.26"
   resolved "https://registry.yarnpkg.com/msgpack-lite/-/msgpack-lite-0.1.26.tgz#dd3c50b26f059f25e7edee3644418358e2a9ad89"
   dependencies:
@@ -3414,10 +3328,6 @@ node-pre-gyp@^0.6.29:
 node-status-codes@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/node-status-codes/-/node-status-codes-1.0.0.tgz#5ae5541d024645d32a58fcddc9ceecea7ae3ac2f"
-
-nonenumerable@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/nonenumerable/-/nonenumerable-1.0.1.tgz#f8322218884818722f7ebf11d583f12f2d1208d6"
 
 nopt@^4.0.1:
   version "4.0.1"
@@ -4708,10 +4618,6 @@ shellwords@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/shellwords/-/shellwords-0.1.0.tgz#66afd47b6a12932d9071cbfd98a52e785cd0ba14"
 
-shortid@^2.2.6:
-  version "2.2.8"
-  resolved "https://registry.yarnpkg.com/shortid/-/shortid-2.2.8.tgz#033b117d6a2e975804f6f0969dbe7d3d0b355131"
-
 signal-exit@^3.0.0, signal-exit@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-3.0.2.tgz#b5fdc08f1287ea1178628e415e25132b73646c6d"
@@ -5381,7 +5287,7 @@ url-parse@1.0.x:
     querystringify "0.0.x"
     requires-port "1.0.x"
 
-url-parse@^1.1.1, url-parse@^1.1.8, url-parse@^1.1.9:
+url-parse@^1.1.1, url-parse@^1.1.8:
   version "1.1.9"
   resolved "https://registry.yarnpkg.com/url-parse/-/url-parse-1.1.9.tgz#c67f1d775d51f0a18911dd7b3ffad27bb9e5bd19"
   dependencies:
@@ -5424,10 +5330,6 @@ uuid@^2.0.1, uuid@^2.0.2:
 uuid@^3.0.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.1.0.tgz#3dd3d3e790abc24d7b0d3a034ffababe28ebbc04"
-
-uws@8.14.1:
-  version "8.14.1"
-  resolved "https://registry.yarnpkg.com/uws/-/uws-8.14.1.tgz#de09619f305f6174d5516a9c6942cb120904b20b"
 
 validate-npm-package-license@^3.0.1:
   version "3.0.1"

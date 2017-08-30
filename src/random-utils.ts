@@ -1,3 +1,7 @@
+function values(obj){
+  return Object.keys(obj).map(k => obj[k])
+}
+
 
 export function shuffle(array: Array<any>) {
   var currentIndex = array.length, temporaryValue, randomIndex;
@@ -22,7 +26,7 @@ export function subset(obj: object, size: number) {
 }
 
 export function weightedChoice(weights) {
-  let scale = Object.values(weights).reduce((total, weight) => total + weight, 0)
+  let scale = values(weights).reduce((total, weight) => total + weight, 0)
   let selector = Math.random()
   for (let choice in shuffle(Object.keys(weights))) {
     let weight = weights[choice] / scale
@@ -33,7 +37,7 @@ export function weightedChoice(weights) {
   }
 }
 
-export function selection(choices: Array<any>) {
+export function selection(choices: Array<T>): T {
   var index = Math.floor(Math.random() * choices.length)
   return choices[index]
 }

@@ -1,4 +1,6 @@
 import InnovationContext, { InnovationMap } from '../innovation-context'
 import { ConnectionGene } from './connection-gene'
 
-export default InnovationMap<ConnectionGene>
+type Genome = InnovationMap<ConnectionGene>
+
+export default Genome
