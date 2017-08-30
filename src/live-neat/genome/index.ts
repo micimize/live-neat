@@ -1,7 +1,7 @@
 import Genome from './type'
 import Mutator from './mutator'
-import differences from './differences'
+import distance from './distance'
 import crossover from './crossover'
 
 export default Genome
-export { Mutator, differences crossover }
+export { Mutator, distance, crossover }

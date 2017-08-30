@@ -1,7 +1,8 @@
-import { seed as seedGenome } from './genome'
+import { Mutator } from './genome'
 import { weightedChoice } from '../random-utils'
 import configurator from './configurator'
 import Species from './species'
+import Creature from './creature'
 
 export default class Population {
 
@@ -10,21 +11,22 @@ export default class Population {
   resources: number;
   age: number;
 
-  constructor(mutator, genomes?: Set<Genome>) {
+  constructor(mutator, creatures?: Set<Creature>) {
     this.mutator = mutator
-    if (!genomes) {
-      genomes = this.mutator.seed(configurator().population.initialSize)
+    if (!creatures) {
+      let genomes = Array.from(this.mutator.seed(configurator().population.initialSize))
+      creatures = new Set(genomes.map(genome => new Creature(genome)))
     }
     this.species = new Set()
-    for (let genome of genomes){
-      this.add(genome)
+    for (let creature of creatures){
+      this.add(creature)
     }
   }
 
   delete(creature: Creature) {
     for (let species of this.species) {
-      if(species.has(creature)) {
-        return species.delete(creature)
+      if(species.creatures.has(creature)) {
+        return species.creatures.delete(creature)
       }
     }
     return false
@@ -34,23 +36,23 @@ export default class Population {
     for (let species of this.species) {
       for (let creature of species.creatures) {
         if (creature.fitness <= 0){
-          species.delete(creature)
+          species.creatures.delete(creature)
         }
       }
     }
     return false
   }
 
-  add(genome: Genome) {
+  add(creature: Creature) {
     let speciated = false
     for (let species of this.species){
-      speciated = species.add(genome)
+      speciated = species.add(creature)
       if (speciated){
         break
       }
     }
     if (!speciated){
-      this.species.add(new Species(genome))
+      this.species.add(new Species(creature))
     }
   }
 

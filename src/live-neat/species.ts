@@ -3,23 +3,26 @@ import Creature, { crossover, distance } from './creature'
 import { weightedChoice } from '../random-utils'
 
 
-class Species {
+export default class Species {
   creatures: Set<Creature>;
   id: number;
+
   get fitness(): number {
     let total = 0
-    for (let { fitness } of this.creatures){
-      total += fitness
+    for (let creature of this.creatures){
+      total += creature.fitness
     }
     return total / this.creatures.size
   }
-  constructor(creature: Creature) {
-    this.creatures = new Set(creature)
+
+  constructor(...creatures: Array<Creature>) {
+    this.creatures = new Set(creatures)
   }
+
   add(creature: Creature): boolean {
     let { compatibilityThreshold } = configurator().speciation
     for (let member of this.creatures){
-      if (distance(speciesMember, creature) < compatibilityThreshold){
+      if (distance(member, creature) < compatibilityThreshold){
         this.creatures.add(creature)
       }
       return true
@@ -27,7 +30,7 @@ class Species {
     return false
   }
 
-  selectCreature({ not } = {}: { not?: Creature }){
+  selectCreature({ not }: { not?: Creature } = {}){
     let weights = {}
     let getter = {}
     for (let creature of this.creatures) {
@@ -39,12 +42,11 @@ class Species {
     }
     return getter[weightedChoice(weights)]
   }
-  }
 
-  procreate(){
+  procreate(): Creature{
     let a = this.selectCreature()
     let b = this.selectCreature({ not: a })
-    return new Creature(crossover(a, b))
+    return crossover(a, b)
   }
 }
 

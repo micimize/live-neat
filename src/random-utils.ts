@@ -25,7 +25,7 @@ export function subset(obj: object, size: number) {
     .reduce((sub, key) => (sub[key] = obj[key], sub), {})
 }
 
-export function weightedChoice(weights) {
+export function weightedChoice(weights): any {
   let scale = values(weights).reduce((total, weight) => total + weight, 0)
   let selector = Math.random()
   for (let choice in shuffle(Object.keys(weights))) {

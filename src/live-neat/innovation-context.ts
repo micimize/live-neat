@@ -1,11 +1,22 @@
-interface NodeInnovation {
+import * as random from '../random-utils'
+import configurator from './configurator'
+
+interface Innovation {
+  innovation: number
+}
+
+interface Node {
   activation: number
 }
 
-export interface ConnectionInnovation {
+interface Connection {
   from: number,
   to: number,
 }
+
+export type NodeInnovation = Node & Innovation
+export type ConnectionInnovation = Connection & Innovation
+ 
 
 export interface InnovationMap<T> {
   [innovation: number]: T
@@ -40,10 +51,16 @@ export default class InnovationContext {
   innovation: number = 3;
   _activations = { 0: 'INPUT', 1: 'BIAS', 2: 'OUTPUT' };
   activations: InnovationMap<ActivationRef>;
-  nodes: InnovationMap<NodeInnovation>;
-  connections: InnovationMap<ConnectionInnovation>;
+  nodes: InnovationMap<Node>;
+  connections: InnovationMap<Connection>;
 
-  constructor({ inputs, outputs, opener = 'fully-connected', activations = ['sigmoid'] }: Config){
+  constructor(){
+    let {
+      inputs,
+      outputs,
+      opener = 'fully-connected',
+      activations = ['sigmoid']
+    } = configurator().initialNetwork
     activations.forEach(a => this.innovate('activations', a))
     this.nNodesOfType(0, inputs)
     this.innovate('nodes', 1)
@@ -67,22 +84,23 @@ export default class InnovationContext {
     }
   }
 
-  getNodesOfType(nodeType){
-    return Object.keys(this.nodes).filter(k => this.nodes[k] === nodeType)
+  getNodesOfType(nodeType): number[]{
+    return Object.keys(this.nodes)
+      .filter(k => this.nodes[k] === nodeType)
+      .map(Number)
   }
 
   newNode(){
-    let activation = choose(this.activations)
+    let activation = random.selection(Object.keys(this.activations))
     let innovation = this.innovate('nodes', activation)
     return { innovation, activation }
   }
 
-  newConnection({ from: number, to: number }){
+  newConnection({ from, to }: Connection){
     let innovation = this.innovate('connections', { from, to })
     return { from, to, innovation }
   }
-
-  fullyConnectedOpener(){
+fullyConnectedOpener(){
     let inputs = this.getNodesOfType('INPUT')
     let outputs = this.getNodesOfType('OUTPUT')
     inputs.forEach(from =>

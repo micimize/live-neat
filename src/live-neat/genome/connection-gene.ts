@@ -1,4 +1,4 @@
-import { ConnectionInnovation } from './innovation-context'
+import { ConnectionInnovation } from '../innovation-context'
 import configurator from '../configurator'
 
 export interface ConnectionGene {
@@ -10,12 +10,17 @@ export interface ConnectionGene {
   recurrent: boolean
 }
 
-export function signature(connection: ConnectionGene){
-  return [ connection.from, connection.to ].sort().join(',')
+export interface PotentialConnection {
+  from: number,
+  to: number
+} 
+
+export function signature({ from, to }: PotentialConnection ){
+  return [ from, to ].sort().join(',')
 }
 
 export function connectionExpressionTracker(){
-  let seen = (connection: ConnectionGene) => {
+  let tracker: any = (connection: ConnectionGene): ConnectionGene | false => {
     let sig = signature(connection)
     if (seen.connections[sig]){
       return seen.connections[sig]
@@ -24,7 +29,11 @@ export function connectionExpressionTracker(){
       return false
     }
   }
-  seen.connections = {}
+  tracker.connections = {}
+  let seen: {
+    connections: { string: ConnectionGene },
+    (connection: ConnectionGene): ConnectionGene | false
+  } = tracker
   return seen
 }
 
@@ -46,8 +55,8 @@ export function select(a: ConnectionGene, b: ConnectionGene){
 }
 
 function weightMutation(): number {
-  let { linkWeight } = configurator().mutation
-  Math.random() < linkWeight.rate ? R.randn(0, linkWeight.size) : 0
+  let { weightChange } = configurator().mutation
+  return Math.random() < weightChange.probability ? Math.min(0, weightChange.power) : 0
 }
 
 export function mutateWeight(gene: ConnectionGene) {

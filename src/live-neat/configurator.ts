@@ -1,5 +1,5 @@
 
-export default _ => ({
+export default () => ({
   initialNetwork: {
     inputs: 5,
     outputs: 5,
@@ -10,6 +10,10 @@ export default _ => ({
     initialSize: 100,
     ageSignificance: 4,
   }
+  reproduction: {
+    requiredResources: 100,
+    desiredRate: 0.01
+  }
   distance: {
     innovationDifferenceCoefficient: 3,
     weightDifferenceCoefficient: 1
@@ -17,12 +21,13 @@ export default _ => ({
   speciation: {
     speciesCount: 4,
     initialCompatibilityThreshold: 6.0,
+    compatibilityThreshold: 6.0,
     compatibilityModifier: 0.3,
   }
   mutation: {
-    nodeProbability: 0.0025,
-    linkProbability: 0.1,
-    linkWeight: {
+    newNodeProbability: 0.0025,
+    newConnectionProbability: 0.1,
+    weightChange: {
       probability: 0.9,
       power: 2.5
     }

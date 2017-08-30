@@ -7,7 +7,7 @@ function mix(a: Genome, b: Genome) {
   let bLength = Object.keys(b).length
   let [ longer, shorter ] = aLength > bLength ?
     [ a, b ] :
-    [ b, a ] :
+    [ b, a ]
   let total = Math.ceil(
     Math.min(aLength, bLength) + Math.abs(aLength - bLength) / 2
   )
@@ -23,14 +23,14 @@ interface Pool {
   uniqueToB: Genome
 }
 
-export function pools(a: Genome, b: Genome, { structuralSharing = false }): Pool {
+export function pools(a: Genome, b: Genome, { structuralSharing = true } = {}): Pool {
   let shared = {}
   let uniqueToA = Object.assign({}, a)
   let uniqueToB = Object.assign({}, b)
   let seen = connectionExpressionTracker()
   // First collect all shared innovations
   Object.keys(uniqueToA).forEach(innovation => {
-    seen(innovation)
+    seen(uniqueToA[innovation])
     if(uniqueToB[innovation]){
       shared[innovation] = selectGene(uniqueToA[innovation], uniqueToB[innovation])
       delete uniqueToA[innovation]
@@ -58,7 +58,7 @@ export function pools(a: Genome, b: Genome, { structuralSharing = false }): Pool
 
 export default function crossover(a: Genome, b: Genome) {
   let { shared, uniqueToA, uniqueToB } = pools(a, b)
-  return Object.assign(shared, mix(uniqueToA, uniqueToB)))
+  return Object.assign(shared, mix(uniqueToA, uniqueToB))
 }
 
 

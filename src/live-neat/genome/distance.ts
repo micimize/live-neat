@@ -1,3 +1,4 @@
+import Genome from './type'
 import { pools } from './crossover'
 import configurator from '../configurator'
 
@@ -10,10 +11,7 @@ function weightDifferences(shared, a, b){
 // using the original C++ distance, and assuming disjoint and excess genes have the same cost
 // D = c1 * Ne + c2 * Nd + c3 * W
 //
-export default function distance(
-  a: Genome,
-  b: Genome
-): { innovations: number, weights: number } {
+export default function distance(a: Genome, b: Genome): number {
   //let aInnovations = Object.keys(a)
   //let bInnovations = Object.keys(b)
   //let aMostRecentInnovation = Math.max(aInnovations)
@@ -26,6 +24,8 @@ export default function distance(
     innovationDifferenceCoefficient,
     weightDifferenceCoefficient
   } = configurator().distance
-  return innovationDifferences * innovationDifferenceCoefficient + \
+  return (
+    innovationDifferences * innovationDifferenceCoefficient +
     sharedWeightDifferences * weightDifferenceCoefficient
+  )
 }
