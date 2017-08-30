@@ -1,5 +1,5 @@
 
-const foo = {
+export default _ => ({
   initialNetwork: {
     inputs: 5,
     outputs: 5,
@@ -30,6 +30,4 @@ const foo = {
     enable: 0.0,
     reenable: 0.2,
   }
-}
-
-
+})

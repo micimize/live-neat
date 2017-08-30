@@ -1,6 +1,7 @@
 import { seed as seedGenome } from './genome'
-import { weightedChoice } from './random-utils'
+import { weightedChoice } from 'random-utils'
 import configurator from './configurator'
+import Species from './species'
 
 export default class Population {
 

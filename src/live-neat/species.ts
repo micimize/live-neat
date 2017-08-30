@@ -1,6 +1,6 @@
 import configurator from './configurator'
 import Creature, { crossover, distance } from './creature'
-import { weightedChoice } from './random-utils'
+import { weightedChoice } from 'random-utils'
 
 
 class Species {
@@ -46,7 +46,6 @@ class Species {
     let b = this.selectCreature({ not: a })
     return new Creature(crossover(a, b))
   }
-
 }
 
 
