@@ -100,13 +100,6 @@ export default class InnovationContext {
     let innovation = this.innovate('connections', { from, to })
     return { from, to, innovation }
   }
-fullyConnectedOpener(){
-    let inputs = this.getNodesOfType('INPUT')
-    let outputs = this.getNodesOfType('OUTPUT')
-    inputs.forEach(from =>
-      outputs.forEach(to =>
-        this.newConnection({ from ,to })))
-  }
 
   insertNode({ from, to }){
     let node = this.newNode()
@@ -116,6 +109,14 @@ fullyConnectedOpener(){
       [ newFrom.innovation ]: newFrom,
       [ newTo.innovation ]: newTo,
     }
+  }
+
+  fullyConnectedOpener(){
+    let inputs = this.getNodesOfType('INPUT')
+    let outputs = this.getNodesOfType('OUTPUT')
+    inputs.forEach(from =>
+      outputs.forEach(to =>
+        this.newConnection({ from ,to })))
   }
 
 }
