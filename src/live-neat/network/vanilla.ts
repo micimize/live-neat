@@ -1,5 +1,7 @@
-import InnovationContext from './innovation-context'
-import Genome from './genome'
+import InnovationContext from '../innovation-context'
+import Genome from '../genome'
+import NodeListPacker from './node-list-packer'
+import { Network, Node, Range } from './type'
 
 function values(obj): any[] {
   return Object.keys(obj).map(k => obj[k])
@@ -12,48 +14,10 @@ const activations = {
 }
 
 
-function packNodeList(inputs: Array<number>, bias: Array<number>, outputs: Array<number>, genome: Genome, nodeActivations: object): Array {
-  let ranges = { inputs: [ 0, inputs.length - 1 ] }
-  let nodeList = inputs.sort().map(() => ({ value: 0 }))
-  let translator = inputs.reduce((t, i) => (t[i] = i, t), {})
-  translator[bias] = nodeList.push({ value: 1 }) - 1
-  let getNodeRef = (node: number) => {
-    if (!translator[node]){
-      // add node number to list, make accessible
-      translator[node] = nodeList.push({
-        value: 0,
-        from: {},
-      }) - 1
-      if(nodeActivations[node]){
-        nodeList[translator[node]].activate = activations[nodeActivations[node]]
-      }
-    }
-    return translator[node]
-  }
+class SimpleNetwork implements Network{
 
-  // always need outputs
-  ranges.outputs = [ nodeList.length, nodeList.length + outputs.length - 1 ]
-  outputs.sort().forEach(getNodeRef)
+  constructor(genome: Genome, nodeList: Array<Node>, ranges){ }
 
-  let connections = values(genome).filter(({ active }) => active)
-
-  // add all "to" nodes
-  connections.forEach(({ to }) => getNodeRef(to))
-
-  // only add "from" to node if it is relevant
-  connections.forEach(({ from, to, weight }) => {
-    if (translator[from]){
-      nodeList[getNodeRef(to)].from[getNodeRef(from)] = weight
-    }
-  })
-
-  return { nodeList, ranges }
-}
-
-class Network {
-  constructor(nodeList, ranges){
-    Object.assign(this, { nodeList, ranges })
-  }
   setInputs(inputs){
     // range is [ first, last ] indices
     assert(inputs.length - 1 == this.ranges.input[1])
@@ -70,11 +34,12 @@ class Network {
       .reduce((sum, from) =>
         sum + this.nodeList[from].value * node.from[from].weight
       ), 0)
-    node.value = node.activate(inputs)
+    node.value = activations[node.activation](inputs)
   }
-  tick(){
-    for(node in this.nodeList){
-      this.activate(node)
+  tick(){ for (node in this.nodeList){
+      if (node.activation){
+        this.activate(node)
+      }
     }
   }
   forward(inputs, count = 10){
@@ -86,10 +51,16 @@ class Network {
   }
 }
 
-class GeneExpresser {
+
+export default class GeneExpresser {
   context: InnovationContext;
+  readonly packer: NodeListPacker;
 
   constructor(context: InnovationContext){
+    let inputs = this.context.getNodesOfType('INPUT').sort()
+    let bias = this.context.getNodesOfType('BIAS')
+    let outputs = this.context.getNodesOfType('OUTPUT').sort()
+    this.packer = new NodeListPacker({ inputs, bias, outputs, outputActivation: 'sigmoid' })
   }
 
   nodeActivations(){
@@ -100,10 +71,11 @@ class GeneExpresser {
   }
 
   express(genome: Genome){
-    let inputs = this.context.getNodesOfType('INPUT')
-    let bias = this.context.getNodesOfType('BIAS')
-    let outputs = this.context.getNodesOfType('OUTPUT')
-    return new Network(packNodeList(inputs, bias, outputs, genome, this.nodeActivations()))
+    return new Network(
+      genome,
+      this.packer.fromConnections(values(genome), this.nodeActivations()),
+      this.packer.ranges
+    )
   }
 
 }

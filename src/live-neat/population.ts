@@ -3,19 +3,20 @@ import { weightedChoice } from '../random-utils'
 import configurator from './configurator'
 import Species from './species'
 import Creature from './creature'
+import GeneExpresser from './network/vanilla'
 
-export default class Population {
-
-  species: Set<Species>;
+export default class Population { species: Set<Species>;
   mutator: Mutator;
+  expressor: GeneExpresser;
   resources: number;
   age: number;
 
-  constructor(mutator, creatures?: Set<Creature>) {
+  constructor(mutator, expressor, creatures?: Set<Creature>) {
     this.mutator = mutator
+    this.expressor = expressor
     if (!creatures) {
       let genomes = Array.from(this.mutator.seed(configurator().population.initialSize))
-      creatures = new Set(genomes.map(genome => new Creature(genome)))
+      creatures = new Set(genomes.map(genome => new Creature(this.expressor.express(genome))))
     }
     this.species = new Set()
     for (let creature of creatures){
@@ -71,7 +72,7 @@ export default class Population {
     let { desiredRate, requiredResources } = configurator().reproduction
     if (Math.random() < desiredRate) {
       this.resources -= requiredResources
-      this.add(this.selectSpecies().procreate())
+      this.add(new Creature(this.expressor.express(this.selectSpecies().procreate()))
     }
   }
 

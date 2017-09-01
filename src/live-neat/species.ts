@@ -1,6 +1,7 @@
 import configurator from './configurator'
-import Creature, { crossover, distance } from './creature'
+import Creature, { distance } from './creature'
 import { weightedChoice } from '../random-utils'
+import { crossover } from './genome'
 
 
 export default class Species {
@@ -43,10 +44,10 @@ export default class Species {
     return getter[weightedChoice(weights)]
   }
 
-  procreate(): Creature{
+  procreate(): Creature {
     let a = this.selectCreature()
     let b = this.selectCreature({ not: a })
-    return crossover(a, b)
+    return crossover(a.network.genome, b.network.genome)
   }
 }
 
