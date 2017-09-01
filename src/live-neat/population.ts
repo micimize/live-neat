@@ -72,7 +72,7 @@ export default class Population { species: Set<Species>;
     let { desiredRate, requiredResources } = configurator().reproduction
     if (Math.random() < desiredRate) {
       this.resources -= requiredResources
-      this.add(new Creature(this.expressor.express(this.selectSpecies().procreate()))
+      this.add(new Creature(this.expressor.express(this.selectSpecies().procreate())))
     }
   }
 

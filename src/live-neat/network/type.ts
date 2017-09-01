@@ -1,3 +1,5 @@
+import Genome from '../genome'
+
 type Weight = number
 
 export type Range = [ number, number ] // [ start, end ]
@@ -5,7 +7,7 @@ export type Range = [ number, number ] // [ start, end ]
 export interface Node {
   value: number,
   from?: { [ nodeReference: number ]: Weight },
-  activate?: Function
+  activation?: string
 }
 
 export interface NetworkData {
@@ -14,7 +16,8 @@ export interface NetworkData {
 }
 
 export default interface Network extends NetworkData {
-  setInputs: (inputs: Array): void,
-  getOutputs: (): Array,
-  forward: (inputs: Array, count?: number): Array
+  genome: Genome,
+  setInputs(inputs: Array<number>): void,
+  getOutputs(): Array<number>,
+  forward(inputs: Array<number>, count?: number): Array<number>
 }

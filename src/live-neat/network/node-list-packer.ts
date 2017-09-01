@@ -1,4 +1,5 @@
 import { Node, Range, NetworkData } from './type'
+import { ConnectionGene  } from '../genome/connection-gene'
 
 type NodeReference = number
 
@@ -11,13 +12,13 @@ interface BaseParameters {
 
 export default class NodeListPacker implements NetworkData {
   readonly translator: { [nodeReference: number]: number };
-  readonly baseNodeList: Array<Node>;
+  readonly nodeList: Array<Node>;
   readonly ranges: {
     input: Range
     output: Range
   };
   constructor({ inputs, bias, outputs, outputActivation = 'sigmoid' }: BaseParameters){
-    let nodeList = inputs.sort().map(() => ({ value: 0 }))
+    let nodeList: Array<Node> = inputs.sort().map(() => ({ value: 0 }))
     let translator = inputs.reduce((t, i) => (t[i] = i, t), {})
 
     translator[bias[0]] = nodeList.push({ value: 1 }) - 1
@@ -31,12 +32,12 @@ export default class NodeListPacker implements NetworkData {
       translator[output] = nodeList.push({ activation: outputActivation, value: 0, from: {} }) - 1
     })
 
-    Object.assign(this, { translator, ranges, baseNodeList: nodeList })
+    Object.assign(this, { translator, ranges, nodeList: nodeList })
   }
 
-  fromConnections(connections: Array<Connection>, activations): Array<Node> {
-    let nodeList = Array.from(this.baseNodeList)
-    let translator = Object.assign({}, translator)
+  fromConnections(connections: Array<ConnectionGene>, activations): Array<Node> {
+    let nodeList = Array.from(this.nodeList)
+    let translator = Object.assign({}, this.translator)
 
     // add all "to" nodes 
     connections.forEach(({ to: id }) => {
@@ -46,7 +47,10 @@ export default class NodeListPacker implements NetworkData {
     // only add "from" to node if it is relevant
     connections.forEach(({ from, to, weight }) => {
       if (translator[from]){
-        nodeList[translator[to]].from[translator[from]] = weight
+        let node = nodeList[translator[to]]
+        if (node.from) {
+          node.from[translator[from]] = weight
+        }
       }
     })
     return nodeList

@@ -1,7 +1,8 @@
 import Genome, * as genome from './genome'
+import Network from './network/type'
 
 export function distance(a: Creature, b: Creature){
-  return genome.distance(a.genome, b.genome)
+  return genome.distance(a.network.genome, b.network.genome)
 }
 
 const increment = (
