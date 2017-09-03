@@ -1,7 +1,6 @@
 import * as React from 'react';
 import './App.css'
 import generationBoard, { offline } from './game'
-import trainer from './creature/genes'
 
 function Cell({ color = [ 255, 255, 255 ], direction, action, size }: any){ //{ color: [ number, number, number ], size: string }) {
   let style = {
@@ -19,7 +18,6 @@ interface SectionProps {
 interface SectionState {
     round: number,
     board: any,
-    species: any,
     interval?: any,
     stepInterval?: number,
     offlineRounds: number,
@@ -30,12 +28,10 @@ interface SectionState {
 class App extends React.Component<SectionProps, SectionState> {
   constructor(props: SectionProps) {
     super(props)
-    let species = trainer()
-    let { board } = generationBoard(species.genes)
+    let { board } = generationBoard()
     this.state = {
       round: 0,
       board,
-      species,
       offlineRounds: 10,
       stepInterval: 10
     }
@@ -70,7 +66,7 @@ class App extends React.Component<SectionProps, SectionState> {
         [ "Previous Top per population", species.bestOfSubPopulation.map(fitToAge).join(', ') ],
       ]
       species.evolve()
-      let { board, creatures } = generationBoard(species.genes) 
+      let { board, creatures } = generationBoard() 
       stats = [
         [ "Generation", species.getNumGeneration() ],
         [ "Max Nodes", creatures.map(c => c.brain.nodes).reduce(toMax, 0) ],

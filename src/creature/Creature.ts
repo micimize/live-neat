@@ -1,43 +1,41 @@
 // A creature is a piece with { age, action, direction, genome }
-// brain is a neural network that operates based on vision
-// brain signature is ([ age, weight, energy ...unrolledVision ]) => ({ action X direction })
+// extends the creature class from live-neat for management by Population
 // each turn costs minimum 1 energy + weight if moving
 
-import brain from './network'
-import { flattenRGBs, getSurroundings } from './visionUtils'
+import NeatCreature from '../live-neat/creature'
+import { networkDecoder } from '../live-neat/utils'
+import { flattenRGBs, getSurroundings } from './vision-utils'
 
-export default class Creature implements CreaturePiece {
+const decode = networkDecoder({
+  action: [ 'push', 'pull', 'bite', null ],
+  direction: [ 'right', 'left', 'up', 'down' ]
+})
+
+
+export default class Creature extends NeatCreature implements CreaturePiece {
 
   position: PiecePosition = { row: NaN, column: NaN };
   action: 'push' | 'pull' | 'bite' | null = null;
-  genome: any = null;
   direction: 'right' | 'left' | 'up' | 'down' = 'down';
   color: [ number, number, number ] = [ 0, 0, 255 ];
   weight = 5;
   age = 0;
   consumed = 0;
   energy = 100;
-  brain: any = {};
-
-  constructor({ /*color,*/ genome }: { /*color: [ number, number, number ],*/ genome: any }) {
-    this.genome = genome
-    //this.color = color
-    this.brain = brain(genome) 
-  }
 
   vision(board, position: PiecePosition){
     return getSurroundings({ board, position, range: 2 })
   }
 
   thinkAbout(vision: any[]){
-    return this.brain.think([ this.age, this.weight, this.energy, ...flattenRGBs(vision) ])
+    return decode(this.think([ this.age, this.weight, this.energy, ...flattenRGBs(vision) ])
   }
 
   process({ energy, action }: { energy: number, action: string }){
     this.age += 1
     let cost: number = (
       /* 10 additional or 100 connections require one more energy */ 
-      Math.floor(this.brain.complexity / 10) +
+      // Math.floor(this.network.complexity / 10) + TODO reimplement
       /*  every 5 years requires 1 more energy to get through */ 
       Math.floor(this.age / 5)
     )

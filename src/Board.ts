@@ -1,5 +1,6 @@
 import { shuffle } from './random-utils'
 import * as actions from './creature/actions'
+import Population from './live-neat'
 
 const moves = {
   'right': [ 0,  1],
@@ -17,29 +18,22 @@ function randomPosition({ rows, columns }: { rows: number, columns: number }) {
 
 export default class Board implements GameBoard {
   dimensions: { rows: number, columns: number };
-  actors: Set<CreaturePiece>;
-  deadActors: Set<CreaturePiece>;
+  population
   board: any[];
   moving: boolean = false;
+
   constructor({ rows, columns }: { rows: number, columns: number }) {
     this.dimensions = { rows, columns }
     this.board = new Array(rows)
       .fill(undefined)
       .map(() => new Array(columns).fill(undefined)) 
-    this.actors = new Set()
-    this.deadActors = new Set()
+
+    population.forEachCreature(
+      creature => board.addActor(board.randomEmptyPosition(), creature))
   }
   addObject({ row, column }: PiecePosition, piece: Piece){
     piece.position = { row, column }
     this.board[row][column] = piece
-  }
-  addActor(position: PiecePosition, creature: CreaturePiece){
-    this.addObject(position, creature)
-    this.actors.add(creature)
-  }
-  killActor(creature: CreaturePiece){
-    this.actors.delete(creature)
-    this.deadActors.add(creature)
   }
   setCell({ row, column }: PiecePosition, value: any){
     this.board[row][column] = value
@@ -80,32 +74,18 @@ export default class Board implements GameBoard {
     creature.process({ energy: remainingForce - force, action })
   }
 
-  checkForDeath(creature: CreaturePiece){
-    if(creature.isDead()){
-      this.killActor(creature)
-    }
-  } 
-
   resolveMoves = async () => {
-    await Promise.all(Array.from(this.actors).map(a => a.plan(this)))
-    shuffle(Array.from(this.actors))
-      .forEach(a => this.attemptMove(a))
-    this.actors.forEach(a => this.checkForDeath(a))
-  }
-
-  getState(){
-    return {
-      board: this.board,
-      living: this.actors,
-      dead: this.deadActors
-    }
+    await Promise.all(this.population.creatures.map(creature => creature.plan(this)))
+    shuffle(this.population.creatures)
+      .forEach(creature => this.attemptMove(creature))
+    this.population.step()
   }
 
   turn = async () => {
     this.moving = true
     this.resolveMoves()
     this.moving = false
-    return this.getState()
+    return this.population
   }
 
 }

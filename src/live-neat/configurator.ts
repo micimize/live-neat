@@ -23,6 +23,7 @@ export default () => ({
   },
   speciation: {
     speciesCount: 4,
+    heroCount: 5,
     initialCompatibilityThreshold: 6.0,
     compatibilityThreshold: 6.0,
     compatibilityModifier: 0.3,

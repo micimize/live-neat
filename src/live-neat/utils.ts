@@ -37,3 +37,15 @@ export function maxLayer(...actionLists: any[]){
   }
 }
 
+interface Decoder { (oneHot: number[]): any; outputSize?: number; }
+
+export function networkDecoder(options: object){
+  let actionClasses = Object.keys(options)
+  let layer = maxLayer(...actionClasses.map(c => options[c]))
+  const decodeDecision: Decoder = (oneHot: number[]) => layer.decode(oneHot)
+    .reduce((total, action, i) =>
+      Object.assign(total, {[actionClasses[i]]: action }), {})
+  decodeDecision.outputSize = layer.outputSize
+  return decodeDecision
+}
+

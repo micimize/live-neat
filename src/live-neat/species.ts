@@ -6,6 +6,7 @@ import { crossover } from './genome'
 
 export default class Species {
   creatures: Set<Creature>;
+  heroes: Array<Creature> = [];
   id: number;
 
   get fitness(): number {
@@ -49,6 +50,34 @@ export default class Species {
     let b = this.selectCreature({ not: a })
     return crossover(a.network.genome, b.network.genome)
   }
+
+  chronicleHero(creature: Creature): boolean {
+    // returns true if creature was a hero
+    let heroCount = this.heroes.length
+
+    if (heroCount < configurator().speciation.heroCount){
+      this.heroes.push(creature)
+      this.heroes = this.heroes.sort()
+      return true
+    } else if (
+      this.heros[heroCount - 1].fitness < creature.fitness || (
+        this.heros[heroCount - 1].fitness == creature && Math.random() < 0.5
+      )
+    ) {
+      this.heroes[heroCount - 1] = creature
+      this.heroes = this.heroes.sort()
+      return true
+    }
+    return false 
+  }
+
+  kill(creature: Creature): boolean {
+    if (!this.creatures.delete(creature)){
+      throw Error('creature does not belong to this species')
+    }
+    return this.chronicleHero(creature)
+  }
+
 }
 
 

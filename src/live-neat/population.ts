@@ -1,13 +1,19 @@
+import InnovationContext from './innovation-context'
 import { Mutator } from './genome'
+import GeneExpresser from './network/vanilla'
+
 import { weightedChoice } from '../random-utils'
 import configurator from './configurator'
 import Species from './species'
 import Creature from './creature'
-import GeneExpresser from './network/vanilla'
 
 // Creature should be dynamic, so the utilizing simulation can define it's own creature and have it managed
 // * live-neat manages Population and evolution
 // * utilizing simulation manages fitness and calls population.step as appropriate
+
+interface ICreature {
+  new (...any[]): Creature;
+}
 
 export default class Population {
   species: Set<Species>;
@@ -16,16 +22,36 @@ export default class Population {
   resources: number;
   age: number;
 
-  constructor(mutator, expressor, creatures?: Set<Creature>) {
-    this.mutator = mutator
-    this.expressor = expressor
-    if (!creatures) {
-      let genomes = Array.from(this.mutator.seed(configurator().population.initialSize))
-      creatures = new Set(genomes.map(genome => new Creature(this.expressor.express(genome))))
-    }
+  constructor(CreatureClass: ICreature = Creature) {
+    let context = new InnovationContext()
+    this.mutator = new Mutator(context)
+    this.expressor = new GeneExpresser(context)
+
+    let genomes = Array.from(this.mutator.seed(configurator().population.initialSize))
+    let creatures = new Set(genomes.map(genome => new CreatureClass(this.expressor.express(genome))))
     this.species = new Set()
     for (let creature of creatures){
       this.add(creature)
+    }
+  }
+
+  get size(){
+    return Array.from(this.species).reduce((size, s) => size + s.size, 0)
+  }
+
+  get creatures(){
+    let creatures = []
+    for (let species of this.species) {
+      creatures = creatures.concat(species.creatures)
+    }
+    return creatures
+  }
+
+  forEachCreature(func: Function): void {
+    for (let species of this.species) {
+      for (let creature of species.creatures) {
+        func(creature)
+      }
     }
   }
 
@@ -41,8 +67,11 @@ export default class Population {
   buryTheDead() {
     for (let species of this.species) {
       for (let creature of species.creatures) {
-        if (creature.fitness <= 0){
-          species.creatures.delete(creature)
+        if (creature.energy <= 0){
+          if(creature.kill){
+            creature.kill()
+          }
+          species.kill(creature)
         }
       }
     }
@@ -73,21 +102,23 @@ export default class Population {
     return getter[weightedChoice(weights)]
   }
 
-  attemptReproduction(){
+  attemptReproduction(): Creature? {
     let { desiredRate, requiredResources } = configurator().reproduction
     if (Math.random() < desiredRate) {
       this.resources -= requiredResources
-      this.add(new Creature(this.expressor.express(this.selectSpecies().procreate())))
+      let creature = new Creature(this.expressor.express(this.selectSpecies().procreate()))
+      this.add(creature)
+      return creature
     }
   }
 
-  step(){
+  step(): Creature? {
     this.buryTheDead()
     if(this.resources > configurator().reproduction.requiredResources){
-      this.attemptReproduction()
+      this.age++
+      return this.attemptReproduction()
     }
     this.age++
-    return this
   }
 
 }

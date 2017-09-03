@@ -1,4 +1,5 @@
 import Creature from './creature/Creature'
+import Population from './live-neat'
 import Board from './Board'
 
 function plant(): Food {
@@ -11,16 +12,15 @@ function plant(): Food {
   }
 }
 
-export default function generationBoard(genes){
-  let board = new Board({ rows: genes.length, columns: genes.length })
-  let creatures = genes.map(genome => new Creature({ genome }))
-  creatures.forEach(creature => board.addActor(board.randomEmptyPosition(), creature))
-  let wantedPlants = genes.length * 10
-  while(wantedPlants){
+let population = new Population(Creature)
+
+export default function generationBoard(){
+  let board = new Board({ rows: genes.length, columns: genes.length, population })
+  let wantedPlants = population.size * 10
+  while(wantedPlants--){
     board.addObject(board.randomEmptyPosition(), plant())
-    wantedPlants--
   }
-  return { board, creatures }
+  return board
 }
 
 
