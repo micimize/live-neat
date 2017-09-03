@@ -15,7 +15,6 @@ const activations = {
 
 
 class SimpleNetwork implements Network{
-
   constructor(
     public genome: Genome,
     public nodeList: Array<Node>,

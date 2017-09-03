@@ -1,8 +1,11 @@
 
+export const INPUT_VECTOR_SIZE = (3 + (5 * 5 * 3))
+export const OUTPUT_VECTOR_SIZE = 4 * 4
+
 export default () => ({
   initialNetwork: {
-    inputs: 5,
-    outputs: 5,
+    inputs: INPUT_VECTOR_SIZE,
+    outputs: OUTPUT_VECTOR_SIZE,
     opener: 'fully-connected',
     activations: [ 'sigmoid' ]
   },

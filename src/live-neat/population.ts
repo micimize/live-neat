@@ -5,7 +5,12 @@ import Species from './species'
 import Creature from './creature'
 import GeneExpresser from './network/vanilla'
 
-export default class Population { species: Set<Species>;
+// Creature should be dynamic, so the utilizing simulation can define it's own creature and have it managed
+// * live-neat manages Population and evolution
+// * utilizing simulation manages fitness and calls population.step as appropriate
+
+export default class Population {
+  species: Set<Species>;
   mutator: Mutator;
   expressor: GeneExpresser;
   resources: number;
