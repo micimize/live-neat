@@ -12,7 +12,7 @@ import Creature from './creature'
 // * utilizing simulation manages fitness and calls population.step as appropriate
 
 interface ICreature {
-  new (...any[]): Creature;
+  new (...rest: any[]): Creature;
 }
 
 export default class Population {
@@ -36,13 +36,13 @@ export default class Population {
   }
 
   get size(){
-    return Array.from(this.species).reduce((size, s) => size + s.size, 0)
+    return Array.from(this.species).reduce((size, s) => size + s.creatures.size, 0)
   }
 
   get creatures(){
-    let creatures = []
+    let creatures: Creature[] = []
     for (let species of this.species) {
-      creatures = creatures.concat(species.creatures)
+      creatures = creatures.concat(Array.from(species.creatures))
     }
     return creatures
   }
@@ -102,7 +102,7 @@ export default class Population {
     return getter[weightedChoice(weights)]
   }
 
-  attemptReproduction(): Creature? {
+  attemptReproduction(): Creature | void {
     let { desiredRate, requiredResources } = configurator().reproduction
     if (Math.random() < desiredRate) {
       this.resources -= requiredResources
@@ -112,7 +112,7 @@ export default class Population {
     }
   }
 
-  step(): Creature? {
+  step(): Creature | void {
     this.buryTheDead()
     if(this.resources > configurator().reproduction.requiredResources){
       this.age++

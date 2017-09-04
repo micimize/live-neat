@@ -57,15 +57,15 @@ export default class Species {
 
     if (heroCount < configurator().speciation.heroCount){
       this.heroes.push(creature)
-      this.heroes = this.heroes.sort()
+      this.heroes.sort()
       return true
     } else if (
-      this.heros[heroCount - 1].fitness < creature.fitness || (
-        this.heros[heroCount - 1].fitness == creature && Math.random() < 0.5
+      this.heroes[heroCount - 1].fitness < creature.fitness || (
+        this.heroes[heroCount - 1].fitness == creature.fitness && Math.random() < 0.5
       )
     ) {
       this.heroes[heroCount - 1] = creature
-      this.heroes = this.heroes.sort()
+      this.heroes.sort()
       return true
     }
     return false 

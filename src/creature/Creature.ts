@@ -28,7 +28,7 @@ export default class Creature extends NeatCreature implements CreaturePiece {
   }
 
   thinkAbout(vision: any[]){
-    return decode(this.think([ this.age, this.weight, this.energy, ...flattenRGBs(vision) ])
+    return decode(this.think([ this.age, this.weight, this.energy, ...flattenRGBs(vision) ]))
   }
 
   process({ energy, action }: { energy: number, action: string }){
@@ -46,12 +46,9 @@ export default class Creature extends NeatCreature implements CreaturePiece {
     this.color = [ 0, 0, 155 + Math.floor(this.energy / 10)]
   }
 
-  isDead(){
-    if(this.energy <= 0){
-      this.color = [ 0, 0, 100 ]
-      return true
-    }
-    return false
+
+  kill() {
+    this.color = [ 0, 0, 100 ]
   }
 
   plan = async (board) => {

@@ -1,4 +1,4 @@
-import Creature from './creature/Creature'
+import Creature from './creature/creature'
 import Population from './live-neat'
 import Board from './Board'
 
@@ -15,7 +15,8 @@ function plant(): Food {
 let population = new Population(Creature)
 
 export default function generationBoard(){
-  let board = new Board({ rows: genes.length, columns: genes.length, population })
+  let size = population.size
+  let board = new Board({ rows: size, columns: size, population })
   let wantedPlants = population.size * 10
   while(wantedPlants--){
     board.addObject(board.randomEmptyPosition(), plant())
@@ -24,21 +25,3 @@ export default function generationBoard(){
 }
 
 
-const maxFit = genes =>
-  genes.map(({ fitness }) => Math.sqrt(fitness))
-    .reduce((max, f = 0) => f > max ? f : max, 0)
-
-export async function offline({ species, board, rounds }){
-  console.log(board)
-  let round = 0
-  while(round < rounds){
-    while(board.turn().living.length){
-      continue
-    }
-    species.applyFitnessFunc()
-    species.evolve()
-    board = generationBoard(species.genes)
-    round++
-  }
-  return { species, board }
-}

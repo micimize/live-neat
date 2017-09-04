@@ -18,18 +18,19 @@ function randomPosition({ rows, columns }: { rows: number, columns: number }) {
 
 export default class Board implements GameBoard {
   dimensions: { rows: number, columns: number };
-  population
+  population: any;
   board: any[];
   moving: boolean = false;
 
-  constructor({ rows, columns }: { rows: number, columns: number }) {
+  constructor({ rows, columns, population }: { rows: number, columns: number, population: any }) {
     this.dimensions = { rows, columns }
     this.board = new Array(rows)
       .fill(undefined)
       .map(() => new Array(columns).fill(undefined)) 
 
-    population.forEachCreature(
-      creature => board.addActor(board.randomEmptyPosition(), creature))
+    this.population = population
+    this.population.forEachCreature(
+      creature => this.addObject(this.randomEmptyPosition(), creature))
   }
   addObject({ row, column }: PiecePosition, piece: Piece){
     piece.position = { row, column }

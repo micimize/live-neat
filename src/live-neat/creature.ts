@@ -22,5 +22,7 @@ export default class Creature {
   think(input){
     return this.network.forward(input)
   }
+  kill() {
+  }
 }
 
