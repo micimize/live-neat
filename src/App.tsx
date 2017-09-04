@@ -25,7 +25,7 @@ interface SectionState {
 class App extends React.Component<SectionProps, SectionState> {
   constructor(props: SectionProps) {
     super(props)
-    let { board } = generationBoard()
+    let board = generationBoard()
     this.state = {
       round: 0,
       board,

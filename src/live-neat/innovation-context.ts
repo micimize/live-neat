@@ -50,9 +50,10 @@ export default class InnovationContext {
 
   innovation: number = 3;
   _activations = { 0: 'INPUT', 1: 'BIAS', 2: 'OUTPUT' };
-  activations: InnovationMap<ActivationRef>;
-  nodes: InnovationMap<Node>;
-  connections: InnovationMap<Connection>;
+  _nodeTypeEnum = { INPUT: 0, BIAS: 1, OUTPUT: 2 };
+  activations: InnovationMap<ActivationRef> = {};
+  nodes: InnovationMap<Node> = {};
+  connections: InnovationMap<Connection> = {};
 
   constructor(){
     let {
@@ -84,7 +85,8 @@ export default class InnovationContext {
     }
   }
 
-  getNodesOfType(nodeType): number[]{
+  getNodesOfType(nodeType: number | string): number[]{
+    nodeType = typeof(nodeType) === 'string' ? this._nodeTypeEnum[nodeType] : nodeType
     return Object.keys(this.nodes)
       .filter(k => this.nodes[k] === nodeType)
       .map(Number)

@@ -12,11 +12,18 @@ function randomConnection(genome: Genome): ConnectionGene {
   return random.selection(values(genome))
 }
 
+function getNodes(genome: Genome): Set<number> {
+  let nodes = new Set()
+  values(genome).forEach(({ from, to }: PotentialConnection) => {
+    nodes.add(from)
+    nodes.add(to)
+  })
+  return nodes
+}
+
 function randomPotentialConnection(genome: Genome): PotentialConnection | void {
   let signatures = new Set(values(genome).map(signature))
-  let nodes = new Set(values(genome).reduce((nodes, { from, to }: PotentialConnection) => (
-    nodes[from] = true, nodes[to] = true, nodes
-  ), {}))
+  let nodes = getNodes(genome)
   for (let from of random.shuffle(Object.keys(nodes))) {
     for (let to of random.shuffle(Object.keys(nodes))) {
       if (from !== to && !signatures.has(signature({ from, to }))){

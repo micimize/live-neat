@@ -32,7 +32,7 @@ export function maxLayer(...actionLists: any[]){
   return {
     outputSize: product.length,
     decode(vector: any[]){
-      return product.item(indexOfMax(vector.map(v => v.get(0, 0))))
+      return product.item(indexOfMax(vector))
     }
   }
 }

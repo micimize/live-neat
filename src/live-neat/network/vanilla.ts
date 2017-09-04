@@ -62,6 +62,7 @@ export default class GeneExpresser {
   readonly packer: NodeListPacker;
 
   constructor(context: InnovationContext){
+    this.context = context
     let inputs = this.context.getNodesOfType('INPUT').sort()
     let bias = this.context.getNodesOfType('BIAS')
     let outputs = this.context.getNodesOfType('OUTPUT').sort()
