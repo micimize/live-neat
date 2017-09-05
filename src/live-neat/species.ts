@@ -3,6 +3,10 @@ import Creature, { distance } from './creature'
 import { weightedChoice } from '../random-utils'
 import { crossover } from './genome'
 
+const increment = (
+  (ascending = 0) => () => ascending++
+)()
+
 
 export default class Species {
   creatures: Set<Creature>;
@@ -18,6 +22,7 @@ export default class Species {
   }
 
   constructor(...creatures: Array<Creature>) {
+    this.id = increment()
     this.creatures = new Set(creatures)
   }
 
@@ -32,17 +37,24 @@ export default class Species {
     return false
   }
 
-  selectCreature({ not }: { not?: Creature } = {}){
+  selectCreature({ not }: { not?: Creature } = {}): Creature {
     let weights = {}
     let getter = {}
     for (let creature of this.creatures) {
       if (creature !== not){
         let { fitness, id } = creature
-        weights[id] = fitness
+        weights[id] = fitness || 0
         getter[id] = creature
       }
     }
-    return getter[weightedChoice(weights)]
+    let id = weightedChoice(weights)
+    let creature = getter[id]
+    if(!creature){
+      (window as any).weightedChoice = weightedChoice
+      console.log({ weights, getter, id })
+      debugger;
+    }
+    return creature
   }
 
   procreate(): Creature {

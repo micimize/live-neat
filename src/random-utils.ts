@@ -3,20 +3,23 @@ function values(obj){
 }
 
 
-export function shuffle(array: Array<any>) {
-  var currentIndex = array.length, temporaryValue, randomIndex;
+export function shuffle(_array: Array<any>): Array<any> {
+  // Fisher-Yates Shuffle
+  let array = [..._array] 
+  let counter = array.length
 
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
+  while (counter > 0) {
+    let index = Math.floor(Math.random() * counter)
 
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
+    counter--
 
-    // And swap it with the current element.
-    temporaryValue = array[currentIndex]; array[currentIndex] = array[randomIndex]; array[randomIndex] = temporaryValue; }
+    // And swap the last element with it
+    let temp = array[counter]
+    array[counter] = array[index]
+    array[index] = temp
+  }
 
-  return array;
+  return array
 }
 
 export function subset(obj: object, size: number) {
@@ -25,16 +28,17 @@ export function subset(obj: object, size: number) {
     .reduce((sub, key) => (sub[key] = obj[key], sub), {})
 }
 
-export function weightedChoice(weights): any {
-  let scale = values(weights).reduce((total, weight) => total + weight, 0)
-  let selector = Math.random()
-  for (let choice in shuffle(Object.keys(weights))) {
-    let weight = weights[choice] / scale
-    if (weight > selector){
+export function weightedChoice(weights: { [choice: string]: number }): string {
+  let scale = Object.keys(weights).reduce((total, k) => total + (weights[k] || 0), 0)
+  let selector = Math.floor(Math.random() * scale)
+  let weightSum = 0
+  for (let choice of shuffle(Object.keys(weights))) {
+    weightSum += weights[choice] || 0
+    if (weightSum >= selector){
       return choice
     }
-    selector -= weight
   }
+  throw Error('weights somehow invalid')
 }
 
 export function selection<T>(choices: Array<T>): T {

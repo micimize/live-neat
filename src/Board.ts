@@ -21,6 +21,7 @@ export default class Board implements GameBoard {
   population: any;
   board: any[];
   moving: boolean = false;
+  living: Set<Food> = new Set();
 
   constructor({ rows, columns, population }: { rows: number, columns: number, population: any }) {
     this.dimensions = { rows, columns }
@@ -35,6 +36,9 @@ export default class Board implements GameBoard {
   addObject({ row, column }: PiecePosition, piece: Piece){
     piece.position = { row, column }
     this.board[row][column] = piece
+    if ('energy' in piece) {
+      this.living.add(piece as Food)
+    }
   }
   setCell({ row, column }: PiecePosition, value: any){
     this.board[row][column] = value
@@ -75,16 +79,29 @@ export default class Board implements GameBoard {
     creature.process({ energy: remainingForce - force, action })
   }
 
-  resolveMoves = async () => {
-    await Promise.all(this.population.creatures.map(creature => creature.plan(this)))
+  resolveMoves = /*async*/ () => {
+    //await Promise.all(
+      this.population.creatures.map(creature => creature.plan(this))
+      //)
     shuffle(this.population.creatures)
       .forEach(creature => this.attemptMove(creature))
-    this.population.step()
+    this.population.step().map(newCreature =>
+      this.addObject(this.randomEmptyPosition(), newCreature))
   }
 
-  turn = async () => {
+  buryRotten = /*async*/ (turnNumber: number) => {
+    for (let organism of this.living) {
+      if(organism.energy <= 0 && organism.age < turnNumber + 10) {
+        this.setCell(organism.position, undefined)
+        this.living.delete(organism)
+      }
+    }
+  }
+
+  turn = /*async*/ (turnNumber: number) => {
     this.moving = true
     this.resolveMoves()
+    this.buryRotten(turnNumber)
     this.moving = false
     return this.population
   }

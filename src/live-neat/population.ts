@@ -17,6 +17,7 @@ interface ICreature {
 
 export default class Population {
   species: Set<Species>;
+  Creature: ICreature;
   mutator: Mutator;
   expressor: GeneExpresser;
   resources: number;
@@ -27,6 +28,7 @@ export default class Population {
     this.mutator = new Mutator(context)
     this.expressor = new GeneExpresser(context)
 
+    this.Creature = CreatureClass
     let genomes = Array.from(this.mutator.seed(configurator().population.initialSize))
     let creatures = new Set(genomes.map(genome => new CreatureClass(this.expressor.express(genome))))
     this.species = new Set()
@@ -64,18 +66,26 @@ export default class Population {
     return false
   }
 
-  buryTheDead() {
+  buryTheDead(): Array<Creature> {
+    let keepAlives: Creature[] = []
     for (let species of this.species) {
       for (let creature of species.creatures) {
         if (creature.energy <= 0){
           if(creature.kill){
             creature.kill()
           }
+          if(this.size + keepAlives.length - 1 <= configurator().population.minSize){
+            let creature = new this.Creature(
+              this.expressor.express(this.selectSpecies().procreate())
+            )
+            this.add(creature)
+            keepAlives.push(creature)
+          }
           species.kill(creature)
         }
       }
     }
-    return false
+    return keepAlives
   }
 
   add(creature: Creature) {
@@ -106,19 +116,22 @@ export default class Population {
     let { desiredRate, requiredResources } = configurator().reproduction
     if (Math.random() < desiredRate) {
       this.resources -= requiredResources
-      let creature = new Creature(this.expressor.express(this.selectSpecies().procreate()))
+      let creature = new this.Creature(this.expressor.express(this.selectSpecies().procreate()))
       this.add(creature)
       return creature
     }
   }
 
-  step(): Creature | void {
-    this.buryTheDead()
-    if(this.resources > configurator().reproduction.requiredResources){
-      this.age++
-      return this.attemptReproduction()
-    }
+  step(): Array<Creature> {
+    let keepAlives = this.buryTheDead() // TODO this also handles keep alive, which is kinda dumb
     this.age++
+    if(this.resources > configurator().reproduction.requiredResources){
+      let baby = this.attemptReproduction()
+      if(baby) {
+        keepAlives.push(baby)
+      }
+    }
+    return keepAlives
   }
 
 }

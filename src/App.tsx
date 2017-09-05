@@ -33,11 +33,12 @@ class App extends React.Component<SectionProps, SectionState> {
     }
   }
 
-  step = async () => {
+  step = /*async*/ () => {
     if(this.state.board.moving){
       return
     }
-    await this.state.board.turn()
+    //await
+    this.state.board.turn(this.state.round)
     this.setState({ round: this.state.round + 1 })
   }
 

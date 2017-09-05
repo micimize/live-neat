@@ -11,6 +11,7 @@ export default () => ({
   },
   population: {
     initialSize: 100,
+    minSize: 100,
     ageSignificance: 4,
   },
   reproduction: {
