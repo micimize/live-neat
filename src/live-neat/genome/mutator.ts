@@ -55,7 +55,7 @@ export default class Mutator {
     if (Math.random() < configurator().mutation.newNodeProbability) {
       let connection = randomConnection(genome)
       let mutated = initializeNode(connection, this.context.insertNode(connection))
-      Object.assign(genome, mutated)
+      return Object.assign({}, genome, mutated)
     }
     return genome
   }
@@ -66,7 +66,7 @@ export default class Mutator {
       if (potentialConnection){
         let connection = this.context.newConnection(potentialConnection)
         let gene = initializeConnection(connection)
-        genome[gene.innovation] = gene
+        return Object.assign({}, genome, { [gene.innovation]: gene })
       }
     }
     return genome
@@ -97,9 +97,8 @@ export default class Mutator {
   seed(size: number): Set<Genome> {
     let seed = this.initializeConnections()
     let genomes: Set<Genome> = new Set()
-    while (size){
+    while (size--){
       genomes.add(this.mutate(seed))
-      size--
     }
     return genomes
   }

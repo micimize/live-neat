@@ -30,8 +30,8 @@ export default () => ({
     compatibilityModifier: 0.3,
   },
   mutation: {
-    newNodeProbability: 0.0025,
-    newConnectionProbability: 0.1,
+    newNodeProbability: 1,//0.0025,
+    newConnectionProbability: 1,
     weightChange: {
       probability: 0.9,
       power: 2.5

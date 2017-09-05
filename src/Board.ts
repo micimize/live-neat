@@ -48,8 +48,12 @@ export default class Board implements GameBoard {
   }
   randomEmptyPosition(){
     let position = randomPosition(this.dimensions)
+    let tries = 0
     while (this.getCell(position)){
       position = randomPosition(this.dimensions)
+      if(tries++ > 1000){
+        throw Error('dumb shit')
+      }
     }
     return position
   }
@@ -69,21 +73,20 @@ export default class Board implements GameBoard {
       column >= this.dimensions.columns
     )
   }
-  attemptMove({ weight: force, direction, action, position }: CreaturePiece){
+  attemptMove(creature: CreaturePiece){
     // attempt to move cell from given row and column
-    // has force & direction if part of a reaction chain, otherwise, we'll begin a chain with force equal to weight
+    let { weight: force, direction, action, position } = creature
     let [ _, remainingForce, newPosition ] = (direction && action) ?
       actions[action](position, { force, direction: moves[direction] }, this) :
       [ true, force, position ]
-    let creature = this.getCell(newPosition)
     creature.process({ energy: remainingForce - force, action })
   }
 
   resolveMoves = /*async*/ () => {
     //await Promise.all(
-      this.population.creatures.map(creature => creature.plan(this))
+      this.population.creatures.map(creature => creature.energy && creature.plan(this))
       //)
-    shuffle(this.population.creatures)
+    /*shuffle(*/this.population.creatures/*)*/
       .forEach(creature => this.attemptMove(creature))
     this.population.step().map(newCreature =>
       this.addObject(this.randomEmptyPosition(), newCreature))
@@ -91,7 +94,7 @@ export default class Board implements GameBoard {
 
   buryRotten = /*async*/ (turnNumber: number) => {
     for (let organism of this.living) {
-      if(organism.energy <= 0 && organism.age < turnNumber + 10) {
+      if(organism.energy <= 0 && organism.age + 15 < turnNumber) {
         this.setCell(organism.position, undefined)
         this.living.delete(organism)
       }

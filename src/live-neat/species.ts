@@ -31,8 +31,8 @@ export default class Species {
     for (let member of this.creatures){
       if (distance(member, creature) < compatibilityThreshold){
         this.creatures.add(creature)
+        return true
       }
-      return true
     }
     return false
   }

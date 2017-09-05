@@ -36,7 +36,7 @@ export default class NodeListPacker implements NetworkData {
   }
 
   fromConnections(connections: Array<ConnectionGene>, activations): Array<Node> {
-    let nodeList = Array.from(this.nodeList)
+    let nodeList = this.nodeList.map(node => Object.assign({}, node))
     let translator = Object.assign({}, this.translator)
 
     // add all "to" nodes 

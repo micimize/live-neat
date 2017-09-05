@@ -20,7 +20,6 @@ export default class Creature extends NeatCreature implements CreaturePiece {
   color: [ number, number, number ] = [ 0, 0, 255 ];
   weight = 5;
   age = 0;
-  consumed = 0;
   energy = 100;
 
   vision(board, position: PiecePosition){
@@ -28,10 +27,10 @@ export default class Creature extends NeatCreature implements CreaturePiece {
   }
 
   thinkAbout(vision: any[]){
-    return decode(this.think([ this.age / 100.0, this.weight / 5.0, this.energy / 100.0 , ...flattenRGBs(vision) ]))
+    return decode(this.think([ 0 /*this.age*/ / 100.0, this.weight / 5.0, /*this.energy*/ 0 / 100.0 , ...flattenRGBs(vision) ]))
   }
 
-  process({ energy, action }: { energy: number, action: string }){
+  process({ energy, action }: { energy: number, action: string }): void {
     this.age += 1
     let cost: number = (
       /* 10 additional or 100 connections require one more energy */ 
@@ -39,8 +38,8 @@ export default class Creature extends NeatCreature implements CreaturePiece {
       /*  every 5 years requires 1 more energy to get through */ 
       Math.floor(this.age / 5)
     )
-    if(energy < 0){
-      this.consumed += energy
+    if(energy > 0){
+      this.fitness += energy
     }
     this.energy = Math.max(this.energy - energy - cost, 0)
     this.color = [ 0, 0, 155 + Math.floor(this.energy / 10)]
@@ -51,7 +50,7 @@ export default class Creature extends NeatCreature implements CreaturePiece {
     this.color = [ 0, 0, 100 ]
   }
 
-  plan = async (board) => {
+  plan = async (board: GameBoard) => {
     let { direction, action } = this.thinkAbout(this.vision(board, this.position))
     this.direction = direction
     this.action = action
