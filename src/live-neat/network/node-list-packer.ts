@@ -41,7 +41,9 @@ export default class NodeListPacker implements NetworkData {
 
     // add all "to" nodes 
     connections.forEach(({ to: id }) => {
-      translator[id] = nodeList.push({ activation: activations[id], value: 0, from: {} }) - 1
+      if (!translator[id]){
+        translator[id] = nodeList.push({ activation: activations[id], value: 0, from: {} }) - 1
+      }
     })
 
     // only add "from" to node if it is relevant

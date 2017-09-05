@@ -1,6 +1,6 @@
 export function flattenRGBs(cells: any){
   return cells.reduce((rgbs: any, { color = [ 255, 255, 255 ] } = {}) =>
-    [...rgbs, ...color ], [])
+    [...rgbs, ...color.map(c =>  c / 255.0) ], [])
 }
 
 export function getSurroundings({ board, position: { row, column }, range }: any){

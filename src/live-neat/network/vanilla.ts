@@ -9,12 +9,11 @@ function values(obj): any[] {
 
 const activations = {
   sigmoid(t: number) {
-    return 1 / ( 1 + Math.pow( Math.E, -t ));
+    return 1.0 / ( 1.0 + Math.exp( -t ))
   }
 }
 
-
-class SimpleNetwork implements Network{
+class SimpleNetwork implements Network {
   constructor(
     public genome: Genome,
     public nodeList: Array<Node>,
@@ -28,22 +27,35 @@ class SimpleNetwork implements Network{
       this.nodeList[index].value = input)
   }
 
-  getOutputs(): Array<number> {
+  get inputs(): Array<number> {
+    return this.nodeList
+      .slice(...this.ranges.input)
+      .map(({ value }) => value)
+  }
+
+  get outputs(): Array<number> {
     return this.nodeList
       .slice(...this.ranges.output)
       .map(({ value }) => value)
   }
-  activate(node){
+
+  activate(node, nodeValues){
     let inputs = Object.keys(node.from)
       .reduce((sum, from) => (
-        sum + this.nodeList[from].value * node.from[from].weight
+        sum + nodeValues[from] * node.from[from]
       ), 0)
     node.value = activations[node.activation](inputs)
   }
   tick(){
+    // const STRICT_TICKS = true
+    // copy node values so that activations are simultaneous
+    // sidenote: a nodes x nodes matrix of connection weights could represent the whole network
+    //           I'm not sure what kind of performance boost that would yield
+
+    let nodeValues = this.nodeList.map(node => node.value)
     for (let node of this.nodeList){
       if (node.activation){
-        this.activate(node)
+        this.activate(node, nodeValues)
       }
     }
   }
@@ -52,7 +64,7 @@ class SimpleNetwork implements Network{
     while(count--){
       this.tick()
     }
-    return this.getOutputs()
+    return this.outputs
   }
 }
 

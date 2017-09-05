@@ -28,7 +28,7 @@ export default class Creature extends NeatCreature implements CreaturePiece {
   }
 
   thinkAbout(vision: any[]){
-    return decode(this.think([ this.age, this.weight, this.energy, ...flattenRGBs(vision) ]))
+    return decode(this.think([ this.age / 100.0, this.weight / 5.0, this.energy / 100.0 , ...flattenRGBs(vision) ]))
   }
 
   process({ energy, action }: { energy: number, action: string }){

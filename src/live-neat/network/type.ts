@@ -18,6 +18,7 @@ export interface NetworkData {
 export default interface Network extends NetworkData {
   genome: Genome,
   setInputs(inputs: Array<number>): void,
-  getOutputs(): Array<number>,
+  inputs: Array<number>,
+  outputs: Array<number>,
   forward(inputs: Array<number>, count?: number): Array<number>
 }

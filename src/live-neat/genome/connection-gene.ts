@@ -56,7 +56,9 @@ export function select(a: ConnectionGene, b: ConnectionGene){
 
 function weightMutation(): number {
   let { weightChange } = configurator().mutation
-  return Math.random() < weightChange.probability ? Math.min(0, weightChange.power) : 0
+  return Math.random() < weightChange.probability ?
+    (Math.random() * 2 - 1) * weightChange.power :
+    0
 }
 
 export function mutateWeight(gene: ConnectionGene) {
@@ -73,7 +75,7 @@ export function initializeConnection(gene: ConnectionInnovation): ConnectionGene
   return Object.assign({
     active: true,
     recurrent: false,
-    weight: Math.random() * 10
+    weight: Math.random()
   }, gene)
 }
 
