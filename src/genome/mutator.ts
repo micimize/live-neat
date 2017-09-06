@@ -1,5 +1,5 @@
 import InnovationContext, { InnovationMap } from '../innovation-context'
-import * as random from '../../random-utils'
+import * as random from '../random-utils'
 import { PotentialConnection, ConnectionGene, signature, initializeConnection, mutateWeight } from './connection-gene'
 import Genome from './type'
 import configurator from '../configurator'

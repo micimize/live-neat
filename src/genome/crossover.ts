@@ -1,5 +1,5 @@
 import Genome from './type'
-import * as random from '../../random-utils'
+import * as random from '../random-utils'
 import { connectionExpressionTracker, select as selectGene } from './connection-gene'
 
 function mix(a: Genome, b: Genome) {

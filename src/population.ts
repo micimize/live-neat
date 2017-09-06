@@ -2,7 +2,7 @@ import InnovationContext from './innovation-context'
 import { Mutator } from './genome'
 import GeneExpresser from './network/vanilla'
 
-import { weightedChoice } from '../random-utils'
+import { weightedChoice } from './random-utils'
 import configurator from './configurator'
 import Species from './species'
 import Creature from './creature'
