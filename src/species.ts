@@ -1,6 +1,6 @@
 import configurator from './configurator'
 import Creature, { distance } from './creature'
-import { selection, weightedChoice } from '../random-utils'
+import { selection, weightedChoice } from './random-utils'
 import Genome, { crossover } from './genome'
 
 const increment = (

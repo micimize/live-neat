@@ -82,16 +82,18 @@ export default class GeneExpresser {
   }
 
   nodeActivations(){
-    let nodes = this.context.nodes
+    let { nodes, activations } = this.context
     return Object.keys(nodes)
-      .filter(n => nodes[n].activation !== undefined) 
-      .reduce((activations, n) => (activations[n] = nodes[n].activation, activations), {})
+      .reduce((nodeAct, n) => (nodeAct[n] = activations[nodes[n]], nodeAct), {})
   }
 
   express(genome: Genome){
     return new SimpleNetwork(
       genome,
-      this.packer.fromConnections(values(genome), this.nodeActivations()),
+      this.packer.fromConnections(
+        values(genome).filter(c => c.active),
+        this.nodeActivations()
+      ),
       this.packer.ranges
     )
   }

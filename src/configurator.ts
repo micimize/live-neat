@@ -1,6 +1,6 @@
 
-export const INPUT_VECTOR_SIZE = (3 + (5 * 5 * 3))
-export const OUTPUT_VECTOR_SIZE = 4 * 4
+export const INPUT_VECTOR_SIZE = 2
+export const OUTPUT_VECTOR_SIZE = 1
 
 export default () => ({
   initialNetwork: {
@@ -10,9 +10,9 @@ export default () => ({
     activations: [ 'sigmoid' ]
   },
   population: {
-    initialSize: 50,
+    initialSize: 1,
     minSize: 50,
-    ageSignificance: 4,
+    ageSignificance: 1 / 5,
   },
   reproduction: {
     requiredResources: 100,

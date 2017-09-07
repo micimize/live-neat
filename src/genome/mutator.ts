@@ -90,6 +90,7 @@ export default class Mutator {
     let connections = this.context.connections
     return Object.keys(connections).reduce((init, innovation) => {
       init[innovation] = initializeConnection(connections[innovation])
+      init[innovation].innovation = innovation
       return init
     }, {})
   }

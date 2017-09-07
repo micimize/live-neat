@@ -1,4 +1,4 @@
-import * as random from '../random-utils'
+import * as random from './random-utils'
 import configurator from './configurator'
 
 interface Innovation {
@@ -48,7 +48,7 @@ const activationFunctionMap: {
 
 export default class InnovationContext {
 
-  innovation: number = 3;
+  innovation: number = 2;
   _activations = { 0: 'INPUT', 1: 'BIAS', 2: 'OUTPUT' };
   _nodeTypeEnum = { INPUT: 0, BIAS: 1, OUTPUT: 2 };
   activations: InnovationMap<ActivationRef> = {};
@@ -73,7 +73,7 @@ export default class InnovationContext {
 
 
   innovate(attribute: 'activations' | 'nodes' | 'connections', value){
-    this[attribute][this.innovation++] = value
+    this[attribute][++this.innovation] = value
     return this.innovation
   }
 
