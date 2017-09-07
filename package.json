@@ -3,8 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/chai": "^4.0.4",
+    "@types/mocha": "^2.2.42",
     "@types/node": "^7.0.27",
     "deeplearn": "^0.1.0",
+    "mocha-typescript": "^1.1.7",
     "paralleljs": "^0.2.1",
     "tensorfire": "^0.9.1"
   },

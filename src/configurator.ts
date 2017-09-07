@@ -10,8 +10,8 @@ export default () => ({
     activations: [ 'sigmoid' ]
   },
   population: {
-    initialSize: 100,
-    minSize: 100,
+    initialSize: 50,
+    minSize: 50,
     ageSignificance: 4,
   },
   reproduction: {
@@ -19,14 +19,14 @@ export default () => ({
     desiredRate: 0.01
   },
   distance: {
-    innovationDifferenceCoefficient: 3,
+    innovationDifferenceCoefficient: 2,
     weightDifferenceCoefficient: 1
   },
   speciation: {
     speciesCount: 4,
     heroCount: 5,
-    initialCompatibilityThreshold: 6.0,
-    compatibilityThreshold: 6.0,
+    initialCompatibilityThreshold: 20.0,
+    compatibilityThreshold: 20.0,
     compatibilityModifier: 0.3,
   },
   mutation: {
