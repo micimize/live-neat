@@ -31,16 +31,13 @@ export default class Creature {
   }
 
   process(energy: number): void {
-    this.age += 1
-    let cost: number = (
-      /* 10 additional or 100 connections require one more energy */ 
-      // Math.floor(this.network.complexity / 10) + TODO reimplement
-      /*  every 5 years requires 1 more energy to get through */ 
-      Math.floor(this.age * configurator().population.ageSignificance)
-    )
-    if(energy > 0){
-      this.fitness += energy
-    }
+    // default fitness is average energy
+    // increments age
+    this.fitness = ( this.fitness * this.age + energy ) / ++this.age
+
+    // default cost is the age * ageSignificance
+    let cost = Math.floor(this.age * configurator().population.ageSignificance)
+
     this.energy = Math.max(this.energy + energy - cost, 0)
   }
 

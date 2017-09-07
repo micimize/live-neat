@@ -20,8 +20,8 @@ export default class Population {
   Creature: ICreature;
   mutator: Mutator;
   expressor: GeneExpresser;
-  resources: number;
-  age: number;
+  resources: number = 0;
+  age: number = 0;
 
   constructor(CreatureClass: ICreature = Creature) {
     let context = new InnovationContext()

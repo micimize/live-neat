@@ -27,8 +27,29 @@ function step() {
   population.step()
 }
 
-let rounds = 1000
-while (rounds--){ step() }
+function epoch(){
+  let rounds = 100000
+  while (rounds--){ step() }
+}
 
-population.creatures[0].network.nodeList
-population.creatures[0].network.genome
+population.creatures[0]
+population.creatures[0]
+
+function getStats(population){
+  let stats: any = population.creatures.reduce(({ total, max, min }, { fitness }) => ({
+    total: total + fitness,
+    max: fitness > max ? fitness : max,
+    min: fitness < min ? fitness : min
+  }), { total: 0, max: 0, min: Infinity })
+  stats.avg = stats.total / population.creatures.length
+  stats.age = population.age
+  return stats
+}
+
+
+function evaluatePerformance(epochs = 10){
+  while (epochs--){
+    epoch()
+    console.log(getStats(population))
+  }
+}
