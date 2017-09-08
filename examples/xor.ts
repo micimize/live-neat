@@ -1,7 +1,6 @@
 exports = {}
 import Population from './'
-import { selection } from './random-utils'
-
+import { selection } from './random-utils' 
 let population = new Population()
 
 const domain = [
@@ -27,22 +26,23 @@ function step() {
   population.step()
 }
 
-function epoch(){
-  let rounds = 100000
+function epoch(rounds = 100000){
   while (rounds--){ step() }
 }
 
-population.creatures[0]
-population.creatures[0]
-
 function getStats(population){
-  let stats: any = population.creatures.reduce(({ total, max, min }, { fitness }) => ({
-    total: total + fitness,
-    max: fitness > max ? fitness : max,
-    min: fitness < min ? fitness : min
-  }), { total: 0, max: 0, min: Infinity })
+  let stats: any = population.creatures.reduce(
+    ({ total, max, min }, { fitness }) => ({
+      total: total + fitness,
+      max: fitness > max ? fitness : max,
+      min: fitness < min ? fitness : min
+    }),
+    { total: 0, max: 0, min: Infinity }
+  )
   stats.avg = stats.total / population.creatures.length
   stats.age = population.age
+  stats.allTime = population.heroes[0].fitness
+  delete stats.total
   return stats
 }
 

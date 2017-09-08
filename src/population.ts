@@ -23,6 +23,8 @@ export default class Population {
   resources: number = 0;
   age: number = 0;
 
+  size: number = 0; // SIZE IS MANAGED MANUALLY
+
   constructor(CreatureClass: ICreature = Creature) {
     let context = new InnovationContext()
     this.mutator = new Mutator(context)
@@ -37,10 +39,6 @@ export default class Population {
     }
   }
 
-  get size(){
-    return Array.from(this.species).reduce((size, s) => size + s.creatures.size, 0)
-  }
-
   get creatures(){
     let creatures: Creature[] = []
     for (let species of this.species) {
@@ -49,42 +47,42 @@ export default class Population {
     return creatures
   }
 
+  get heroes(){
+    let heroes: any[] = []
+    for (let species of this.species) {
+      heroes = heroes.concat(species.heroes)
+    }
+    return heroes.sort((a, b) => b.fitness - a.fitness).slice(0, 5)
+  }
+
   forEachCreature(func: Function): void {
     for (let species of this.species) {
       for (let creature of species.creatures) {
-        func(creature)
+        func(creature, species)
       }
     }
   }
 
-  delete(creature: Creature) {
-    for (let species of this.species) {
-      if(species.creatures.has(creature)) {
-        return species.creatures.delete(creature)
-      }
-    }
-    return false
-  }
+  kill(creature: Creature, species: Species): boolean {
+    creature.kill()
+    let wasAHero = species.kill(creature)
+    this.size--
+    return wasAHero 
+  } 
+
 
   buryTheDead(): Array<Creature> {
     let keepAlives: Creature[] = []
-    for (let species of this.species) {
-      for (let creature of species.creatures) {
-        if (creature.energy <= 0){
-          if(creature.kill){
-            creature.kill()
-          }
-          if(this.size + keepAlives.length - 1 <= configurator().population.minSize){
-            let creature = new this.Creature(
-              this.expressor.express(this.selectSpecies().procreate())
-            )
-            this.add(creature)
-            keepAlives.push(creature)
-          }
-          species.kill(creature)
+    this.forEachCreature((creature, species) => {
+      if (creature.energy <= 0){
+        if(this.size <= configurator().population.minSize){
+          let baby = this.reproduce()
+          this.add(baby)
+          keepAlives.push(baby)
         }
+        this.kill(creature, species)
       }
-    }
+    })
     return keepAlives
   }
 
@@ -99,6 +97,7 @@ export default class Population {
     if (!speciated){
       this.species.add(new Species(creature))
     }
+    this.size++
   }
 
   selectSpecies(){
@@ -112,11 +111,16 @@ export default class Population {
     return getter[weightedChoice(weights)]
   }
 
+  reproduce(): Creature {
+    let network = this.expressor.express(this.selectSpecies().procreate())
+    return new this.Creature(network)
+  }
+
   attemptReproduction(): Creature | void {
     let { desiredRate, requiredResources } = configurator().reproduction
     if (Math.random() < desiredRate) {
       this.resources -= requiredResources
-      let creature = new this.Creature(this.expressor.express(this.selectSpecies().procreate()))
+      let creature = this.reproduce()
       this.add(creature)
       return creature
     }

@@ -34,7 +34,10 @@ function randomPotentialConnection(genome: Genome): PotentialConnection | void {
 }
 
 
-function initializeNode(old: ConnectionGene, newConnections: InnovationMap<PotentialConnection>): Genome {
+function initializeNode(
+  old: ConnectionGene,
+  newConnections: InnovationMap<PotentialConnection>
+): Genome {
   let mutation = Object.keys(newConnections).reduce((m, innovation) => (
     m[innovation] = initializeConnection(newConnections[innovation]), m
   ), {})

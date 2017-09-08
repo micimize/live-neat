@@ -39,6 +39,17 @@ class SimpleNetwork implements Network {
       .map(({ value }) => value)
   }
 
+  get complete(): boolean {
+    return Boolean(this.outputs.filter(_ => _).length)
+  }
+
+  clear(): void {
+    // TODO I'M A SINNER
+    this.nodeList
+      .slice(...this.ranges.output)
+      .forEach(node => node.value = 0)
+  }
+
   activate(node, nodeValues){
     let inputs = Object.keys(node.from)
       .reduce((sum, from) => (
@@ -46,6 +57,7 @@ class SimpleNetwork implements Network {
       ), 0)
     node.value = activations[node.activation](inputs)
   }
+
   tick(){
     // const STRICT_TICKS = true
     // copy node values so that activations are simultaneous
@@ -59,10 +71,14 @@ class SimpleNetwork implements Network {
       }
     }
   }
+    
   forward(inputs, count = 10): Array<number> {
     this.setInputs(inputs)
-    while(count--){
+    while(!this.complete && count--){
       this.tick()
+    }
+    if(!count){
+      console.log('DISCONNECTED!!??!?!???!!!?!?')
     }
     return this.outputs
   }

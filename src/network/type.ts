@@ -20,5 +20,6 @@ export default interface Network extends NetworkData {
   setInputs(inputs: Array<number>): void,
   inputs: Array<number>,
   outputs: Array<number>,
+  clear(): void,  
   forward(inputs: Array<number>, count?: number): Array<number>
 }

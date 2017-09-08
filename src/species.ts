@@ -12,7 +12,6 @@ interface Hero {
   fitness: number,
   genome: Genome,
 }
-
 export default class Species {
   creatures: Set<Creature>;
   heroes: Array<Hero> = [];
@@ -82,7 +81,7 @@ export default class Species {
     if (heroCount < configurator().speciation.heroCount){
       let { fitness, id, network: { genome } } = creature
       this.heroes.push({ fitness, id, genome })
-      this.heroes.sort()
+      this.heroes.sort((a, b) => b.fitness - a.fitness)
       return true
     } else if (
       this.heroes[heroCount - 1].fitness < creature.fitness || (
@@ -91,7 +90,7 @@ export default class Species {
     ) {
       let { fitness, id, network: { genome } } = creature
       this.heroes[heroCount - 1] = { fitness, id, genome }
-      this.heroes.sort()
+      this.heroes.sort((a, b) => b.fitness - a.fitness)
       return true
     }
     return false 
