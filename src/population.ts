@@ -112,7 +112,8 @@ export default class Population {
   }
 
   reproduce(): Creature {
-    let network = this.expressor.express(this.selectSpecies().procreate())
+    let genome = this.mutator.mutate(this.selectSpecies().procreate())
+    let network = this.expressor.express(genome)
     return new this.Creature(network)
   }
 

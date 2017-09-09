@@ -86,7 +86,7 @@ export default class Mutator {
   }
 
   mutate(genome: Genome){
-    return this.weights(this.structural(Object.assign({}, genome)))
+    return this.weights(this.structural(genome))
   }
 
   initializeConnections(): Genome {

@@ -21,7 +21,7 @@ export default class NodeListPacker implements NetworkData {
     let nodeList: Array<Node> = inputs.sort().map(() => ({ value: 0 }))
     let translator = inputs.reduce((t, input, index) => (t[input] = index, t), {})
 
-    translator[bias[0]] = nodeList.push({ value: 1 }) - 1
+    translator[bias[0]] = nodeList.push({ value: 1, activation: 'static' }) - 1
 
     let ranges = {
       input: [ 0, inputs.length ],

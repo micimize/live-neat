@@ -1,6 +1,5 @@
-import InnovationContext from './innovation-context'
-import GeneExpresser from './network/vanilla'
-import { Mutator } from './genome'
+import Creature from './creature'
 import Population from './population'
 
+export { Creature }
 export default Population 

@@ -2,6 +2,11 @@ import Genome from './type'
 import * as random from '../random-utils'
 import { connectionExpressionTracker, select as selectGene } from './connection-gene'
 
+function clone<T>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj))
+}
+
+
 function mix(a: Genome, b: Genome) {
   let aLength = Object.keys(a).length
   let bLength = Object.keys(b).length
@@ -25,8 +30,8 @@ interface Pool {
 
 export function pools(a: Genome, b: Genome, { structuralSharing = true } = {}): Pool {
   let shared = {}
-  let uniqueToA = Object.assign({}, a)
-  let uniqueToB = Object.assign({}, b)
+  let uniqueToA = clone(a)
+  let uniqueToB = clone(b)
   let seen = connectionExpressionTracker()
   // First collect all shared innovations
   Object.keys(uniqueToA).forEach(innovation => {

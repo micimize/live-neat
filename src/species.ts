@@ -1,3 +1,4 @@
+import { Set } from 'immutable'
 import configurator from './configurator'
 import Creature, { distance } from './creature'
 import { selection, weightedChoice } from './random-utils'
@@ -12,31 +13,29 @@ interface Hero {
   fitness: number,
   genome: Genome,
 }
+
 export default class Species {
   creatures: Set<Creature>;
   heroes: Array<Hero> = [];
   id: number;
 
   get fitness(): number {
-    let total = 0
-    for (let creature of this.creatures){
-      total += creature.fitness
-    }
-    return total / this.creatures.size
+    return this.creatures.reduce(
+      (total, creature) => total + creature.fitness,
+      0
+    ) / this.creatures.size
   }
 
   constructor(...creatures: Array<Creature>) {
     this.id = increment()
-    this.creatures = new Set(creatures)
+    this.creatures = Set.of(...creatures)
   }
 
   add(creature: Creature): boolean {
     let { compatibilityThreshold } = configurator().speciation
-    for (let member of this.creatures){
-      if (distance(member, creature) < compatibilityThreshold){
-        this.creatures.add(creature)
-        return true
-      }
+    if(this.creatures.some(member => distance(member, creature) < compatibilityThreshold)){
+      this.creatures = this.creatures.add(creature)
+      return true
     }
     return false
   }
@@ -44,13 +43,13 @@ export default class Species {
   selectCreature({ not }: { not?: Creature } = {}): Creature {
     let weights = {}
     let getter = {}
-    for (let creature of this.creatures) {
+    this.creatures.forEach(creature => {
       if (creature !== not){
         let { fitness, id } = creature
         weights[id] = fitness || 0
         getter[id] = creature
       }
-    }
+    })
     let id = weightedChoice(weights)
     let creature = getter[id]
     return creature
@@ -97,9 +96,10 @@ export default class Species {
   }
 
   kill(creature: Creature): boolean {
-    if (!this.creatures.delete(creature)){
+    if (!this.creatures.has(creature)){
       throw Error('creature does not belong to this species')
     }
+    this.creatures = this.creatures.delete(creature)
     return this.chronicleHero(creature)
   }
 

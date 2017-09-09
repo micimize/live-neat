@@ -21,9 +21,9 @@ export default class Creature {
   constructor(network: Network) {
     this.network = network
     this.id = increment()
-    this.fitness = 1
-    this.energy = 10
     this.age = 0
+    this.fitness = 0
+    this.energy = 10
   }
 
   think(input){

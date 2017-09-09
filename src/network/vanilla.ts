@@ -1,7 +1,7 @@
 import InnovationContext from '../innovation-context'
 import Genome from '../genome'
 import NodeListPacker from './node-list-packer'
-import Network, { Node, Range } from './type'
+import Network, { Value, Node, Range } from './type'
 
 function values(obj): any[] {
   return Object.keys(obj).map(k => obj[k])
@@ -20,42 +20,45 @@ class SimpleNetwork implements Network {
     public ranges
   ){ }
 
-  setInputs(inputs: Array<number>): void {
+  setInputs(inputs: Array<Value>): void {
     // range is [ first, last ] indices
     //assert (inputs.length - 1 == this.ranges.input[1])
     inputs.forEach((input, index) =>
       this.nodeList[index].value = input)
   }
 
-  get inputs(): Array<number> {
+  get inputs(): Array<Value> {
     return this.nodeList
       .slice(...this.ranges.input)
       .map(({ value }) => value)
   }
 
-  get outputs(): Array<number> {
+  get outputs(): Array<Value> {
     return this.nodeList
       .slice(...this.ranges.output)
       .map(({ value }) => value)
   }
 
   get complete(): boolean {
-    return Boolean(this.outputs.filter(_ => _).length)
+    return Boolean(this.outputs.filter(output => output != null).length)
   }
 
   clear(): void {
     // TODO I'M A SINNER
-    this.nodeList
-      .slice(...this.ranges.output)
-      .forEach(node => node.value = 0)
+    this.nodeList.forEach(node => {
+      if(node.activation !== 'static') {
+        node.value = null
+      }
+    })
   }
 
   activate(node, nodeValues){
     let inputs = Object.keys(node.from)
-      .reduce((sum, from) => (
-        sum + nodeValues[from] * node.from[from]
-      ), 0)
-    node.value = activations[node.activation](inputs)
+      .filter(from => nodeValues[from] !== null)
+      .map(from => nodeValues[from] * node.from[from])
+    if (inputs.length) {
+      node.value = activations[node.activation](inputs.reduce((sum, input) => sum + input))
+    }
   }
 
   tick(){
@@ -66,13 +69,13 @@ class SimpleNetwork implements Network {
 
     let nodeValues = this.nodeList.map(node => node.value)
     for (let node of this.nodeList){
-      if (node.activation){
+      if (node.activation && node.from){
         this.activate(node, nodeValues)
       }
     }
   }
     
-  forward(inputs, count = 10): Array<number> {
+  forward(inputs, count = 10): Array<Value> {
     this.setInputs(inputs)
     while(!this.complete && count--){
       this.tick()
