@@ -41,6 +41,34 @@ export function weightedChoice(weights: { [choice: string]: number }): string {
   throw Error('weights somehow invalid')
 }
 
+
+export function weightedSelection<T>(
+  choices: Array<T>,
+  weigh: (choice: T) => number
+): T {
+
+  let { weights, scale } = choices.reduce(
+    ({ weights, scale }, choice, index) => (
+      weights[index] = weigh(choice),
+      scale += weights[index],
+      { weights, scale }
+    ),
+    <{ weights: Array<number>, scale: number }>{ weights: [] , scale: 0 }
+  )
+
+  let selector = Math.random() * scale
+
+  for(let index = 0; index < weights.length; index++){
+    selector -= weights[index]
+    if (selector <= 0){
+      return choices[index]
+    }
+  }
+  throw Error('weights somehow invalid')
+}
+
+
+
 export function selection<T>(choices: Array<T>): T {
   var index = Math.floor(Math.random() * choices.length)
   return choices[index]

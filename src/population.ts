@@ -1,3 +1,4 @@
+import { Set } from 'immutable'
 import InnovationContext from './innovation-context'
 import { Mutator } from './genome'
 import GeneExpresser from './network/vanilla'
@@ -16,13 +17,12 @@ interface ICreature {
 }
 
 export default class Population {
-  species: Set<Species>;
+  species: Set<Species> = Set();
   Creature: ICreature;
   mutator: Mutator;
   expressor: GeneExpresser;
   resources: number = 0;
   age: number = 0;
-
   size: number = 0; // SIZE IS MANAGED MANUALLY
 
   constructor(CreatureClass: ICreature = Creature) {
@@ -31,12 +31,9 @@ export default class Population {
     this.expressor = new GeneExpresser(context)
 
     this.Creature = CreatureClass
-    let genomes = Array.from(this.mutator.seed(configurator().population.initialSize))
-    let creatures = new Set(genomes.map(genome => new CreatureClass(this.expressor.express(genome))))
-    this.species = new Set()
-    for (let creature of creatures){
-      this.add(creature)
-    }
+    let size = configurator().population.initialSize
+    this.mutator.seed(size).forEach(genome =>
+      this.add(new this.Creature(this.expressor.express(genome))))
   }
 
   get creatures(){
@@ -95,7 +92,7 @@ export default class Population {
       }
     }
     if (!speciated){
-      this.species.add(new Species(creature))
+      this.species = this.species.add(new Species(creature))
     }
     this.size++
   }
@@ -103,12 +100,18 @@ export default class Population {
   selectSpecies(){
     let weights = {}
     let getter = {}
+    let max = 0
+    let bid = 0
     for (let species of this.species) {
       let { fitness, id } = species
       weights[id] = fitness
       getter[id] = species
+      if(fitness > max){
+        max = fitness;
+        bid = id;
+      }
     }
-    return getter[weightedChoice(weights)]
+    return getter[bid]
   }
 
   reproduce(): Creature {

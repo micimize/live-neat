@@ -31,10 +31,10 @@ export default () => ({
   },
   mutation: {
     newNodeProbability: 0.01,
-    newConnectionProbability: 0.02,
+    newConnectionProbability: 0.3,
     weightChange: {
-      probability: 0.9,
-      power: 2.5
+      probability: 0.8,
+      power: 1
     },
     recurrence: 0.2,
     enable: 0.0,

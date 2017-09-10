@@ -6,7 +6,6 @@ function clone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj))
 }
 
-
 function mix(a: Genome, b: Genome) {
   let aLength = Object.keys(a).length
   let bLength = Object.keys(b).length

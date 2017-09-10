@@ -1,3 +1,4 @@
+import { Set } from 'immutable'
 import InnovationContext, { InnovationMap } from '../innovation-context'
 import * as random from '../random-utils'
 import { PotentialConnection, ConnectionGene, signature, initializeConnection, mutateWeight } from './connection-gene'
@@ -13,19 +14,17 @@ function randomConnection(genome: Genome): ConnectionGene {
 }
 
 function getNodes(genome: Genome): Set<number> {
-  let nodes = new Set()
-  values(genome).forEach(({ from, to }: PotentialConnection) => {
-    nodes.add(from)
-    nodes.add(to)
-  })
-  return nodes
+  return values(genome).reduce(
+    (nodes, { from, to }: PotentialConnection) => nodes.add(from).add(to),
+    Set<number>()
+  )
 }
 
 function randomPotentialConnection(genome: Genome): PotentialConnection | void {
-  let signatures = new Set(values(genome).map(signature))
+  let signatures: Set<string> = Set.of(...values(genome).map(signature))
   let nodes = getNodes(genome)
-  for (let from of random.shuffle(Object.keys(nodes))) {
-    for (let to of random.shuffle(Object.keys(nodes))) {
+  for (let from of random.shuffle(Array.from(nodes))) {
+    for (let to of random.shuffle(Array.from(nodes))) {
       if (from !== to && !signatures.has(signature({ from, to }))){
         return { from, to }
       }
@@ -80,9 +79,9 @@ export default class Mutator {
   }
 
   weights(genome: Genome){
-    Object.keys(genome).forEach(innovation =>
-      genome[innovation] = mutateWeight(genome[innovation]))
-    return genome
+    return Object.keys(genome).reduce((mutated, innovation) => (
+      mutated[innovation] = mutateWeight(genome[innovation]), mutated
+    ), {})
   }
 
   mutate(genome: Genome){
@@ -100,9 +99,9 @@ export default class Mutator {
 
   seed(size: number): Set<Genome> {
     let seed = this.initializeConnections()
-    let genomes: Set<Genome> = new Set()
+    let genomes: Set<Genome> = Set()
     while (size--){
-      genomes.add(this.mutate(seed))
+      genomes = genomes.add(this.mutate(seed))
     }
     return genomes
   }

@@ -1,3 +1,11 @@
+/*
+exports = {}
+import {weightedSelection} from './random-utils'
+weightedSelection
+import * as xor from './xor'
+xor.population
+*/
+
 import Population, { Creature } from './'
 
 export class XORCreature extends Creature {
