@@ -18,13 +18,16 @@ export default class NodeListPacker implements NetworkData {
     output: Range
   };
   constructor({ inputs, bias, outputs, outputActivation = 'sigmoid' }: BaseParameters){
-    let nodeList: Array<Node> = inputs.sort().map(() => ({
+    let nodeList: Array<Node> = inputs.sort().map(id => ({
+      id,
       value: 0,
       activation: 'input'
     }))
     let translator = inputs.reduce((t, input, index) => (t[input] = index, t), {})
 
-    translator[bias[0]] = nodeList.push({ value: 1, activation: 'static' }) - 1
+    translator[bias[0]] = nodeList.push({
+      id: bias[0], value: 1, activation: 'static'
+    }) - 1
 
     let ranges = {
       input: [ 0, inputs.length ],
@@ -33,6 +36,7 @@ export default class NodeListPacker implements NetworkData {
 
     outputs.sort().forEach(output => {
       translator[output] = nodeList.push({
+        id: output,
         activation: outputActivation,
         value: 0,
         from: {}
@@ -51,6 +55,7 @@ export default class NodeListPacker implements NetworkData {
     connections.forEach(({ to: id }) => {
       if (!translator[id]){
         translator[id] = nodeList.push({
+          id,
           activation: activations[id],
           value: 0,
           from: {}

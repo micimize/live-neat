@@ -7,6 +7,7 @@ export type Range = [ number, number ] // [ start, end ]
 export type Value = number | null
 
 export interface Node {
+  id: number,
   value: Value,
   from?: { [ nodeReference: number ]: Weight },
   activation: string

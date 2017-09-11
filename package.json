@@ -9,7 +9,6 @@
     "deeplearn": "^0.1.0",
     "fp-ts": "^0.5.2",
     "immutable": "4.0.0-rc.2",
-    "mocha-typescript": "^1.1.7",
     "paralleljs": "^0.2.1",
     "tensorfire": "^0.9.1"
   },

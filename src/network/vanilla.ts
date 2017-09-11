@@ -98,7 +98,7 @@ export default class GeneExpresser {
   }
 
   nodeActivations(){
-    let { nodes, activations } = this.context
+    let { hiddenNodes: nodes, activations } = this.context
     return Object.keys(nodes)
       .reduce((nodeAct, n) => (nodeAct[n] = activations[nodes[n]], nodeAct), {})
   }

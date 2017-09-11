@@ -16,17 +16,6 @@ function getNodes(genome: Genome): Set<number> {
   )
 }
 
-function randomPotentialConnection(genome: Genome): PotentialConnection | void {
-  let signatures: Set<string> = Set.of(...Object.values(genome).map(signature))
-  let nodes = getNodes(genome)
-  for (let from of random.shuffle(Array.from(nodes))) {
-    for (let to of random.shuffle(Array.from(nodes))) {
-      if (from !== to && !signatures.has(signature({ from, to }))){
-        return { from, to }
-      }
-    }
-  }
-}
 
 
 function initializeNode(
@@ -58,9 +47,25 @@ export default class Mutator {
     return genome
   }
 
+  validToNode(node: number){
+    return ![0, 1].includes(this.context.nodes[node])
+  }
+
+  randomPotentialConnection(genome: Genome): PotentialConnection | void {
+    let signatures: Set<string> = Set.of(...Object.values(genome).map(signature))
+    let nodes = getNodes(genome)
+    for (let from of random.shuffle(Array.from(nodes))) {
+      for (let to of random.shuffle(Array.from(nodes).filter(node => this.validToNode(node)))) {
+        if (from !== to && !signatures.has(signature({ from, to }))){
+          return { from, to }
+        }
+      }
+    }
+  }
+
   connection(genome: Genome){
     if (Math.random() < configurator().mutation.newConnectionProbability) {
-      let potentialConnection = randomPotentialConnection(genome)
+      let potentialConnection = this.randomPotentialConnection(genome)
       if (potentialConnection){
         let connection = this.context.newConnection(potentialConnection)
         let gene = initializeConnection(connection)

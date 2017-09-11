@@ -46,14 +46,27 @@ const activationFunctionMap: {
 };
 */
 
+function fromEntries(entries: Array<[any, any]>): object {
+  return entries.reduce((o, [k, v]) => (o[k] = v, o), {})
+}
+
 export default class InnovationContext {
 
   innovation: number = 2;
   _activations = { 0: 'INPUT', 1: 'BIAS', 2: 'OUTPUT' };
   _nodeTypeEnum = { INPUT: 0, BIAS: 1, OUTPUT: 2 };
   activations: InnovationMap<ActivationRef> = {};
-  nodes: InnovationMap<Node> = {};
+  nodes: InnovationMap<number> = {};
   connections: InnovationMap<Connection> = {};
+
+  get hiddenNodes(){
+    let exposedActivations = Object.values(this._nodeTypeEnum)
+    return fromEntries(
+      Object.entries(this.nodes).filter(([id, activation]) =>
+        !exposedActivations.includes(activation)
+      )
+    )
+  }
 
   constructor(){
     let {
