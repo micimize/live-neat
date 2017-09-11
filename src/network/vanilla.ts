@@ -3,10 +3,6 @@ import Genome from '../genome'
 import NodeListPacker from './node-list-packer'
 import Network, { Value, Node, Range } from './type'
 
-function values(obj): any[] {
-  return Object.keys(obj).map(k => obj[k])
-}
-
 const activations = {
   sigmoid(t: number) {
     return 1.0 / ( 1.0 + Math.exp( -t ))
@@ -70,7 +66,7 @@ class SimpleNetwork implements Network {
 
     let nodeValues = this.nodeList.map(node => node.value)
     for (let node of this.nodeList){
-      if (node.activation && node.from){
+      if (!['static', 'input'].includes(node.activation) && node.from){
         this.activate(node, nodeValues)
       }
     }
@@ -82,7 +78,7 @@ class SimpleNetwork implements Network {
       this.tick()
     }
     if(!count){
-      console.log('DISCONNECTED!!??!?!???!!!?!?')
+      throw Error('DISCONNECTED!!??!?!???!!!?!?')
     }
     return this.outputs
   }
@@ -111,7 +107,7 @@ export default class GeneExpresser {
     return new SimpleNetwork(
       genome,
       this.packer.fromConnections(
-        values(genome).filter(c => c.active),
+        Object.values(genome).filter(c => c.active),
         this.nodeActivations()
       ),
       this.packer.ranges

@@ -1,7 +1,7 @@
 import { Set } from 'immutable'
 import configurator from './configurator'
 import Creature, { distance } from './creature'
-import { selection, weightedChoice } from './random-utils'
+import { selection, weightedSelection } from './random-utils'
 import Genome, { crossover } from './genome'
 
 const increment = (
@@ -41,18 +41,7 @@ export default class Species {
   }
 
   selectCreature({ not }: { not?: Creature } = {}): Creature {
-    let weights = {}
-    let getter = {}
-    this.creatures.forEach(creature => {
-      if (creature !== not){
-        let { fitness, id } = creature
-        weights[id] = fitness || 0
-        getter[id] = creature
-      }
-    })
-    let id = weightedChoice(weights)
-    let creature = getter[id]
-    return creature
+    return weightedSelection(Array.from(this.creatures), c => c.fitness ^ 2)
   }
 
   procreate(): Genome {

@@ -18,7 +18,10 @@ export default class NodeListPacker implements NetworkData {
     output: Range
   };
   constructor({ inputs, bias, outputs, outputActivation = 'sigmoid' }: BaseParameters){
-    let nodeList: Array<Node> = inputs.sort().map(() => ({ value: 0 }))
+    let nodeList: Array<Node> = inputs.sort().map(() => ({
+      value: 0,
+      activation: 'input'
+    }))
     let translator = inputs.reduce((t, input, index) => (t[input] = index, t), {})
 
     translator[bias[0]] = nodeList.push({ value: 1, activation: 'static' }) - 1

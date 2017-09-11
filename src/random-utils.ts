@@ -1,7 +1,3 @@
-function values(obj){
-  return Object.keys(obj).map(k => obj[k])
-}
-
 
 export function shuffle(_array: Array<any>): Array<any> {
   // Fisher-Yates Shuffle

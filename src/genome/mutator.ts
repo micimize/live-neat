@@ -5,23 +5,19 @@ import { PotentialConnection, ConnectionGene, signature, initializeConnection, m
 import Genome from './type'
 import configurator from '../configurator'
 
-function values(obj): any[] {
-  return Object.keys(obj).map(k => obj[k])
-}
-
 function randomConnection(genome: Genome): ConnectionGene {
-  return random.selection(values(genome))
+  return random.selection(Object.values(genome))
 }
 
 function getNodes(genome: Genome): Set<number> {
-  return values(genome).reduce(
+  return Object.values(genome).reduce(
     (nodes, { from, to }: PotentialConnection) => nodes.add(from).add(to),
     Set<number>()
   )
 }
 
 function randomPotentialConnection(genome: Genome): PotentialConnection | void {
-  let signatures: Set<string> = Set.of(...values(genome).map(signature))
+  let signatures: Set<string> = Set.of(...Object.values(genome).map(signature))
   let nodes = getNodes(genome)
   for (let from of random.shuffle(Array.from(nodes))) {
     for (let to of random.shuffle(Array.from(nodes))) {

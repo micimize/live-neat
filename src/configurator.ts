@@ -10,7 +10,7 @@ export default () => ({
     activations: [ 'sigmoid' ]
   },
   population: {
-    initialSize: 50,
+    initialSize: 1,
     minSize: 50,
     ageSignificance: 1 / 5,
   },

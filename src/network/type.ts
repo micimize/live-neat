@@ -9,7 +9,7 @@ export type Value = number | null
 export interface Node {
   value: Value,
   from?: { [ nodeReference: number ]: Weight },
-  activation?: string
+  activation: string
 }
 
 export interface NetworkData {

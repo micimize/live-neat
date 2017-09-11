@@ -3,7 +3,7 @@ import InnovationContext from './innovation-context'
 import { Mutator } from './genome'
 import GeneExpresser from './network/vanilla'
 
-import { weightedChoice } from './random-utils'
+import { weightedSelection } from './random-utils'
 import configurator from './configurator'
 import Species from './species'
 import Creature from './creature'
@@ -98,20 +98,7 @@ export default class Population {
   }
 
   selectSpecies(){
-    let weights = {}
-    let getter = {}
-    let max = 0
-    let bid = 0
-    for (let species of this.species) {
-      let { fitness, id } = species
-      weights[id] = fitness
-      getter[id] = species
-      if(fitness > max){
-        max = fitness;
-        bid = id;
-      }
-    }
-    return getter[bid]
+    return weightedSelection(Array.from(this.species), s => s.fitness ^ 2)
   }
 
   reproduce(): Creature {
