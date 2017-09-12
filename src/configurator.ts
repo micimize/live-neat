@@ -10,9 +10,9 @@ export default () => ({
     activations: [ 'sigmoid' ]
   },
   population: {
-    initialSize: 1,
+    initialSize: 50,
     minSize: 50,
-    ageSignificance: 1 / 5,
+    ageSignificance: 1,// / 5,
   },
   reproduction: {
     requiredResources: 100,
@@ -30,8 +30,8 @@ export default () => ({
     compatibilityModifier: 0.3,
   },
   mutation: {
-    newNodeProbability: 1,
-    newConnectionProbability: 1,
+    newNodeProbability: 0.01,
+    newConnectionProbability: 0.3,
     weightChange: {
       probability: 0.8,
       power: 1

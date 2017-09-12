@@ -1,19 +1,21 @@
 /*
 exports = {}
 import * as xor from './xor'
-xor.population
+xor.epoch(3)
+xor.population.creatures[0].network
 */
 
 import Population, { Creature } from './'
 
+  /*
 export class XORCreature extends Creature {
   process(fitness: number): void {
     this.fitness = fitness
     this.energy = 0
   }
-}
+}*/
 
-export let population = new Population(XORCreature)
+export let population = new Population()//XORCreature)
 
 export const domain = [
   [ 0b0, 0b0 ],
@@ -31,7 +33,7 @@ export function evaluate(creature){
   let fitness = domain.reduce((total, [ input, output ]) =>
     (total + correctness(output, creature.think(input)[0])), 0
   ) / domain.length
-  creature.process(fitness)
+  creature.process(fitness * 10)
 }
 
 population.creatures.forEach(evaluate)
