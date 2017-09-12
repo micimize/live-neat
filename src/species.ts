@@ -20,6 +20,14 @@ export default class Species {
   id: number;
 
   get fitness(): number {
+    if (!this.creatures.size){
+      let resurrectionModifier = configurator().reproduction.resurrectFromHeroesRate
+      return this.heroes.length && resurrectionModifier ?
+        resurrectionModifier * this.heroes.reduce(
+          (total, creature) => total + creature.fitness, 0
+        ) / this.heroes.length :
+        0
+    }
     return this.creatures.reduce(
       (total, creature) => total + creature.fitness,
       0
@@ -40,21 +48,27 @@ export default class Species {
     return false
   }
 
+  selectHero(): Hero {
+    return weightedSelection(this.heroes, c => c.fitness ^ 2)
+  }
+
   selectCreature({ not }: { not?: Creature } = {}): Creature {
-    return weightedSelection(Array.from(this.creatures), c => c.fitness ^ 2)
+    return weightedSelection(
+      Array.from(this.creatures).filter(c => c !== not),
+      c => c.fitness ^ 2
+    )
   }
 
   procreate(): Genome {
     if(!this.creatures.size && this.heroes.length){ // TODO should be configurable
-      return selection(this.heroes).genome          // if there are no creatures, resurrect hero
+      return this.selectHero().genome // if there are no creatures, resurrect hero
       // this might not be as buggy as it seems - the first dead creature will always be in the hero list.
-      // TODO investigate why population even attempts to procreate dead species
     }
     let a = this.selectCreature()
     // can only reproduce asexually
     if(this.creatures.size == 1){
       if(this.heroes.length){ // TODO all the hero resurrection stuff is wonky
-        return crossover(a.network.genome, selection(this.heroes).genome)
+        return crossover(a.network.genome, this.selectHero().genome)
       }
       return Object.assign({}, a.network.genome)
     }

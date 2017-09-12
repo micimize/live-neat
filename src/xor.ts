@@ -1,6 +1,7 @@
 /*
 exports = {}
 import * as xor from './xor'
+xor.evaluatePerformance()
 xor.epoch(3)
 xor.population.creatures[0].network
 */
@@ -36,6 +37,14 @@ export function evaluate(creature){
   creature.process(fitness * 10)
 }
 
+export function predictionAccuracy(creature){
+  let total = domain.reduce((total, [ input, output ]) =>
+    (total + Number(output == Math.round(creature.think(input)[0]))),
+    0
+  )
+  return `${total} / ${domain.length}`
+}
+
 population.creatures.forEach(evaluate)
 
 export function generation() {
@@ -43,7 +52,7 @@ export function generation() {
   population.creatures.forEach(evaluate)
 }
 
-export function epoch(rounds = 100000){
+export function epoch(rounds = 100){
   while (rounds--){
     generation()
   }
@@ -53,16 +62,24 @@ export function getStats(){
   let stats: any = population.creatures.reduce(
     ({ total, max, min }, { fitness }) => ({
       total: total + fitness,
-      max: fitness > max ? fitness : max,
+      max: (fitness > max ? fitness : max),
       min: fitness < min ? fitness : min
     }),
     { total: 0, max: 0, min: Infinity }
   )
   stats.avg = stats.total / population.creatures.length
-  stats.age = population.age
+
+  let best = population.creatures.reduce((m, c) => c.fitness > m.fitness ? c : m)
+  stats.bestPrediction = predictionAccuracy(best)
+
+
   stats.allTime = population.heroes[0].fitness
+  stats.species = population.species.map(s => s.fitness.toFixed(3)).join(', ')
   delete stats.total
-  return stats
+  return Object.entries(stats).reduce((str, [stat, val]) => str + `
+    ${stat}:\t${typeof(val) === 'number' ? val.toFixed(3) : val}`,
+    `\nage ${population.age}:`
+  )
 }
 
 

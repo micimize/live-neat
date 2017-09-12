@@ -16,6 +16,8 @@ export default () => ({
   },
   reproduction: {
     requiredResources: 100,
+    // a dead species will be as fit as their heroes with this modifier
+    resurrectFromHeroesRate: 1,
     desiredRate: 0.01
   },
   distance: {
