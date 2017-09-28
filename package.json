@@ -10,7 +10,8 @@
     "fp-ts": "^0.5.2",
     "immutable": "4.0.0-rc.2",
     "paralleljs": "^0.2.1",
-    "tensorfire": "^0.9.1"
+    "tensorfire": "^0.9.1",
+    "ts-node": "^3.3.0"
   },
   "devDependencies": {
     "ts-loader": "^2.3.4",

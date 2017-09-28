@@ -7,7 +7,7 @@
     "lib": ["es2017.object", "es7", "dom"],
     "sourceMap": true,
     "moduleResolution": "node",
-    "rootDir": "src",
+    "rootDirs": [ "src", "test", "examples" ],
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,

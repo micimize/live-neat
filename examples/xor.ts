@@ -1,24 +1,16 @@
-/*
-exports = {}
-import * as xor from './xor'
-xor.evaluatePerformance()
-xor.epoch(3)
-xor.population.creatures[0].network
-*/
-
-import Population, { Creature } from './'
+import Population, { Creature } from '../src'
 
   /*
-export class XORCreature extends Creature {
+class XORCreature extends Creature {
   process(fitness: number): void {
     this.fitness = fitness
     this.energy = 0
   }
 }*/
 
-export let population = new Population()//XORCreature)
+let population = new Population()//XORCreature)
 
-export const domain = [
+const domain = [
   [ 0b0, 0b0 ],
   [ 0b0, 0b1 ],
   [ 0b1, 0b0 ],
@@ -26,18 +18,18 @@ export const domain = [
 ].map(([ a, b ]) =>
   ([ [ a, b ], a ^ b ]))
 
-export function correctness(actual, prediction){
+function correctness(actual, prediction){
   return 1 - (actual - prediction) ** 2
 }
 
-export function evaluate(creature){
+function evaluate(creature){
   let fitness = domain.reduce((total, [ input, output ]) =>
     (total + correctness(output, creature.think(input)[0])), 0
   ) / domain.length
   creature.process(fitness * 10)
 }
 
-export function predictionAccuracy(creature){
+function predictionAccuracy(creature){
   let total = domain.reduce((total, [ input, output ]) =>
     (total + Number(output == Math.round(creature.think(input)[0]))),
     0
@@ -47,18 +39,18 @@ export function predictionAccuracy(creature){
 
 population.creatures.forEach(evaluate)
 
-export function generation() {
+function generation() {
   population.step()
   population.creatures.forEach(evaluate)
 }
 
-export function epoch(rounds = 100){
+function epoch(rounds = 100){
   while (rounds--){
     generation()
   }
 }
 
-export function getStats(){
+function getStats(){
   let stats: any = population.creatures.reduce(
     ({ total, max, min }, { fitness }) => ({
       total: total + fitness,
@@ -83,10 +75,17 @@ export function getStats(){
 }
 
 
-export function evaluatePerformance(epochs = 10){
+function evaluatePerformance(epochs = 10){
   while (epochs--){
     epoch()
     console.log(getStats())
   }
 }
-export const genomeOf = index => population.creatures[index].network.genome
+const genomeOf = index => population.creatures[index].network.genome
+
+epoch(3)
+
+//population.creatures[0].network
+
+evaluatePerformance()
+
