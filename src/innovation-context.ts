@@ -27,7 +27,7 @@ type ActivationRef = 'sigmoid' | 'tanh' | 'relu'
 interface Config {
   inputs: number,
   outputs: number,
-  opener: 'single-connection' | 'single-hidden-node' | 'fully-connected',
+  opener: 'single-connection' | 'single-hidden-node' | 'fully-connected' | Array<Connection>,
   activations: Array<ActivationRef>
   // 'sigmoid', 'tanh', 'relu', 'gaussian', 'sin', 'cos', 'abs', 'mult', 'add', 'mult', 'add'
 }
@@ -79,6 +79,11 @@ export default class InnovationContext {
     this.nNodesOfType(0, inputs)
     this.innovate('nodes', 1)
     this.nNodesOfType(2, outputs)
+
+    if(Array.isArray(opener)){
+      // TODO to init from the serialized network defined in vanilla,
+      // we need to init a context, and then a genome with appropriate weights
+    }
     if(opener === 'fully-connected'){
       this.fullyConnectedOpener()
     }
