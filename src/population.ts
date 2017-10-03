@@ -25,6 +25,10 @@ export default class Population {
   age: number = 0;
   size: number = 0; // SIZE IS MANAGED MANUALLY
 
+  get livingSpecies(){
+    return this.species.filter(s => s.creatures.size)
+  }
+
   constructor(CreatureClass: ICreature = Creature) {
     let context = new InnovationContext()
     this.mutator = new Mutator(context)

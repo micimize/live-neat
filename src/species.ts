@@ -14,6 +14,10 @@ interface Hero {
   genome: Genome,
 }
 
+function asHero({ fitness, id, network: { genome } }: Creature): Hero {
+  return { fitness, id, genome }
+}
+
 export default class Species {
   creatures: Set<Creature>;
   heroes: Array<Hero> = [];
@@ -52,28 +56,37 @@ export default class Species {
     return weightedSelection(this.heroes, c => c.fitness ^ 2)
   }
 
-  selectCreature({ not }: { not?: Creature } = {}): Creature {
+  get genePool(): Set<Hero> {
+    let livingPool = this.creatures.map(asHero)
+    let { includeHeroGenesRate } = configurator().reproduction
+    return this.creatures.map(asHero).union(this.heroes.map(
+      ({ fitness, ...hero }) => ({ fitness: includeHeroGenesRate * fitness, ...hero })))
+  }
+
+  selectGenome({ not }: { not?: Genome } = {}): Genome | null {
+    let pool = Array.from(this.genePool).filter(h => h.genome !== not)
+    if (!pool.length){
+      return null
+    }
+    // todo 0 fitness should probably be unselectable 
     return weightedSelection(
-      Array.from(this.creatures).filter(c => c !== not),
-      c => c.fitness ^ 2
-    )
+      Array.from(this.genePool).filter(h => h.genome !== not),
+      h => h.fitness ^ 2
+    ).genome
   }
 
   procreate(): Genome {
-    if(!this.creatures.size && this.heroes.length){ // TODO should be configurable
+    let a = this.selectGenome()
+    if(!a){ // TODO should be configurable
       return this.selectHero().genome // if there are no creatures, resurrect hero
       // this might not be as buggy as it seems - the first dead creature will always be in the hero list.
     }
-    let a = this.selectCreature()
-    // can only reproduce asexually
-    if(this.creatures.size == 1){
-      if(this.heroes.length){ // TODO all the hero resurrection stuff is wonky
-        return crossover(a.network.genome, this.selectHero().genome)
-      }
-      return Object.assign({}, a.network.genome)
+    let b = this.selectGenome({ not: a })
+    if(!b){
+      // can only reproduce asexually
+      return Object.assign({}, a)
     }
-    let b = this.selectCreature({ not: a })
-    return crossover(a.network.genome, b.network.genome)
+    return crossover(a, b)
   }
 
   chronicleHero(creature: Creature): boolean {
@@ -81,8 +94,7 @@ export default class Species {
     let heroCount = this.heroes.length
 
     if (heroCount < configurator().speciation.heroCount){
-      let { fitness, id, network: { genome } } = creature
-      this.heroes.push({ fitness, id, genome })
+      this.heroes.push(asHero(creature))
       this.heroes.sort((a, b) => b.fitness - a.fitness)
       return true
     } else if (

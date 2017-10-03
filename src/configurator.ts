@@ -16,9 +16,11 @@ export default () => ({
   },
   reproduction: {
     requiredResources: 100,
+    desiredRate: 0.01,
     // a dead species will be as fit as their heroes with this modifier
     resurrectFromHeroesRate: 1,
-    desiredRate: 0.01
+    // living species will have their heroes genes included in the pool at this rate
+    includeHeroGenesRate: 1,
   },
   distance: {
     innovationDifferenceCoefficient: 2,

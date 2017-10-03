@@ -4,7 +4,7 @@
     "outDir": "build/dist",
     "module": "commonjs",
     "target": "es6",
-    "lib": ["es2017.object", "es7", "dom"],
+    "lib": ["es2017", "es7", "dom"],
     "sourceMap": true,
     "moduleResolution": "node",
     "rootDirs": [ "src", "test", "examples" ],
