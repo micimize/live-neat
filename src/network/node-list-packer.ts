@@ -74,4 +74,5 @@ export default class NodeListPacker implements NetworkData {
     })
     return nodeList
   }
+
 }

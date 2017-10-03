@@ -102,6 +102,7 @@ export default class Monitor {
     let stats = getStats(population)
     console.log(this.formatters.population(population))
     console.log(this.formatters.stats(stats))
+    //console.log(stats.allTime.network.toJSON())
     this.history.push(stats)
   }
 

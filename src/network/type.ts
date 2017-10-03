@@ -14,7 +14,7 @@ export interface Node {
 }
 
 export interface NetworkData {
-  nodeList: Array<Node>,
+  nodeList: Array<Node> | { toJSON(): string },
   ranges: { input: Range, output: Range } ,
 }
 

@@ -45,5 +45,9 @@ export default class Creature {
   kill() {
   }
 
+  toJSON(){
+
+  }
+
 }
 

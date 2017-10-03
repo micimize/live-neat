@@ -9,6 +9,10 @@ const activations = {
   }
 }
 
+function serializeNode({ activation, from = {} }: Node) {
+  return [activation, Object.keys(from).map(k => `${k}:${from[k]}`).join(';')].join(',')
+}
+
 class SimpleNetwork implements Network {
   constructor(
     public genome: Genome,
@@ -82,6 +86,13 @@ class SimpleNetwork implements Network {
     }
     return this.outputs
   }
+
+  toJSON() {
+    let { input: [ _, inputs ], output: [ outputStart, outputEnd ]} = this.ranges
+    let outputs: Number = outputEnd - outputStart
+    return `${inputs}i${outputs}ob/${this.nodeList.slice(outputStart).map(serializeNode).join('|')}`
+  }
+
 }
 
 
