@@ -94,11 +94,8 @@ export default class Monitor {
     return this.history[this.history.length-1]
   }
 
-  constructor(population, formatters = {}) {
+  constructor(formatters = {}) {
     this.formatters = Object.assign(defaultFormatters, formatters)
-    let stats = getStats(population)
-    this.history.push(stats)
-    console.log(this.formatters.stats(stats))
   }
 
   stats(population){
@@ -108,4 +105,23 @@ export default class Monitor {
     this.history.push(stats)
   }
 
+}
+
+export class Experiment {
+  constructor(public evaluate, public monitor){ }
+  generation(population){
+    population.step()
+    population.creatures.forEach(this.evaluate)
+  }
+  epoch(population, rounds = 100){
+    while (rounds--){
+      this.generation(population)
+    }
+  }
+  run(population, epochs=10){
+    while (epochs--){
+      this.epoch(population)
+      this.monitor.stats(population)
+    }
+  }
 }

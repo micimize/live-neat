@@ -1,5 +1,5 @@
 import Population, { Creature } from '../src'
-import Monitor from '../src/monitor'
+import Monitor, { Experiment } from '../src/monitor'
 import { shuffle } from 'simple-statistics'
 
 class XORCreature extends Creature {
@@ -30,22 +30,6 @@ function evaluate(creature){
   creature.process(fitness * 10)
 }
 
-population.creatures.forEach(evaluate)
-
-function generation() {
-  population.step()
-  population.creatures.forEach(evaluate)
-}
-
-generation()
-
-
-function epoch(rounds = 100){
-  while (rounds--){
-    generation()
-  }
-}
-
 const formatters = {
   fitness(f){
     return `${(f * 10).toFixed(2)}%`
@@ -59,21 +43,8 @@ const formatters = {
   }
 }
 
-let monitor = new Monitor(population, formatters)
+let monitor = new Monitor(formatters)
 
-function evaluatePerformance(epochs = 10){
-  while (epochs--){
-    epoch()
-    monitor.stats(population)
-  }
-}
+let experiment = new Experiment(evaluate, monitor)
 
-
-/*
-epoch(3)
-
-//population.creatures[0].network
-
-*/
-
-evaluatePerformance()
+experiment.run(population)
