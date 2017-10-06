@@ -16,8 +16,6 @@ function getNodes(genome: Genome): Set<number> {
   )
 }
 
-
-
 function initializeNode(
   old: ConnectionGene,
   newConnections: InnovationMap<PotentialConnection>
@@ -98,8 +96,7 @@ export default class Mutator {
     }, {})
   }
 
-  seed(size: number): Set<Genome> {
-    let seed = this.initializeConnections()
+  seed(size: number, seed: Genome = this.initializeConnections()): Set<Genome> {
     let genomes: Set<Genome> = Set()
     while (size--){
       genomes = genomes.add(this.mutate(seed))

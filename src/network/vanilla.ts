@@ -10,7 +10,8 @@ const activations = {
 }
 
 function serializeNode({ activation, from = {} }: Node) {
-  return [activation, Object.keys(from).map(k => `${k}:${from[k]}`).join(';')].join(',')
+  let connections = Object.keys(from).map(k => `${k}*${from[k]}`)
+  return `${activation}:${connections.join(',')}` 
 }
 
 class SimpleNetwork implements Network {
@@ -90,7 +91,7 @@ class SimpleNetwork implements Network {
   toJSON() {
     let { input: [ _, inputs ], output: [ outputStart, outputEnd ]} = this.ranges
     let outputs: Number = outputEnd - outputStart
-    return `${inputs}i${outputs}ob/${this.nodeList.slice(outputStart).map(serializeNode).join('|')}`
+    return `${inputs}i${outputs}ob/${this.nodeList.slice(outputStart).map(serializeNode).join(';')}`
   }
 
 }
@@ -127,3 +128,38 @@ export default class GeneExpresser {
 
 }
 
+function deserializeProperties(properties: string)  {
+  let [ inputs, outputs, , bias = false ] = properties.split(/i|o|b/g)
+  return {
+    bias: bias ? 1 : 0,
+    inputs: Number(inputs),
+    outputs: Number(outputs),
+  }
+}
+
+function deserializeNode(node: string)  {
+  let [ activation, ...connections ] = node.split(/:|,/)
+  let from = connections.reduce((m, c) => {
+    let [ source, weight ] = c.split('*')
+    m[source] = Number(weight)
+    return m
+  }, {})
+  return { activation, from, value: 0 }
+}
+
+function fillNodes(count: number, activation: string, value: number = 0): Array<{ activation, value }>{
+  return Array(count)
+    .fill(null)
+    .map((_) => ({ activation, value }))
+}
+
+export function deserialize(network: string): SimpleNetwork {
+  let [ properties, nodes ] = network.split('/')
+  let { inputs, outputs, bias } = deserializeProperties(properties)
+  let nodeList = [
+    ...fillNodes(inputs, 'input'),
+    ...fillNodes(bias, 'static', 1),
+    ...fillNodes(outputs, 'sigmoid', 0),
+    ...nodes.split(';').map(deserializeNode)
+  ].map((n, id) => ({ id, ...n }))
+}
