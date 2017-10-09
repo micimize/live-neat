@@ -1,8 +1,7 @@
 import { Set } from 'immutable'
-import InnovationContext, { InnovationMap } from '../innovation-context'
+import InnovationContext from '../innovation-context'
 import * as random from '../random-utils'
-import { PotentialConnection, ConnectionGene, signature, initializeConnection, mutateWeight } from './connection-gene'
-import Genome from './type'
+import { signature, initializeConnection, mutateWeight } from './connection-gene'
 import configurator from '../configurator'
 
 function randomConnection(genome: Genome): ConnectionGene {

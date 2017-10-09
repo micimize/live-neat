@@ -1,4 +1,3 @@
-import Genome from './type'
 import { pools } from './crossover'
 import configurator from '../configurator'
 

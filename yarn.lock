@@ -1282,9 +1282,19 @@ interpret@^1.0.0:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/interpret/-/interpret-1.0.3.tgz#cbc35c62eeee73f19ab7b10a801511401afc0f90"
 
+inversify@^4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/inversify/-/inversify-4.3.0.tgz#d2ecd2ae18340e7f1ab5148a3e44b87080391366"
+
 invert-kv@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/invert-kv/-/invert-kv-1.0.0.tgz#104a8e4aaca6d3d8cd157a8ef8bfab2d7a3ffdb6"
+
+io-ts@^0.7.1:
+  version "0.7.1"
+  resolved "https://registry.yarnpkg.com/io-ts/-/io-ts-0.7.1.tgz#57636602e93ff685a8b97375680e02859e628a68"
+  dependencies:
+    fp-ts "^0.5.2"
 
 ip@^1.1.0, ip@^1.1.5:
   version "1.1.5"

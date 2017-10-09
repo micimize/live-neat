@@ -2,11 +2,13 @@ import { Set } from 'immutable'
 import InnovationContext from './innovation-context'
 import { Mutator } from './genome'
 import GeneExpresser from './network/vanilla'
+import { deserialize } from './network/serializer'
 
 import { weightedSelection } from './random-utils'
 import configurator from './configurator'
 import Species from './species'
 import Creature from './creature'
+
 
 // Creature should be dynamic, so the utilizing simulation can define it's own creature and have it managed
 // * live-neat manages Population and evolution
@@ -14,6 +16,11 @@ import Creature from './creature'
 
 interface ICreature {
   new (...rest: any[]): Creature;
+}
+
+interface Dependencies {
+  Creature: ICreature,
+  context: InnovationContext,
 }
 
 export default class Population {
@@ -29,14 +36,13 @@ export default class Population {
     return this.species.filter(s => s.creatures.size)
   }
 
-  constructor(CreatureClass: ICreature = Creature) {
-    let context = new InnovationContext()
+  constructor(CreatureClass: ICreature = Creature, context = new InnovationContext(), seed: Genome?) {
     this.mutator = new Mutator(context)
     this.expressor = new GeneExpresser(context)
 
     this.Creature = CreatureClass
     let size = configurator().population.initialSize
-    this.mutator.seed(size).forEach(genome =>
+    this.mutator.seed(size, seed).forEach(genome =>
       this.add(new this.Creature(this.expressor.express(genome))))
   }
 
@@ -131,6 +137,11 @@ export default class Population {
       }
     }
     return keepAlives
+  }
+
+  static fromSerialized(network: string, CreatureClass: ICreature = Creature): Population {
+    let { context, genome } = deserialize(network)
+    return new Population(CreatureClass, context, genome)
   }
 
 }

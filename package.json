@@ -10,6 +10,8 @@
     "deeplearn": "^0.1.0",
     "fp-ts": "^0.5.2",
     "immutable": "4.0.0-rc.2",
+    "inversify": "^4.3.0",
+    "io-ts": "^0.7.1",
     "paralleljs": "^0.2.1",
     "simple-statistics": "^5.0.0",
     "tensorfire": "^0.9.1",

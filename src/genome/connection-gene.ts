@@ -1,21 +1,6 @@
-import { ConnectionInnovation } from '../innovation-context'
 import configurator from '../configurator'
 
-export interface ConnectionGene {
-  from: number,
-  to: number,
-  innovation: number,
-  weight: number,
-  active: boolean,
-  recurrent: boolean
-}
-
-export interface PotentialConnection {
-  from: number,
-  to: number
-} 
-
-export function signature({ from, to }: PotentialConnection ){
+export function signature({ from, to }: PotentialConnection ): string {
   return [ from, to ].sort().join(',')
 }
 
@@ -36,7 +21,6 @@ export function connectionExpressionTracker(){
   } = tracker
   return seen
 }
-
 
 export function select(a: ConnectionGene, b: ConnectionGene){
   if (!a.active){
@@ -61,22 +45,14 @@ function weightMutation(): number {
     0
 }
 
-export function mutateWeight(gene: ConnectionGene) {
-  // we need to clone genes anyways
-  let rate = 0.2
-  let size = 0.5
-  return Object.assign({}, gene, {
-    weight: gene.weight + weightMutation()
-  })
+export function mutateWeight({ weight, ...gene }: ConnectionGene): ConnectionGene {
+  return Object.assign({ weight: weight + weightMutation() }, gene)
 }
-
 
 export function initializeConnection(gene: ConnectionInnovation): ConnectionGene {
   return Object.assign({
     active: true,
-    recurrent: false,
     weight: Math.random()
   }, gene)
 }
-
 

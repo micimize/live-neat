@@ -1,6 +1,3 @@
-import { Node, Range, NetworkData } from './type'
-import { ConnectionGene  } from '../genome/connection-gene'
-
 type NodeReference = number
 
 interface BaseParameters {
@@ -18,6 +15,7 @@ export default class NodeListPacker implements NetworkData {
     output: Range
   };
   constructor({ inputs, bias, outputs, outputActivation = 'sigmoid' }: BaseParameters){
+    // TODO outputActivation is baked into the entire system, but should be flexible on a per-neuron basis
     let nodeList: Array<Node> = inputs.sort().map(id => ({
       id,
       value: 0,

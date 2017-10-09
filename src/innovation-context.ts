@@ -1,50 +1,15 @@
 import * as random from './random-utils'
 import configurator from './configurator'
 
-interface Innovation {
-  innovation: number
-}
-
-interface Node {
-  activation: number
-}
-
-interface Connection {
-  from: number,
-  to: number,
-}
-
-export type NodeInnovation = Node & Innovation
-export type ConnectionInnovation = Connection & Innovation
- 
-
-export interface InnovationMap<T> {
-  [innovation: number]: T
-}
-
 type ActivationRef = 'sigmoid' | 'tanh' | 'relu'
 
 interface Config {
   inputs: number,
   outputs: number,
-  opener: 'single-connection' | 'single-hidden-node' | 'fully-connected' | Array<Connection>,
+  opener: 'single-connection' | 'single-hidden-node' | 'fully-connected' | 'custom',
   activations: Array<ActivationRef>
   // 'sigmoid', 'tanh', 'relu', 'gaussian', 'sin', 'cos', 'abs', 'mult', 'add', 'mult', 'add'
 }
-
-
-/*
-export type ActivationFunction = 'tanh'|'sin'|'relu'|'step';
-const activationFunctionMap: {
-  [activationFunction in ActivationFunction]: TODO WHAT
-      (math: NDArrayMathGPU, ndarray: Array2D) => Array2D
-} = {
-  'tanh': (math: NDArrayMathGPU, ndarray: Array2D) => math.tanh(ndarray),
-  'sin': (math: NDArrayMathGPU, ndarray: Array2D) => math.sin(ndarray),
-  'relu': (math: NDArrayMathGPU, ndarray: Array2D) => math.relu(ndarray),
-  'step': (math: NDArrayMathGPU, ndarray: Array2D) => math.step(ndarray)
-};
-*/
 
 function fromEntries(entries: Array<[any, any]>): object {
   return entries.reduce((o, [k, v]) => (o[k] = v, o), {})
@@ -53,11 +18,13 @@ function fromEntries(entries: Array<[any, any]>): object {
 export default class InnovationContext {
 
   innovation: number = 2;
-  _activations = { 0: 'INPUT', 1: 'BIAS', 2: 'OUTPUT' };
-  _nodeTypeEnum = { INPUT: 0, BIAS: 1, OUTPUT: 2 };
+  _activations: {
+    0: 'INPUT',
+    1: 'BIAS',
+  }
   activations: InnovationMap<ActivationRef> = {};
-  nodes: InnovationMap<number> = {};
-  connections: InnovationMap<Connection> = {};
+  nodes: InnovationMap<PotentialNode> = {}; // [ nodeType, activation ]
+  connections: InnovationMap<PotentialConnection> = {};
 
   get hiddenNodes(){
     let exposedActivations = Object.values(this._nodeTypeEnum)
@@ -68,25 +35,21 @@ export default class InnovationContext {
     )
   }
 
-  constructor(){
-    let {
-      inputs,
-      outputs,
-      opener = 'fully-connected',
-      activations = ['sigmoid']
-    } = configurator().initialNetwork
-    activations.forEach(a => this.innovate('activations', a))
-    this.nNodesOfType(0, inputs)
-    this.innovate('nodes', 1)
-    this.nNodesOfType(2, outputs)
+  constructor({
+    inputs, outputs, opener = 'fully-connected', activations = ['sigmoid']
+  } = configurator().initialNetwork){
 
-    if(Array.isArray(opener)){
-      // TODO to init from the serialized network defined in vanilla,
-      // we need to init a context, and then a genome with appropriate weights
-    }
-    if(opener === 'fully-connected'){
+    activations.forEach(a => this.innovate('activations', a))
+
+    this.nNodes({ type: 'INPUT', activation: 0 }, inputs)
+    this.nNodes({ type: 'BIAS', activation: 1 }, bias)
+    // hardcoded: output is first activation
+    this.nNodes({ type: 'OUTPUT', activation: 2 }, output) 
+
+    if (opener === 'fully-connected') {
       this.fullyConnectedOpener()
     }
+
   }
 
 
@@ -96,9 +59,9 @@ export default class InnovationContext {
   }
 
 
-  nNodesOfType(nodeType: number, count){
+  nNodes({ type, activation }, count){
     while(count){
-      this.innovate('nodes', nodeType)
+      this.innovate('nodes', { type, activation })
       count--
     }
   }
@@ -116,7 +79,7 @@ export default class InnovationContext {
     return { innovation, activation }
   }
 
-  newConnection({ from, to }: Connection){
+  newConnection({ from, to }: PotentialConnection){
     let innovation = this.innovate('connections', { from, to })
     return { from, to, innovation }
   }

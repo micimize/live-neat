@@ -2,7 +2,7 @@ import { Set } from 'immutable'
 import configurator from './configurator'
 import Creature, { distance } from './creature'
 import { selection, weightedSelection } from './random-utils'
-import Genome, { crossover } from './genome'
+import { crossover } from './genome'
 
 const increment = (
   (ascending = 0) => () => ascending++

@@ -1,7 +1,6 @@
 import InnovationContext from '../innovation-context'
 import Genome from '../genome'
 import NodeListPacker from './node-list-packer'
-import Network, { Value, Node, Range } from './type'
 
 const activations = {
   sigmoid(t: number) {
@@ -16,9 +15,9 @@ function serializeNode({ activation, from = {} }: Node) {
 
 class SimpleNetwork implements Network {
   constructor(
-    public genome: Genome,
     public nodeList: Array<Node>,
-    public ranges
+    public ranges,
+    public genome: Genome,
   ){ }
 
   setInputs(inputs: Array<Value>): void {

@@ -1,5 +1,4 @@
-import Genome, * as genome from './genome'
-import Network from './network/type'
+import * as genome from './genome'
 import configurator from './configurator'
 
 export function distance(a: Creature, b: Creature){
