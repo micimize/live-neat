@@ -36,7 +36,7 @@ export default class Population {
     return this.species.filter(s => s.creatures.size)
   }
 
-  constructor(CreatureClass: ICreature = Creature, context = new InnovationContext(), seed: Genome?) {
+  constructor(CreatureClass: ICreature = Creature, context = new InnovationContext(), seed?: Genome) {
     this.mutator = new Mutator(context)
     this.expressor = new GeneExpresser(context)
 

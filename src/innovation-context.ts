@@ -27,11 +27,8 @@ export default class InnovationContext {
   connections: InnovationMap<PotentialConnection> = {};
 
   get hiddenNodes(){
-    let exposedActivations = Object.values(this._nodeTypeEnum)
     return fromEntries(
-      Object.entries(this.nodes).filter(([id, activation]) =>
-        !exposedActivations.includes(activation)
-      )
+      Object.entries(this.nodes).filter(([id, { type }]) => !type || type === 'HIDDEN')
     )
   }
 
@@ -42,9 +39,9 @@ export default class InnovationContext {
     activations.forEach(a => this.innovate('activations', a))
 
     this.nNodes({ type: 'INPUT', activation: 0 }, inputs)
-    this.nNodes({ type: 'BIAS', activation: 1 }, bias)
+    this.nNodes({ type: 'BIAS', activation: 1 }, 1)
     // hardcoded: output is first activation
-    this.nNodes({ type: 'OUTPUT', activation: 2 }, output) 
+    this.nNodes({ type: 'OUTPUT', activation: 2 }, outputs) 
 
     if (opener === 'fully-connected') {
       this.fullyConnectedOpener()
@@ -66,10 +63,9 @@ export default class InnovationContext {
     }
   }
 
-  getNodesOfType(nodeType: number | string): number[]{
-    nodeType = typeof(nodeType) === 'string' ? this._nodeTypeEnum[nodeType] : nodeType
+  getNodesOfType(nodeType: 'INPUT' | 'BIAS' | 'OUTPUT' | 'HIDDEN'): number[]{
     return Object.keys(this.nodes)
-      .filter(k => this.nodes[k] === nodeType)
+      .filter(k => this.nodes[k].type === nodeType)
       .map(Number)
   }
 

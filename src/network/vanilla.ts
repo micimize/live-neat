@@ -1,5 +1,4 @@
 import InnovationContext from '../innovation-context'
-import Genome from '../genome'
 import NodeListPacker from './node-list-packer'
 
 const activations = {
@@ -8,32 +7,32 @@ const activations = {
   }
 }
 
-function serializeNode({ activation, from = {} }: Node) {
+function serializeNode({ activation, from = {} }: NNode) {
   let connections = Object.keys(from).map(k => `${k}*${from[k]}`)
   return `${activation}:${connections.join(',')}` 
 }
 
 class SimpleNetwork implements Network {
   constructor(
-    public nodeList: Array<Node>,
+    public nodeList: Array<NNode>,
     public ranges,
     public genome: Genome,
   ){ }
 
-  setInputs(inputs: Array<Value>): void {
+  setInputs(inputs: Array<ActivationValue>): void {
     // range is [ first, last ] indices
     //assert (inputs.length - 1 == this.ranges.input[1])
     inputs.forEach((input, index) =>
       this.nodeList[index].value = input)
   }
 
-  get inputs(): Array<Value> {
+  get inputs(): Array<ActivationValue> {
     return this.nodeList
       .slice(...this.ranges.input)
       .map(({ value }) => value)
   }
 
-  get outputs(): Array<Value> {
+  get outputs(): Array<ActivationValue> {
     return this.nodeList
       .slice(...this.ranges.output)
       .map(({ value }) => value)
@@ -52,10 +51,10 @@ class SimpleNetwork implements Network {
     })
   }
 
-  activate(node, nodeValues){
+  activate(node, nodeActivationValues){
     let inputs = Object.keys(node.from)
-      .filter(from => nodeValues[from] !== null)
-      .map(from => nodeValues[from] * node.from[from])
+      .filter(from => nodeActivationValues[from] !== null)
+      .map(from => nodeActivationValues[from] * node.from[from])
     if (inputs.length) {
       node.value = activations[node.activation](
         inputs.reduce((sum, input) => sum + input))
@@ -68,15 +67,15 @@ class SimpleNetwork implements Network {
     // sidenote: a nodes x nodes matrix of connection weights could represent the whole network
     //           I'm not sure what kind of performance boost that would yield
 
-    let nodeValues = this.nodeList.map(node => node.value)
+    let nodeActivationValues = this.nodeList.map(node => node.value)
     for (let node of this.nodeList){
       if (!['static', 'input'].includes(node.activation) && node.from){
-        this.activate(node, nodeValues)
+        this.activate(node, nodeActivationValues)
       }
     }
   }
     
-  forward(inputs, count = 10): Array<Value> {
+  forward(inputs, count = 10): Array<ActivationValue> {
     this.setInputs(inputs)
     while(!this.complete && count--){
       this.tick()
@@ -116,49 +115,13 @@ export default class GeneExpresser {
 
   express(genome: Genome){
     return new SimpleNetwork(
-      genome,
       this.packer.fromConnections(
         Object.values(genome).filter(c => c.active),
         this.nodeActivations()
       ),
-      this.packer.ranges
+      this.packer.ranges,
+      genome
     )
   }
 
-}
-
-function deserializeProperties(properties: string)  {
-  let [ inputs, outputs, , bias = false ] = properties.split(/i|o|b/g)
-  return {
-    bias: bias ? 1 : 0,
-    inputs: Number(inputs),
-    outputs: Number(outputs),
-  }
-}
-
-function deserializeNode(node: string)  {
-  let [ activation, ...connections ] = node.split(/:|,/)
-  let from = connections.reduce((m, c) => {
-    let [ source, weight ] = c.split('*')
-    m[source] = Number(weight)
-    return m
-  }, {})
-  return { activation, from, value: 0 }
-}
-
-function fillNodes(count: number, activation: string, value: number = 0): Array<{ activation, value }>{
-  return Array(count)
-    .fill(null)
-    .map((_) => ({ activation, value }))
-}
-
-export function deserialize(network: string): SimpleNetwork {
-  let [ properties, nodes ] = network.split('/')
-  let { inputs, outputs, bias } = deserializeProperties(properties)
-  let nodeList = [
-    ...fillNodes(inputs, 'input'),
-    ...fillNodes(bias, 'static', 1),
-    ...fillNodes(outputs, 'sigmoid', 0),
-    ...nodes.split(';').map(deserializeNode)
-  ].map((n, id) => ({ id, ...n }))
 }

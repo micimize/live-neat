@@ -9,14 +9,14 @@ interface BaseParameters {
 
 export default class NodeListPacker implements NetworkData {
   readonly translator: { [nodeReference: number]: number };
-  readonly nodeList: Array<Node>;
+  readonly nodeList: Array<NNode>;
   readonly ranges: {
-    input: Range
-    output: Range
+    input: NodeRange
+    output: NodeRange
   };
   constructor({ inputs, bias, outputs, outputActivation = 'sigmoid' }: BaseParameters){
     // TODO outputActivation is baked into the entire system, but should be flexible on a per-neuron basis
-    let nodeList: Array<Node> = inputs.sort().map(id => ({
+    let nodeList: Array<NNode> = inputs.sort().map(id => ({
       id,
       value: 0,
       activation: 'input'
@@ -44,8 +44,8 @@ export default class NodeListPacker implements NetworkData {
     Object.assign(this, { translator, ranges, nodeList })
   }
 
-  fromConnections(connections: Array<ConnectionGene>, activations): Array<Node> {
-    let nodeList: Array<Node> = this.nodeList.map(({ from, ...node }) =>
+  fromConnections(connections: Array<ConnectionGene>, activations): Array<NNode> {
+    let nodeList: Array<NNode> = this.nodeList.map(({ from, ...node }) =>
       Object.assign(from ? { from: Object.assign({}, from) } : {}, node))
     let translator = Object.assign({}, this.translator)
 

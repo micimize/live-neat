@@ -44,8 +44,8 @@ export default class Mutator {
     return genome
   }
 
-  validToNode(node: number){
-    return ![0, 1].includes(this.context.nodes[node])
+  validToNode(node: number): boolean {
+    return !['INPUT', 'BIAS'].includes(this.context.nodes[node].type || '')
   }
 
   randomPotentialConnection(genome: Genome): PotentialConnection | void {

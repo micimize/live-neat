@@ -1,24 +1,24 @@
 
-export interface InnovationMap<T> {
+declare interface InnovationMap<T> {
   [innovation: number]: T }
 
-export interface Innovation {
+declare interface Innovation {
   innovation: number
 }
 
-export interface PotentialNode {
+declare interface PotentialNode {
   activation: number,
   type?: 'INPUT' | 'BIAS' | 'OUTPUT' | 'HIDDEN' // if no type then hidden
 }
 
-export interface PotentialConnection {
+declare interface PotentialConnection {
   from: number,
   to: number
 } 
 
-type ConnectionInnovation = PotentialConnection | Innovation
+type ConnectionInnovation = PotentialConnection & Innovation
 
-export interface ConnectionGene extends ConnectionInnovation {
+declare interface ConnectionGene extends ConnectionInnovation {
   weight: number,
   active: boolean
 }
@@ -30,26 +30,28 @@ type Genome = InnovationMap<ConnectionGene>
  */
 type Weight = number
 
-export type Range = [ number, number ] // [ start, end ]
+declare type NodeRange = [ number, number ] // [ start, end ]
 
-export interface Node {
+declare type ActivationValue = number | null
+
+declare interface NNode {
   id: number,
   value: number | null,
+  activation: string,
   from?: { [ nodeReference: number ]: Weight },
-  activation: string
 }
 
-export interface NetworkData {
-  nodeList: Array<Node> | { toJSON(): string },
-  ranges: { input: Range, output: Range } ,
+declare interface NetworkData {
+  nodeList: Array<NNode>,
+  ranges: { input: NodeRange, output: NodeRange } ,
 }
 
-export interface Network extends NetworkData {
+declare interface Network extends NetworkData {
   genome: Genome,
-  setInputs(inputs: Array<Value>): void,
-  inputs: Array<Value>,
-  outputs: Array<Value>,
+  setInputs(inputs: Array<ActivationValue>): void,
+  inputs: Array<ActivationValue>,
+  outputs: Array<ActivationValue>,
   clear(): void,  
-  forward(inputs: Array<Value>, count?: number): Array<Value>
+  forward(inputs: Array<ActivationValue>, count?: number): Array<ActivationValue>
 }
 

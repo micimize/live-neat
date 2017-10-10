@@ -1,15 +1,14 @@
 import InnovationContext from '../innovation-context'
-import NodeListPacker from './node-list-packer'
 
-function serializers = {
-  node({ activation, from = {} }: Node) {
+const serializers = {
+  node({ activation, from = {} }) {
     let connections = Object.keys(from).map(k => `${k}*${from[k]}`)
     return `${activation}:${connections.join(',')}` 
-  }
+  },
   network({ ranges, nodeList }) {
     let { input: [ _, inputs ], output: [ outputStart, outputEnd ]} = ranges
     let outputs: Number = outputEnd - outputStart
-    return `${inputs}i${outputs}ob/${.nodeList.slice(outputStart).map(serializeNode).join(';')}`
+    return `${inputs}i${outputs}ob/${nodeList.slice(outputStart).map(serializers.node).join(';')}`
   }
 }
 
@@ -33,36 +32,53 @@ const deserializers = {
   }
 }
 
-function fillNodes(count: number, { activation, value }: Node): Array<{ activation, value }> {
+function fillNodes(count: number, activation: string, value: number = 0): Array<{ activation, value }> {
   return Array(count)
     .fill(null)
     .map((_) => ({ activation, value }))
 }
 
-function getConnectionsFromNode({ id, from }: Node) {
+type SerializedConnection = PotentialConnection & { weight: number }
+
+function getConnectionsFromNode({ id, from = {} }: NNode) {
   return Object.keys(from).reduce((connections, f) => {
-    connections.push({ to: id, from: f, weight: from[f] })
+    connections.push({ to: id, from: Number(f), weight: from[f] })
     return connections
-  }, []) 
+  }, Array<SerializedConnection>()) 
 }
 
-function getConnections(nodeList: Array<Node>) {
+function getConnections(nodeList: Array<NNode>) {
   return nodeList.reduce((connections, node) =>
-    connections.concat(getConnectionsFromNode(node)), [])
+    connections.concat(getConnectionsFromNode(node)),
+    Array<SerializedConnection>()) 
+}
+
+function reviveConnections(
+  context: InnovationContext, connections: Array<SerializedConnection>
+): Genome {
+  return connections.reduce((g, connection) => {
+    let { innovation } = context.newConnection(connection)
+    g[innovation] = {
+      innovation,
+      active: true,
+      ...connection
+    }
+    return g
+  }, {})
 }
 
 
 export function deserialize(network: string): { genome: Genome, context: InnovationContext } {
   let [ properties, nodes ] = network.split('/')
-  let { inputs, outputs, bias } = deserialize.properties(properties)
+  let { inputs, outputs, bias } = deserializers.properties(properties)
   let ranges = {
     input: [ 0, inputs ],
     output: [ inputs + bias, inputs + bias + outputs ]
   }
   let nodeList = [
-    ...fillNodes(inputs, { 'input' }),
+    ...fillNodes(inputs, 'input', 0),
     ...fillNodes(bias, 'static', 1),
-    ...nodes.split(';').map(deserialize.node)
+    ...nodes.split(';').map(deserializers.node)
   ].map((n, id) => ({ id, ...n }))
   let context = new InnovationContext({
     inputs,
@@ -70,12 +86,7 @@ export function deserialize(network: string): { genome: Genome, context: Innovat
     activations: ['sigmoid'],
     opener: 'custom',
   })
-  let genome = getConnections(nodeList).reduce((g, connection) => {
-    let { innovation } = context.newConnection(connection)
-    connection.innovation = innovation
-    g[innovation] = connection
-    return g
-  }, {})
+  let genome = reviveConnections(context, getConnections(nodeList))
   return { context, genome }
 }
 
