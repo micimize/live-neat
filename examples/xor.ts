@@ -19,8 +19,15 @@ const domain = [
 ].map(([ a, b ]) =>
   ([ [ a, b ], a ^ b ]))
 
+function gotAnswer(actual, prediction){
+  return Number(actual == Math.round(prediction))
+}
+
 function correctness(actual, prediction){
-  return 1 - (actual - prediction) ** 2
+  let success = gotAnswer(actual, prediction) 
+  let confidence = 1 - (actual - prediction)
+  // success is 2x more important than confidence
+  return ((2 * success + confidence) / 3) ** 2
 }
 
 function evaluate(creature){
