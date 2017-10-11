@@ -77,9 +77,13 @@ const defaultFormatters = {
       .join(', ')
   },
 
+  species({ fitness, creatures: { size }}){
+    return chalk.white(size) + ` @ ` + chalk.magenta(this.fitness(fitness))
+  },
+
   population(pop){
     return chalk.blue(`gen: ${pop.age} species: [`) + 
-      pop.livingSpecies.map(s => chalk.magenta(this.fitness(s.fitness))).join(', ') +
+      pop.livingSpecies.map(s => this.species(s)).join(', ') +
     chalk.blue(']')
   }
 

@@ -1,3 +1,10 @@
+import { SortedSet } from 'immutable-sorted'
+
+interface Living { fitness: number }
+
+export function CompetitiveSet<T extends Living>(units: Array<T> = [])  {
+  return SortedSet<T>(units, (a: T, b: T) => a.fitness - b.fitness)
+}
 
 function LazyCartesianProduct(this: any, sets: any){
   // stolen from http://phrogz.net/lazy-cartesian-product

@@ -25,7 +25,7 @@ function gotAnswer(actual, prediction){
 
 function correctness(actual, prediction){
   let success = gotAnswer(actual, prediction) 
-  let confidence = 1 - (actual - prediction)
+  let confidence = 1 - (actual - prediction) ** 2
   // success is 2x more important than confidence
   return ((2 * success + confidence) / 3) ** 2
 }

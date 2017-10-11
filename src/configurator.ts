@@ -21,6 +21,7 @@ export default () => ({
     resurrectFromHeroesRate: 1,
     // living species will have their heroes genes included in the pool at this rate
     includeHeroGenesRate: 1,
+    survivalThreshold: 0.2, // top 20% of each species may reproduce
   },
   distance: {
     innovationDifferenceCoefficient: 2,
@@ -32,6 +33,14 @@ export default () => ({
     initialCompatibilityThreshold: 20.0,
     compatibilityThreshold: 20.0,
     compatibilityModifier: 0.3,
+    stagnation: {
+      acceptableGenerations: 20,
+      cost: 10, 
+    },
+    culling: {
+      regularity: 30,
+      minimumAge: 20
+    }
   },
   mutation: {
     newNodeProbability: 0.01,

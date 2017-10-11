@@ -2,6 +2,64 @@
 # yarn lockfile v1
 
 
+"@collectable/core@4.0.2":
+  version "4.0.2"
+  resolved "https://registry.yarnpkg.com/@collectable/core/-/core-4.0.2.tgz#a3ba1294729c41e117895239bb8ab1965a798289"
+  dependencies:
+    "@frptools/core" "^3.0.1"
+
+"@collectable/list@4.4.0":
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/@collectable/list/-/list-4.4.0.tgz#33acb7ce9cd15c02832bff69e1a8b0889f90bd18"
+  dependencies:
+    "@collectable/core" "4.0.2"
+
+"@collectable/map@3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@collectable/map/-/map-3.1.0.tgz#509a110e74b2401da1ff7880b5e15bed53b34000"
+  dependencies:
+    "@collectable/core" "4.0.2"
+
+"@collectable/red-black-tree@4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@collectable/red-black-tree/-/red-black-tree-4.2.0.tgz#a4dbcdf4d79f1ef705d00e5b0e4d83b15fd11498"
+  dependencies:
+    "@collectable/core" "4.0.2"
+
+"@collectable/set@3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@collectable/set/-/set-3.1.0.tgz#c3a8d4904472f02e20d3acab7de839377028370f"
+  dependencies:
+    "@collectable/core" "4.0.2"
+    "@collectable/map" "3.1.0"
+    "@typed/curry" "^1.0.1"
+
+"@collectable/sorted-map@2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@collectable/sorted-map/-/sorted-map-2.2.0.tgz#6e5151feb646e24e2db2a77115a82c5d4d59eaa7"
+  dependencies:
+    "@collectable/core" "4.0.2"
+    "@collectable/map" "3.1.0"
+    "@collectable/red-black-tree" "4.2.0"
+    "@typed/curry" "^1.0.1"
+
+"@collectable/sorted-set@2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@collectable/sorted-set/-/sorted-set-2.2.0.tgz#22954133a7752d9ec6b1cd081f6239bf2755b39c"
+  dependencies:
+    "@collectable/core" "4.0.2"
+    "@collectable/map" "3.1.0"
+    "@collectable/red-black-tree" "4.2.0"
+    "@typed/curry" "^1.0.1"
+
+"@frptools/core@^3.0.1":
+  version "3.0.1"
+  resolved "https://registry.yarnpkg.com/@frptools/core/-/core-3.0.1.tgz#f7f5363d2d62db68ffcd2750ba267f989cecbbe2"
+
+"@typed/curry@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@typed/curry/-/curry-1.0.1.tgz#555d4624b0cbf09e101945326d3bb9ffcaba3655"
+
 "@types/chai@^4.0.4":
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.0.4.tgz#fe86315d9a66827feeb16f73bc954688ec950e18"
@@ -433,6 +491,19 @@ co@^4.6.0:
 code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
+
+collectable@^0.23.0:
+  version "0.23.0"
+  resolved "https://registry.yarnpkg.com/collectable/-/collectable-0.23.0.tgz#8b75ddd711db32a7ddf2ca0545ae896839d3cdd1"
+  dependencies:
+    "@collectable/core" "4.0.2"
+    "@collectable/list" "4.4.0"
+    "@collectable/map" "3.1.0"
+    "@collectable/red-black-tree" "4.2.0"
+    "@collectable/set" "3.1.0"
+    "@collectable/sorted-map" "2.2.0"
+    "@collectable/sorted-set" "2.2.0"
+    "@typed/curry" "^1.0.1"
 
 color-convert@^1.9.0:
   version "1.9.0"
@@ -1009,6 +1080,10 @@ fp-ts@^0.5.2:
   version "0.5.2"
   resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-0.5.2.tgz#b121af614725fd5dbdcd67d1df41e5e6f89ea349"
 
+fp-ts@^0.5.4:
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-0.5.4.tgz#cd8f20b7a73807bc2bf274f4d26072b0a42f8b5c"
+
 fresh@0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.0.tgz#f474ca5e6a9246d6fd8e0953cfa9b9c805afa78e"
@@ -1238,6 +1313,10 @@ https-browserify@0.0.1:
 ieee754@^1.1.4:
   version "1.1.8"
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.1.8.tgz#be33d40ac10ef1926701f6f08a2d86fbfd1ad3e4"
+
+immutable-sorted@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/immutable-sorted/-/immutable-sorted-0.1.0.tgz#89d2128fd84f0a0720d3fee6b7c0da81ce517f9e"
 
 immutable@4.0.0-rc.2:
   version "4.0.0-rc.2"
@@ -2090,6 +2169,10 @@ querystringify@0.0.x:
 querystringify@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/querystringify/-/querystringify-1.0.0.tgz#6286242112c5b712fa654e526652bf6a13ff05cb"
+
+ramda@^0.25.0:
+  version "0.25.0"
+  resolved "https://registry.yarnpkg.com/ramda/-/ramda-0.25.0.tgz#8fdf68231cffa90bc2f9460390a0cb74a29b29a9"
 
 randomatic@^1.1.3:
   version "1.1.7"

@@ -1,8 +1,27 @@
-import { Set } from 'immutable'
-import configurator from './configurator'
-import Creature, { distance } from './creature'
-import { selection, weightedSelection } from './random-utils'
-import { crossover } from './genome'
+import { Record } from 'immutable'
+import { SortedSet } from 'immutable-sorted'
+import { CompetitiveSet } from '../utils'
+import configurator from '../configurator'
+import Creature, { distance } from '../creature'
+import { selection, weightedSelection } from '../random-utils'
+import { crossover } from '../genome'
+
+// Use RecordFactory<TProps> for defining new Record factory functions.
+type Point3DProps = { x: number, y: number, z: number };
+const makePoint3D: Record.Of<Point3DProps> = Record({ x: 0, y: 0, z: 0 });
+export makePoint3D;
+
+interface Species {
+  heroes: Array<Hero> = [];
+  creatures: SortedSet<Creature>;
+  id: number;
+  age: number = 0;
+
+}
+
+// Use RecordOf<T> for defining new instances of that Record.
+export type Point3D = RecordOf<Point3DProps>;
+const some3DPoint: Point3D = makePoint3D({ x: 10, y: 20, z: 30 });
 
 const increment = (
   (ascending = 0) => () => ascending++
@@ -19,9 +38,14 @@ function asHero({ fitness, id, network: { genome } }: Creature): Hero {
 }
 
 export default class Species {
-  creatures: Set<Creature>;
+  creatures: SortedSet<Creature>;
   heroes: Array<Hero> = [];
   id: number;
+  age: number = 0;
+
+  get size(): number {
+    return this.creatures.size
+  }
 
   get fitness(): number {
     if (!this.creatures.size){
@@ -40,7 +64,7 @@ export default class Species {
 
   constructor(...creatures: Array<Creature>) {
     this.id = increment()
-    this.creatures = Set.of(...creatures)
+    this.creatures = CompetitiveSet(creatures)
   }
 
   add(creature: Creature): boolean {
@@ -78,8 +102,7 @@ export default class Species {
   procreate(): Genome {
     let a = this.selectGenome()
     if(!a){ // TODO should be configurable
-      return this.selectHero().genome // if there are no creatures, resurrect hero
-      // this might not be as buggy as it seems - the first dead creature will always be in the hero list.
+      return this.selectHero().genome // if there are no creatures, resurrect hero // this might not be as buggy as it seems - the first dead creature will always be in the hero list.
     }
     let b = this.selectGenome({ not: a })
     if(!b){
@@ -121,3 +144,17 @@ export default class Species {
 }
 
 
+
+function procreate(species: Species): Genome {
+    let a = species.selectGenome()
+    if(!a){ // TODO should be configurable
+      return species.selectHero().genome // if there are no creatures, resurrect hero // this might not be as buggy as it seems - the first dead creature will always be in the hero list.
+    }
+    let b = species.selectGenome({ not: a })
+    if(!b){
+      // can only reproduce asexually
+      return Object.assign({}, a)
+    }
+    return crossover(a, b)
+  }
+}

@@ -9,8 +9,15 @@ const increment = (
   (ascending = 0) => () => ascending++
 )()
 
+type CreatureSeed {
+  id: number
+  fitness
+  genome: Genome
+}
+
 export default class Creature {
 
+  signature: Signature;
   id: number;
   age: number;
   fitness: number;
