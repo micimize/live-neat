@@ -2,7 +2,7 @@ import { prefix } from '../structures/io'
 import { Map, Set } from 'immutable-ext'
 import * as random from '../random-utils'
 import { Crossover } from './functions'
-
+import { FantasyFunctor } from 'fp-ts/lib/Functor'
 import { connectionExpressionTracker, select as selectGene } from './connection-gene'
 
 export const URI = `${prefix}Genome`
@@ -10,10 +10,6 @@ export type URI = typeof URI
 
 
 type ConnectionGenes = Map<number, ConnectionGene>
-
-class InnovationMap {
-
-}
 
 function mix([ a, b ]: Array<ConnectionGenes>): ConnectionGenes {
   let [ longer, shorter ] = a.size > b.size ?
@@ -31,9 +27,9 @@ let crossover = Crossover({
   mixDisjointValues: mix
 })
 
-export default class Genome implements FantasyFunctor<URI, Genome>  {
+export default class Genome implements FantasyFunctor<URI, ConnectionGenes>  {
 
-  readonly _A: A
+  readonly _A: ConnectionGenes
   readonly _URI: URI = URI
   readonly values: ConnectionGenes
 
@@ -45,21 +41,17 @@ export default class Genome implements FantasyFunctor<URI, Genome>  {
     return this.of(crossover([ this.values, genes ]))
   }
 
-  map<B>(f: (a: A) => B): Genome {
-    return this.of({ values: map(f, this.values) })
+  map<B>(f: (a: ConnectionGene, key: number) => B): Genome {
+    return this.of({ values: this.values.map(f) })
   }
 
-  static of<A>(values: ConnectionGenes): Genome {
+  static of(values: ConnectionGenes = Map()): Genome {
     return new Genome(values)
   }
 
-  get of() {
-    return Genome.of
-  }
-
-  empty(): Genome {
-    return Genome.of(Map())
-  }
+  readonly of = Genome.of
+  static empty = Genome.of
+  readonly empty = Genome.of
 
   toJSON(){
     return { [this._URI]: this.values.toJSON() }
