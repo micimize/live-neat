@@ -1,27 +1,105 @@
 import { Record } from 'immutable'
-import { SortedSet } from 'immutable-sorted'
-import { CompetitiveSet } from '../utils'
+import { Args as SSArgs } from '../structures/SortedSet'
+import { SortedSet, CompetitiveSet } from '../structures'
 import configurator from '../configurator'
 import Creature, { distance } from '../creature'
 import { selection, weightedSelection } from '../random-utils'
 import { crossover } from '../genome'
 
-// Use RecordFactory<TProps> for defining new Record factory functions.
-type Point3DProps = { x: number, y: number, z: number };
-const makePoint3D: Record.Of<Point3DProps> = Record({ x: 0, y: 0, z: 0 });
-export makePoint3D;
+export type Args = {
+  heroLimit: number,
+  creatures: Creature | Array<Creature>
+}
+
+function Comparator<A>(attr: string){
+  return (a: A, b: A) => Number(a[attr]) - Number(b[attr])
+}
+
+export default class Species extends SortedSet<Creature> {
+  readonly heroes: CompetitiveSet<Hero>;
+  readonly id: number;
+  readonly age: number = 0;
+
+  get fitness(): number {
+    return this.reduce(
+      (total, creature) => total + creature.fitness,
+      0
+    ) / this.size
+  }
+
+  constructor({ heroLimit, creatures }: Args)  {
+    super({ comparator: Comparator<Creature>('fitness'), values: creatures })
+    this.heroes = CompetitiveSet.of({ limit: heroLimit, values: [], comparator: Comparator<Hero>('fitness') })
+  }
+
+  add(creature: Creature): boolean {
+    let { compatibilityThreshold } = configurator().speciation
+    if(this.some(member => distance(member, creature) < compatibilityThreshold)){
+      this.creatures = this.creatures.add(creature)
+      return true
+    }
+    return false
+  }
+
+  concat(value: Creature | Hero | Species): Species {
+    if(value instanceof Creature){
+
+    }
+    return this.of({ limit: this.limit, values: super.concat(set).values })
+  }
+
+  selectHero(): Hero {
+    return weightedSelection(this.heroes, c => c.fitness ^ 2)
+  }
+
+  get genePool(): Set<Hero> {
+    let livingPool = this.creatures.map(asHero)
+    let { includeHeroGenesRate } = configurator().reproduction
+    return this.creatures.map(asHero).union(this.heroes.map(
+      ({ fitness, ...hero }) => ({ fitness: includeHeroGenesRate * fitness, ...hero })))
+  }
+
+  selectGenome({ not }: { not?: Genome } = {}): Genome | null {
+    let pool = Array.from(this.genePool).filter(h => h.genome !== not)
+    if (!pool.length){
+      return null
+    }
+    // todo 0 fitness should probably be unselectable 
+    return weightedSelection(
+      Array.from(this.genePool).filter(h => h.genome !== not), h => h.fitness ^ 2
+    ).genome
+  }
+
+  static of<A>({ heroLimit, creatures = [] }): Species {
+    return new Species({ limit, values, ...args }).culled()
+  }
+
+  get of() {
+    return CompetitiveSet.of
+  }
+
+}
+
+export class Sepcies extends Record({ value: 0, creatures: (SortedSet<Creature>).of() }) {
+    value: number;
+    status: Status;
+
+    constructor(params?: CounterParams) {
+        params ? super(params) : super();
+    }
+
+    with(values: CounterParams) {
+        return this.merge(values) as this;
+    }
+}
 
 interface Species {
   heroes: Array<Hero> = [];
   creatures: SortedSet<Creature>;
   id: number;
-  age: number = 0;
-
+  age: number;
 }
 
-// Use RecordOf<T> for defining new instances of that Record.
-export type Point3D = RecordOf<Point3DProps>;
-const some3DPoint: Point3D = makePoint3D({ x: 10, y: 20, z: 30 });
 
 const increment = (
   (ascending = 0) => () => ascending++

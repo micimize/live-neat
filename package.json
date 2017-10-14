@@ -11,6 +11,7 @@
     "deeplearn": "^0.1.0",
     "fp-ts": "^0.5.4",
     "immutable": "4.0.0-rc.2",
+    "immutable-ext": "^1.1.2",
     "immutable-sorted": "^0.1.0",
     "inversify": "^4.3.0",
     "io-ts": "^0.7.1",

@@ -22,7 +22,7 @@ export function connectionExpressionTracker(){
   return seen
 }
 
-export function select(a: ConnectionGene, b: ConnectionGene){
+export function select([ a, b ]: Array<ConnectionGene>){
   if (!a.active){
     if (!b.active){
       return Math.random() > 0.50 ? a : b

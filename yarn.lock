@@ -1076,11 +1076,7 @@ forwarded@~0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/forwarded/-/forwarded-0.1.0.tgz#19ef9874c4ae1c297bcf078fde63a09b66a84363"
 
-fp-ts@^0.5.2:
-  version "0.5.2"
-  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-0.5.2.tgz#b121af614725fd5dbdcd67d1df41e5e6f89ea349"
-
-fp-ts@^0.5.4:
+fp-ts@^0.5.2, fp-ts@^0.5.4:
   version "0.5.4"
   resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-0.5.4.tgz#cd8f20b7a73807bc2bf274f4d26072b0a42f8b5c"
 
@@ -1313,6 +1309,10 @@ https-browserify@0.0.1:
 ieee754@^1.1.4:
   version "1.1.8"
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.1.8.tgz#be33d40ac10ef1926701f6f08a2d86fbfd1ad3e4"
+
+immutable-ext@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/immutable-ext/-/immutable-ext-1.1.2.tgz#051e20c19bc58609b8d939194cd105c1c58d152f"
 
 immutable-sorted@^0.1.0:
   version "0.1.0"

@@ -1,3 +1,4 @@
+import { Map, Set } from 'immutable-ext'
 
 export function shuffle(_array: Array<any>): Array<any> {
   // Fisher-Yates Shuffle
@@ -22,6 +23,12 @@ export function subset(obj: object, size: number) {
   return shuffle(Object.keys(obj))
     .slice(0, size)
     .reduce((sub, key) => (sub[key] = obj[key], sub), {})
+}
+
+export function submap(map: Map, size: number): Map {
+  return shuffle(map.keys())
+    .slice(0, size)
+    .reduce((sub, key) => sub.set(key,map.get(key)), Map())
 }
 
 export function weightedChoice(weights: { [choice: string]: number }): string {

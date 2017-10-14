@@ -1,23 +1,23 @@
+import * as M from '@collectable/map';
+import { unwrap } from '@collectable/core';
+import { Crossover } from './functions'
 import * as random from '../random-utils'
 import { connectionExpressionTracker, select as selectGene } from './connection-gene'
 
-function clone<T>(obj: T): T {
-  return JSON.parse(JSON.stringify(obj))
-}
 
-function mix(a: Genome, b: Genome) {
-  let aLength = Object.keys(a).length
-  let bLength = Object.keys(b).length
-  let [ longer, shorter ] = aLength > bLength ?
+type ConnectionMap = M.HashMapStructure<number, ConnectionGene>
+
+function mix([ a, b ]: Array<ConnectionMap>): ConnectionMap {
+  let [ longer, shorter ] = M.size(a) > M.size(b) ?
     [ a, b ] :
     [ b, a ]
   let total = Math.ceil(
-    Math.min(aLength, bLength) + Math.abs(aLength - bLength) / 2
+    Math.min(M.size(a), M.size(b)) + Math.abs(M.size(a) - M.size(b)) / 2
   )
-  return Object.assign(
-    random.subset(longer, Math.ceil(total)),
-    random.subset(shorter, Math.floor(total))
-  )
+  return M.fromObject(Object.assign(
+    random.subset(unwrap(longer), Math.ceil(total)),
+    random.subset(unwrap(shorter), Math.floor(total))
+  ))
 }
 
 interface Pool {

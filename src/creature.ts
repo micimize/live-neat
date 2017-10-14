@@ -9,20 +9,23 @@ const increment = (
   (ascending = 0) => () => ascending++
 )()
 
-type CreatureSeed {
+type RankedGenome = {
   id: number
-  fitness
+  fitness: number
   genome: Genome
 }
 
-export default class Creature {
+export default class Creature implements RankedGenome {
 
-  signature: Signature;
   id: number;
   age: number;
   fitness: number;
   energy: number;
   network: Network;
+
+  get genome(): Genome {
+    return this.network.genome
+  }
 
   constructor(network: Network) {
     this.network = network

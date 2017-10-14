@@ -1,16 +1,17 @@
 import * as t from 'io-ts'
 import { URI, SortedSet } from './types'
+import Creature from './creature'
 
 const set = fromArray(['X', 'Y']); // => <[X, Y]>
 const array = Array.from(set); // => [X, Y]
 
-function comparator<A>(attr: string){
+function Comparator<A>(attr: string){
   return (a: A, b: A) => Number(a[attr]) - Number(b[attr])
 }
 
 class sSpecies extends SortedSet<Creature> {
   _URI = '@species',
-  comparator: comparator<Creature>('fitness')
+  comparator = Comparator<Creature>('fitness')
 
 }
 

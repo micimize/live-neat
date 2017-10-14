@@ -1,5 +1,8 @@
 import { prefix } from './io'
-import { SortedSetStructure, isSortedSet, fromArray, toArray, map, add, union } from '@collectable/sorted-set';
+import {
+  SortedSetStructure, isSortedSet, fromArray, toArray,
+  map, reduce, add, union, size, some
+} from '@collectable/sorted-set';
 import { FantasyFunctor } from 'fp-ts/lib/Functor'
 
 export const URI = `${prefix}SortedSet`
@@ -55,6 +58,18 @@ export default class SortedSet<A> implements FantasyFunctor<URI, A>  {
 
   toJSON(){
     return { [this._URI]: toArray(this.values) }
+  }
+
+  get size() {
+    return size(this.values)
+  }
+
+  reduce<B>(f: (acc: B, v: A, index: number) => B, seed: B): B {
+    return reduce(f, seed, this.values)
+  }
+
+  some(f: (v: A) => boolean): boolean {
+    return some(f, this.values)
   }
 
 }
