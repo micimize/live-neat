@@ -1,5 +1,4 @@
 import { Map, Set } from 'immutable-ext'
-//import Map from '../structures/Map';
 import * as random from '../random-utils'
 
 type Pool<Iter> = {

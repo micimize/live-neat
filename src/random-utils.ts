@@ -71,7 +71,6 @@ export function weightedSelection<T>(
 }
 
 
-
 export function selection<T>(choices: Array<T>): T {
   var index = Math.floor(Math.random() * choices.length)
   return choices[index]

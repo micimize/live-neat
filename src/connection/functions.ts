@@ -1,8 +1,4 @@
-import configurator from '../configurator'
 
-export function signature({ from, to }: PotentialConnection ): string {
-  return [ from, to ].sort().join(',')
-}
 
 export function connectionExpressionTracker(){
   let tracker: any = (connection: ConnectionGene): ConnectionGene | false => {
@@ -38,6 +34,7 @@ export function select([ a, b ]: Array<ConnectionGene>){
   }
 }
 
+
 function weightMutation(): number {
   let { weightChange } = configurator().mutation
   return Math.random() < weightChange.probability ?
@@ -48,11 +45,3 @@ function weightMutation(): number {
 export function mutateWeight({ weight, ...gene }: ConnectionGene): ConnectionGene {
   return Object.assign({ weight: weight + weightMutation() }, gene)
 }
-
-export function initializeConnection(gene: ConnectionInnovation): ConnectionGene {
-  return Object.assign({
-    active: true,
-    weight: Math.random()
-  }, gene)
-}
-

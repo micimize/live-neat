@@ -2,7 +2,7 @@ import { Set } from 'immutable'
 import InnovationContext from '../innovation-context'
 import * as random from '../random-utils'
 import { signature, initializeConnection, mutateWeight } from './connection-gene'
-import configurator from '../configurator'
+import configurator from './configurator'
 
 function randomConnection(genome: Genome): ConnectionGene {
   return random.selection(Object.values(genome))

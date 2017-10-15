@@ -9,6 +9,13 @@ export const URI = `${prefix}Genome`
 export type URI = typeof URI
 
 
+/*
+  Ultimate structure: 
+  Genome = Record({
+    ...[facetName]: Map<innovation, Facet>
+  })
+ */
+
 type ConnectionGenes = Map<number, ConnectionGene>
 
 function mix([ a, b ]: Array<ConnectionGenes>): ConnectionGenes {
@@ -22,8 +29,8 @@ function mix([ a, b ]: Array<ConnectionGenes>): ConnectionGenes {
     random.submap(shorter, Math.floor(total)))
 }
 
-let crossover = Crossover({
-  chooseIntersectionValue: (k: number, values: Array<ConnectionGene>) => selectGene(values),
+export const crossover = Crossover<ConnectionGenes, number, ConnectionGene>({
+  chooseIntersectionValue: (k: number, connections: Array<ConnectionGene>) => selectGene(connections),
   mixDisjointValues: mix
 })
 
@@ -31,22 +38,24 @@ export default class Genome implements FantasyFunctor<URI, ConnectionGenes>  {
 
   readonly _A: ConnectionGenes
   readonly _URI: URI = URI
-  readonly values: ConnectionGenes
+  readonly connections: ConnectionGenes
 
-  constructor(values: ConnectionGenes)  {
-    this.values = values
+  constructor(connections: ConnectionGenes)  {
+    this.connections = connections
   }
 
-  concat(genes: ConnectionGenes): ConnectionGenes {
-    return this.of(crossover([ this.values, genes ]))
+  // fantasy land
+
+  concat({ connections }: { connections: ConnectionGenes }): Genome {
+    return this.of(crossover([ this.connections, connections ]))
   }
 
   map<B>(f: (a: ConnectionGene, key: number) => B): Genome {
-    return this.of({ values: this.values.map(f) })
+    return this.of({ connections: this.connections.map(f) })
   }
 
-  static of(values: ConnectionGenes = Map()): Genome {
-    return new Genome(values)
+  static of({ connections = Map() }: { connections: ConnectionGenes }): Genome {
+    return new Genome({ connections })
   }
 
   readonly of = Genome.of
@@ -54,15 +63,15 @@ export default class Genome implements FantasyFunctor<URI, ConnectionGenes>  {
   readonly empty = Genome.of
 
   toJSON(){
-    return { [this._URI]: this.values.toJSON() }
+    return { [this._URI]: this.connections.toJSON() }
   }
 
   get size() {
-    return this.values.size
+    return this.connections.size
   }
 
   reduce<B>(f: (acc: B, v: ConnectionGene, index: number) => B, seed: B): B {
-    return this.values.reduce(f, seed)
+    return this.connections.reduce(f, seed)
   }
 
 }
