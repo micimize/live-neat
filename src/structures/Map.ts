@@ -61,7 +61,7 @@ function Record<P extends t.Props>(props: P, defaults: Defaults<P> = emptyDefaul
   return IRecord<Interface>(defaults as object)
 }
 
-function InnovationMap(valueType: t.Any){
+function InnovationMap<V extends t.Any>(valueType: V){
   return Map(IntegerKey, valueType)
 }
 
@@ -79,6 +79,7 @@ const PotentialConnection = t.interface({
 })
 
 const Activations= InnovationMap(ActivationRef)
+type A = t.TypeOf<typeof Activations>
 let a: t.TypeOf<typeof Activations> = t.validate([[ 0, 'INPUT', 1, 'BIAS' ]], Activations)
 
 const Context = Record({
