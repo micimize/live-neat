@@ -1,5 +1,30 @@
-import { Map as IMap } from 'immutable'
+import { Map as IMap, Record as IRecord } from 'immutable'
 import * as t from 'io-ts'
+
+/*
+type NativeMap<K, V> = Map<K, V>
+const NativeMap = Map
+*/
+
+function Enum(...literals){
+  return t.union(Object.create(literals.map(s => t.literal(s))))
+}
+
+function emptyDefaults(props: t.Props){
+  let o = {}
+  Object.keys(props).forEach(k =>
+    o[k] = undefined)
+  return o
+}
+
+function subtractDefaults(props: t.Props, defaults: object){
+  let defaultKeys = Object.keys(defaults)
+  let o = {}
+  Object.keys(props)
+    .filter(k => defaultKeys.includes(k))
+    .forEach(k => o[k] = props[k])
+  return o
+}
 
 const IntegerKey: t.Type<number> = {
   _A: t._A,
@@ -8,17 +33,15 @@ const IntegerKey: t.Type<number> = {
     if (typeof value === 'string'){
       value = parseInt(value)
     }
-    return t.validate(value, t.Integer)
+    return t.Integer.validate(value, context)
   }
 }
+type KeyType = t.Type<string> | typeof IntegerKey
 
-const KeyTypes = t.union([t.string,  IntegerKey])
+function Map<K extends KeyType, V extends t.Any >(keyType: K, valueType: V) {
 
-function IOMap(keyType: t.Any & t.TypeOf<typeof KeyTypes>, valueType: t.Any): t.Type<IMap<t.TypeOf<typeof keyType>, t.TypeOf<typeof valueType>>> {
-
-  type Key = t.TypeOf<typeof keyType>
-  type Value = t.TypeOf<typeof valueType>
-  type MapType = t.Type<IMap<Key, Value>> 
+  type Key = t.TypeOf<K>
+  type Value = t.TypeOf<V>
 
   const Entries = t.array(t.tuple([ keyType, valueType ]))
 
@@ -29,29 +52,65 @@ function IOMap(keyType: t.Any & t.TypeOf<typeof KeyTypes>, valueType: t.Any): t.
       Entries.validate(Object.entries(value), context)
         .chain(entries => t.success(IMap<Key, Value>(entries)))
   }
+  return MapType
 }
 
-/*
-function StrictRecord(props: t.Props, defaults = emptyDefaults(props)){
+function Record(props: t.Props, defaults = emptyDefaults(props)){
+  defaults = t.validate(defaults, t.partial(props))
+
+  let RequiredPartial = t.interface(subtractDefaults(props, defaults))
+  type RequiredPartial = t.TypeOf<typeof RequiredPartial>
+
   let Interface = t.interface(props)
-  type R = t.TypeOf<typeof Interface>
-  class StrictRecord extends IRecord(defaults) implements R {
-    constructor(record: R = defaults) {
-      t.validate(record, Interface)
-      super(record)
+  type Interface = t.TypeOf<typeof Interface>
+
+  class StrictRecord extends IRecord(defaults) implements Interface {
+    constructor(
+      record: RequiredPartial = defaults,
+      fullRecord: Interface = Object.assign({}, defaults, record)
+    ) {
+      super(fullRecord)
     }
   }
-  return StrictRecord
+
+  const StrictRecordT: t.Type<Interface> = {
+    _A: t._A,
+    name: 'StrictRecord',
+    validate(value, context){
+      return Interface.validate(new StrictRecord(value), context)
+    }
+  }
+  return StrictRecordT
 }
 
-const Context = StrictRecord({
-  innovation: t.number
-  activations: Map<number, ActivationRef>
-  nodes: Map<number, PotentialNode>
-  connections: Map<number, PotentialConnection> 
+function InnovationMap(valueType: t.Any){
+  return Map(IntegerKey, valueType)
+}
+
+const ActivationRef = Enum('INPUT', 'BIAS', 'sigmoid', 'tanh', 'relu')
+
+const PotentialNode = t.interface({
+  activation: t.number,
+  type: Enum('INPUT', 'BIAS', 'OUTPUT', 'HIDDEN') // if no type then hidden
+})
+
+const PotentialConnection = t.interface({
+  from: t.Integer,
+  to: t.Integer,
+})
+
+const Context = Record({
+  innovation: t.Integer,
+  activations: InnovationMap(ActivationRef),
+  nodes: InnovationMap(PotentialNode),
+  connections: InnovationMap(PotentialConnection)
 }, {
   innovation: 2,
-  activations: Map<number, ActivationRef>({ 0: 'INPUT', 1: 'BIAS' }),
-  nodes: Map<number, PotentialNode>(),
-  connections: Map<number, PotentialConnection>()
+  activations: { 0: 'INPUT', 1: 'BIAS' },
+  nodes: {},
+  connections: {}
 })
+
+let context = t.validate({ foo: 'bar' }, Context)
+
+export { Enum, IntegerKey, Map, Record, t } 
