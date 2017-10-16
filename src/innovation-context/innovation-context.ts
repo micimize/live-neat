@@ -1,10 +1,16 @@
-import { Map } from 'immutable-ext'
+import { Map } from 'immutable'
 import { Record } from 'immutable'
 import * as random from '../random-utils'
 import configurator from '../configurator'
 import { nNodes, openers } from './functions' // this isn't the best name wise
 
-type ActivationRef = 'sigmoid' | 'tanh' | 'relu'
+function emptyDefaults(o): object {
+  let e = {}
+  Object.keys(o).forEach(k => e[k] = undefined)
+  return e
+}
+
+type ActivationRef = 'INPUT' | 'BIAS' | 'sigmoid' | 'tanh' | 'relu'
 
 interface Config {
   inputs: number,
@@ -16,7 +22,7 @@ interface Config {
 
 const empty = {
   innovation: 2,
-  activations: Map<number, ActivationRef>({ 0: 'INPUT', 1: 'BIAS' }),
+  activations: Map<number, ActivationRef>([ [ 0, 'INPUT' ], [ 1, 'BIAS' ] ]),
   nodes: Map<number, PotentialNode>(),
   connections: Map<number, PotentialConnection>() 
 }
@@ -54,7 +60,7 @@ export default class InnovationContext extends Record(empty) implements IContext
   }
 
   private newNode(): Mutated & { node: { activation: number } & Innovation } {
-    let activation: number = random.selection(this.activations.keys())
+    let activation: number = random.selection(Array.from(this.activations.keys()))
     let { context, innovation } = this.innovate('nodes', activation)
     return { context, node: { innovation, activation } }
   }
@@ -63,7 +69,7 @@ export default class InnovationContext extends Record(empty) implements IContext
     let { innovation, context } = this.innovate('connections', { from, to })
     return {
       context,
-      update: { connections:  Map([ [ innovation, { from, to }] ]) }
+      update: { connections:  Map([ [ innovation, { from, to } ] ]) }
     }
   }
 
@@ -72,7 +78,7 @@ export default class InnovationContext extends Record(empty) implements IContext
     let newNode = this.newNode()
     let newFrom = newNode.context.connection({ from, to: newNode.node.innovation })
     let { update: { connections }, context } = newFrom.context.connection({ from: newNode.node.innovation, to })
-    return { context, update: { connections: connections.merge(newFrom.update.connections) } }
+    return { context, update: { connections: connections.concat(newFrom.update.connections) } }
   }
 
   of({
@@ -89,4 +95,3 @@ export default class InnovationContext extends Record(empty) implements IContext
   }
 
 }
-

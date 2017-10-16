@@ -27,12 +27,10 @@ function initializeNode(
   return mutation
 }
 
-export default class Mutator {
+export default class Mutator extends Record({ context: InnovationContext }) implements IContext {
 
-  context: InnovationContext;
-
-  constructor(context: InnovationContext){
-    this.context = context
+  constructor(context: InnovationContext = empty) {
+    super(context)
   }
 
   node(genome: Genome){

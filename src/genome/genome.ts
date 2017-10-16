@@ -54,7 +54,7 @@ export default class Genome implements FantasyFunctor<URI, ConnectionGenes>  {
     return this.of({ connections: this.connections.map(f) })
   }
 
-  static of({ connections = Map() }: { connections: ConnectionGenes }): Genome {
+  static of({ connections = Map() }: { connections: ConnectionGenes } = {}): Genome {
     return new Genome({ connections })
   }
 
