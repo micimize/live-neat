@@ -1,4 +1,4 @@
-import { Map, Set } from 'immutable-ext'
+import { Map, Set } from 'immutable'
 
 export function shuffle(_array: Array<any>): Array<any> {
   // Fisher-Yates Shuffle
@@ -25,8 +25,8 @@ export function subset(obj: object, size: number) {
     .reduce((sub, key) => (sub[key] = obj[key], sub), {})
 }
 
-export function submap(map: Map, size: number): Map {
-  return shuffle(map.keys())
+export function submap<K, V>(map: Map<K, V>, size: number): Map<K, V> {
+  return shuffle(Array.from(map.keys()))
     .slice(0, size)
     .reduce((sub, key) => sub.set(key,map.get(key)), Map())
 }

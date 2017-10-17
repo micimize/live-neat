@@ -36,6 +36,10 @@ class Genome extends Record(empty) implements Genes {
     return this.connections.size
   }
 
+  get connectionList() {
+    return Array.from(this.connections.values())
+  }
+
   map(f: (a: ConnectionGene, key: number) => ConnectionGene): Genome {
     return new Genome({ connections: this.connections.map(f) })
   }

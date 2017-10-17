@@ -51,7 +51,7 @@ class InnovationContext extends Structure {
     }
   }
 
-  connection(connection: PotentialConnection): ConnectionsUpdate {
+  newConnection(connection: PotentialConnection): ConnectionsUpdate {
     let { innovation, context } = this.preexistingConnection(connection) ||
       this.innovate('connections', connection)
     return {
@@ -60,11 +60,11 @@ class InnovationContext extends Structure {
     }
   }
 
-  node({ from, to }: PotentialConnection): ConnectionsUpdate {
+  insertNode({ from, to }: PotentialConnection): ConnectionsUpdate {
     // ugly, hard to make not ugly. Would make sense to implement "update reduction"
     let newNode = this.newNode()
-    let newFrom = newNode.context.connection({ from, to: newNode.node.innovation })
-    let { connections, context } = newFrom.context.connection({ from: newNode.node.innovation, to })
+    let newFrom = newNode.context.newConnection({ from, to: newNode.node.innovation })
+    let { connections, context } = newFrom.context.newConnection({ from: newNode.node.innovation, to })
     return {
       context,
       connections: connections.concat(newFrom.connections)
@@ -86,3 +86,4 @@ class InnovationContext extends Structure {
 
 }
 export default InnovationContext
+export { Mutated }

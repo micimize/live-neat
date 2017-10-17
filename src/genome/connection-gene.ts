@@ -38,3 +38,4 @@ class ConnectionGene extends Record(empty) implements Connection {
 }
 
 export default ConnectionGene
+export { PotentialConnection }

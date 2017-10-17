@@ -63,12 +63,15 @@ export default () => ({
   mutation: {
     newNodeProbability: 0.01,
     newConnectionProbability: 0.3,
-    weightChange: {
-      probability: 0.8,
-      power: 1
+    connection: {
+      newProbability: 0.3,
+      disable: 0.01,
+      reenable: 0.2,
+      weightChange: {
+        probability: 0.8,
+        power: 1
+      },
+      // recurrent: 0
     },
-    recurrence: 0.2,
-    enable: 0.0,
-    reenable: 0.2,
   }
 })
