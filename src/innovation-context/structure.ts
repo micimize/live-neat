@@ -13,7 +13,7 @@ interface PotentialConnection {
 
 interface PotentialNode {
   activation: number,
-  type: 'INPUT' | 'BIAS' | 'OUTPUT' | 'HIDDEN' // if no type then hidden
+  type?: 'INPUT' | 'BIAS' | 'OUTPUT' | 'HIDDEN' // if no type then hidden
 }
 
 interface ContextStructure {
@@ -37,3 +37,4 @@ class Structure extends Record(emptyContext) implements ContextStructure {
 }
 
 export default Structure
+export { InnovationMap, PotentialConnection, PotentialNode }

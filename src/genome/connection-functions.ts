@@ -21,8 +21,10 @@ export function connectionExpressionTracker(){
 export function select([ a, b ]: Array<ConnectionGene>){
   if (!a.active){
     if (!b.active){
+      // weight tossup if neither active
       return Math.random() > 0.50 ? a : b
     } else {
+      // weight tossup if neither active
       return Math.random() > configurator().mutation.reenable ? a : b
     }
   } else { // if (a.active) {

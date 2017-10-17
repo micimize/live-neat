@@ -1,5 +1,5 @@
 import { Map } from 'immutable'
-import Structure from './structure'
+import Structure, { InnovationMap, PotentialConnection, PotentialNode } from './structure'
 import * as random from '../random-utils'
 import configurator from '../configurator'
 import { nNodes, openers } from './functions' // this isn't the best name wise
@@ -15,10 +15,13 @@ interface Config {
 interface Mutated {
   context: InnovationContext
 }
+type Unmutated = Mutated
 
 interface Innovation {
   innovation: number
 }
+
+type ConnectionsUpdate = Mutated & { connections: InnovationMap<PotentialConnection> }
 
 class InnovationContext extends Structure {
 
@@ -29,26 +32,43 @@ class InnovationContext extends Structure {
     return { innovation, context }
   }
 
-  private newNode(): Mutated & { node: { activation: number } & Innovation } {
+  private newNode(): Mutated & { node: PotentialNode & Innovation } {
     let activation: number = random.selection(Array.from(this.activations.keys()))
     let { context, innovation } = this.innovate('nodes', activation)
     return { context, node: { innovation, activation } }
   }
 
-  connection({ from, to }: PotentialConnection){
-    let { innovation, context } = this.innovate('connections', { from, to })
-    return {
-      context,
-      update: { connections:  Map.of([ [ innovation, { from, to } ] ]) }
+  private preexistingConnection( { from, to }: PotentialConnection): (Unmutated & Innovation) | void {
+    if(configurator().genome.connection.maintainStructuralUniqueness){
+      for(let [ innovation, connection ] of this.connections.entries()){
+        if(connection.from == from && connection.to == to){
+          return {
+            context: this,
+            innovation
+          }
+        }
+      }
     }
   }
 
-  node({ from, to }: PotentialConnection){
-    // ugly, hard to make not ugly
+  connection(connection: PotentialConnection): ConnectionsUpdate {
+    let { innovation, context } = this.preexistingConnection(connection) ||
+      this.innovate('connections', connection)
+    return {
+      context,
+      connections: Map([ [ innovation, connection ] ])
+    }
+  }
+
+  node({ from, to }: PotentialConnection): ConnectionsUpdate {
+    // ugly, hard to make not ugly. Would make sense to implement "update reduction"
     let newNode = this.newNode()
     let newFrom = newNode.context.connection({ from, to: newNode.node.innovation })
-    let { update: { connections }, context } = newFrom.context.connection({ from: newNode.node.innovation, to })
-    return { context, update: { connections: connections.concat(newFrom.update.connections) } }
+    let { connections, context } = newFrom.context.connection({ from: newNode.node.innovation, to })
+    return {
+      context,
+      connections: connections.concat(newFrom.connections)
+    }
   }
 
   from({

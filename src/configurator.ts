@@ -23,9 +23,27 @@ export default () => ({
     includeHeroGenesRate: 1,
     survivalThreshold: 0.2, // top 20% of each species may reproduce
   },
-  distance: {
-    innovationDifferenceCoefficient: 2,
-    weightDifferenceCoefficient: 1
+  genome: {
+    connection: {
+      initialWeightPower: 1,
+      // DON'T CHANGE THIS!
+      // theoretically, the structural same connection in different contexts should be considered different
+      // however, that requires implementing structure equivalence/preference at crossover time
+      maintainStructuralUniqueness: true
+    },
+    crossover: {
+      distance: {
+        innovationDifferenceCoefficient: 2,
+        weightDifferenceCoefficient: 1
+      },
+      connection: {
+        // favor active & active weights when crossing over genomes with the same connection
+        favoredInIntersection: {
+          active: false,
+          probability: 0.7
+        }
+      }
+    }
   },
   speciation: {
     speciesCount: 4,

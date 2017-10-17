@@ -1,9 +1,9 @@
 import { Set, Record } from 'immutable'
-import InnovationContext from './innovation-context/innovation-context'
+import InnovationContext from '../innovation-context/innovation-context'
 import * as random from '../random-utils'
-import { signature, initializeConnection, mutateWeight } from './connection/connection-gene'
-import Genome from './genome'
-import configurator from './configurator'
+import { initializeConnection, mutateWeight } from '../connection/connection-gene'
+import Genome from '../genome'
+import configurator from '../configurator'
 
 function randomConnection(genome: Genome): ConnectionGene {
   return random.selection(Object.values(genome))
@@ -44,7 +44,7 @@ export default class Mutator extends Record({ context: new InnovationContext() }
   }
 
   randomPotentialConnection(genome: Genome): PotentialConnection | void {
-    let signatures: Set<string> = Set.of(genome.values().map(signature))
+    let signatures: Set<string> = Set.of(genome.values().map(g => g.signature))
     let nodes = getNodes(genome)
     for (let from of random.shuffle(Array.from(nodes))) {
       for (let to of random.shuffle(Array.from(nodes).filter(node => this.validToNode(node)))) {

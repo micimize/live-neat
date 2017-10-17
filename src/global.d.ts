@@ -1,4 +1,4 @@
-
+/*
 declare interface InnovationMap<T> {
   [innovation: number]: T }
 
@@ -24,6 +24,7 @@ declare interface ConnectionGene extends ConnectionInnovation {
 }
 
 type Genome = InnovationMap<ConnectionGene>
+*/
 
 /* * * * * *
  * networks

@@ -1,5 +1,12 @@
+import { Record } from 'immutable'
 import { pools } from './crossover'
 import configurator from '../configurator'
+
+export const configuration = Record({
+  innovationDifferenceCoefficient: 2,
+  weightDifferenceCoefficient: 1
+})
+
 
 function weightDifferences(shared, a, b){
   return Object.keys(shared).reduce((weightDifference, innovation) =>

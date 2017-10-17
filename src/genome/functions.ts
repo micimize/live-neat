@@ -1,4 +1,4 @@
-import { Map, Set } from 'immutable-ext'
+import { Map, Set } from 'immutable'
 import * as random from '../random-utils'
 
 type Pool<Iter> = {
@@ -9,7 +9,7 @@ type Pool<Iter> = {
 /* generics */
 
 function pool<T>(sets: Array<Set<T>>): Pool<Set<T>> {
-   let intersection = sets.reduce(Set.intersect)
+   let intersection = sets.reduce((a, b) => a.intersect(b))
    let disjoint = sets.map(set => set.subtract(intersection))
    return { intersection, disjoint }
 }
@@ -21,7 +21,7 @@ function intersectingValues<K, V>(k: K, maps: Array<Map<K, V>>): Array<V> {
 }
 
 function setToMap<K, V>(set: Set<[K, V]>): Map<K, V> {
-  return new Map(set)
+  return Map<K, V>(set)
 }
 
 // TODO ideally map intersection would be decoupled
