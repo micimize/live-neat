@@ -1,38 +1,19 @@
-import { Map } from 'immutable'
-import { Record } from 'immutable'
+import { Map, t, l } from '../structures'
+import Structure from './structure'
 import * as random from '../random-utils'
 import configurator from '../configurator'
 import { nNodes, openers } from './functions' // this isn't the best name wise
 
-function emptyDefaults(o): object {
-  let e = {}
-  Object.keys(o).forEach(k => e[k] = undefined)
-  return e
-}
-
-type ActivationRef = 'INPUT' | 'BIAS' | 'sigmoid' | 'tanh' | 'relu'
+const ActivationRef = t.union([l('INPUT'), l('BIAS'), l('sigmoid'), l('tanh'), l('relu')])
 
 interface Config {
   inputs: number,
   outputs: number,
   opener: 'single-connection' | 'single-hidden-node' | 'fully-connected' | 'custom',
-  activations: Array<ActivationRef>
+  activations: Array<t.TypeOf<typeof ActivationRef>>
   // 'sigmoid', 'tanh', 'relu', 'gaussian', 'sin', 'cos', 'abs', 'mult', 'add', 'mult', 'add'
 }
 
-const empty = {
-  innovation: 2,
-  activations: Map<number, ActivationRef>([ [ 0, 'INPUT' ], [ 1, 'BIAS' ] ]),
-  nodes: Map<number, PotentialNode>(),
-  connections: Map<number, PotentialConnection>() 
-}
-
-interface Context {
-  innovation: number
-  activations: Map<number, ActivationRef>
-  nodes: Map<number, PotentialNode>
-  connections: Map<number, PotentialConnection> 
-}
 
 interface Mutated {
   context: InnovationContext
@@ -42,34 +23,27 @@ interface Innovation {
   innovation: number
 }
 
-interface IContext extends Context {
-  innovate: (attribute: 'activations' | 'nodes' | 'connections', value) => Mutated & Innovation
-}
+let s = Structure.of()
+export default class InnovationContext extends Structure {
 
-export default class InnovationContext extends Record(empty) implements IContext {
-
-  constructor(context: Context = empty) {
-    super(context)
-  }
-
-  innovate(attribute: 'activations' | 'nodes' | 'connections', value): Mutated & Innovation {
+  public innovate = (attribute: 'activations' | 'nodes' | 'connections', value): Mutated & Innovation => {
     let context = this.set('innovation', this.innovation + 1)
     let innovation = context.innovation
     context = context.setIn([attribute, context.innovation], value)
     return { innovation, context }
   }
 
-  private newNode(): Mutated & { node: { activation: number } & Innovation } {
+  private newNode = (): Mutated & { node: { activation: number } & Innovation } => {
     let activation: number = random.selection(Array.from(this.activations.keys()))
     let { context, innovation } = this.innovate('nodes', activation)
     return { context, node: { innovation, activation } }
   }
 
-  connection({ from, to }: PotentialConnection){
+  public connection = ({ from, to }: PotentialConnection) => {
     let { innovation, context } = this.innovate('connections', { from, to })
     return {
       context,
-      update: { connections:  Map([ [ innovation, { from, to } ] ]) }
+      update: { connections:  Map.of([ [ innovation, { from, to } ] ]) }
     }
   }
 
@@ -81,7 +55,7 @@ export default class InnovationContext extends Record(empty) implements IContext
     return { context, update: { connections: connections.concat(newFrom.update.connections) } }
   }
 
-  of({
+  from({
     inputs, outputs, opener = 'fully-connected', activations = ['sigmoid']
   } = configurator().initialNetwork){
     
@@ -95,3 +69,5 @@ export default class InnovationContext extends Record(empty) implements IContext
   }
 
 }
+
+let c = InnovationContext.of()

@@ -10,7 +10,7 @@
     "collectable": "^0.23.0",
     "deeplearn": "^0.1.0",
     "fp-ts": "^0.5.4",
-    "immutable": "4.0.0-rc.2",
+    "immutable": "next",
     "immutable-ext": "^1.1.2",
     "immutable-sorted": "^0.1.0",
     "inversify": "^4.3.0",
@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "ts-loader": "^2.3.4",
-    "typescript": "^2.5.2",
+    "typescript": "next",
     "webpack": "^3.5.6",
     "webpack-dev-server": "^2.7.1"
   },
