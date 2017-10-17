@@ -1,19 +1,16 @@
-import { Map, t, l } from '../structures'
+import { Map } from 'immutable'
 import Structure from './structure'
 import * as random from '../random-utils'
 import configurator from '../configurator'
 import { nNodes, openers } from './functions' // this isn't the best name wise
 
-const ActivationRef = t.union([l('INPUT'), l('BIAS'), l('sigmoid'), l('tanh'), l('relu')])
-
 interface Config {
   inputs: number,
   outputs: number,
   opener: 'single-connection' | 'single-hidden-node' | 'fully-connected' | 'custom',
-  activations: Array<t.TypeOf<typeof ActivationRef>>
+  activations: Array<string>
   // 'sigmoid', 'tanh', 'relu', 'gaussian', 'sin', 'cos', 'abs', 'mult', 'add', 'mult', 'add'
 }
-
 
 interface Mutated {
   context: InnovationContext
@@ -23,7 +20,6 @@ interface Innovation {
   innovation: number
 }
 
-let s = Structure.of()
 export default class InnovationContext extends Structure {
 
   public innovate = (attribute: 'activations' | 'nodes' | 'connections', value): Mutated & Innovation => {

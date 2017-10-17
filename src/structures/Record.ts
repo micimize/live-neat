@@ -1,8 +1,7 @@
 import * as I from 'immutable'
 import { l, t, validater } from './t'
 
-type Defaults<P extends t.Props> = t.PartialOf<P>
-
+type Defaults<P extends t.Props> = t.PartialOf<P> 
 function emptyDefaults<P extends t.Props>(props: P): Defaults<P> {
   let o = {}
   Object.keys(props).forEach(k =>

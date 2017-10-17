@@ -1,36 +1,33 @@
-import { Record } from 'immutable'
-import { Map, t, l } from '../structures'
+import { Record, Map } from 'immutable'
 
-function InnovationMap<V extends t.Any>(valueType: V){
-  return Map(t.Integer, valueType)
+type Integer = number
+
+type InnovationMap<V> = Map<Integer, V>
+
+type ActivationRef = 'INPUT' | 'BIAS' | 'sigmoid' | 'tanh' | 'relu'
+
+interface PotentialConnection {
+  from: Integer,
+  to: Integer,
 }
 
-const ActivationRef = t.union([l('INPUT'), l('BIAS'), l('sigmoid'), l('tanh'), l('relu')])
+interface PotentialNode {
+  activation: number,
+  type: 'INPUT' | 'BIAS' | 'OUTPUT' | 'HIDDEN' // if no type then hidden
+}
 
-const PotentialConnection = t.interface({
-  from: t.Integer,
-  to: t.Integer,
-})
-
-const PotentialNode = t.interface({
-  activation: t.number,
-  type: t.union([l('INPUT'), l('BIAS'), l('OUTPUT'), l('HIDDEN')]) // if no type then hidden
-})
-
-const ContextStructure = t.interface({
-  innovation: t.Integer,
-  activations: InnovationMap(ActivationRef),
-  nodes: InnovationMap(PotentialNode),
-  connections: InnovationMap(PotentialConnection)
-})
-
-type ContextStructure = t.TypeOf<typeof ContextStructure>
+interface ContextStructure {
+  innovation: Integer
+  activations: InnovationMap<ActivationRef>
+  nodes: InnovationMap<PotentialNode>
+  connections: InnovationMap<PotentialConnection>
+}
 
 const emptyContext = {
   innovation: 2,
-  activations: Map.of([[ 0, 'INPUT' ], [ 1, 'BIAS' ]]),
-  nodes: Map.of(),
-  connections: Map.of()
+  activations: Map<Integer, ActivationRef>([[ 0, 'INPUT' ], [ 1, 'BIAS' ]]),
+  nodes: Map<Integer, PotentialNode>(),
+  connections: Map<Integer, PotentialConnection>()
 }
 
 class Structure extends Record(emptyContext) implements ContextStructure {
@@ -42,7 +39,5 @@ class Structure extends Record(emptyContext) implements ContextStructure {
   }
   of = Structure.of
 }
-
-let s = new Structure()
 
 export default Structure
