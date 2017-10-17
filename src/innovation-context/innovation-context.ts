@@ -23,6 +23,18 @@ interface Innovation {
 
 type ConnectionsUpdate = Mutated & { connections: InnovationMap<PotentialConnection> }
 
+function compose<I>(first: (i: I) => I, ...fns: Array<(i: I) => I>): (i: I) => I {
+  return fns.reduce(
+    (c, f) => (i: I) => f(c(i)),
+    first
+  )
+}
+
+function thread<V, R>(value: V, first: (v: V) => R, second: (r: R) => R, ...rest: Array<(r: R) => R>): R {
+  return compose(second, ...rest)(first(value))
+}
+
+
 class InnovationContext extends Structure {
 
   innovate(attribute: 'activations' | 'nodes' | 'connections', value): Mutated & Innovation {
@@ -51,24 +63,28 @@ class InnovationContext extends Structure {
     }
   }
 
-  newConnection(connection: PotentialConnection): ConnectionsUpdate {
+  newConnection(
+    connection: PotentialConnection,
+    connections: InnovationMap<PotentialConnection> = Map()
+  ): ConnectionsUpdate {
     let { innovation, context } = this.preexistingConnection(connection) ||
       this.innovate('connections', connection)
     return {
       context,
-      connections: Map([ [ innovation, connection ] ])
+      connections: connections.set(innovation, connection)
     }
   }
 
   insertNode({ from, to }: PotentialConnection): ConnectionsUpdate {
-    // ugly, hard to make not ugly. Would make sense to implement "update reduction"
-    let newNode = this.newNode()
-    let newFrom = newNode.context.newConnection({ from, to: newNode.node.innovation })
-    let { connections, context } = newFrom.context.newConnection({ from: newNode.node.innovation, to })
-    return {
+    let { context, node: { innovation } } = this.newNode()
+    return thread(
       context,
-      connections: connections.concat(newFrom.connections)
-    }
+      context => context.newConnection({ from, to: innovation }),
+      ({ context, connections }) => context.newConnection(
+        { from: innovation, to },
+        connections
+      )
+    )
   }
 
   from({
