@@ -1,13 +1,7 @@
-import { prefix } from '../structures/io'
-import { Map, Set } from 'immutable-ext'
+import { Map, Set } from 'immutable'
 import * as random from '../random-utils'
 import { Crossover } from './functions'
-import { FantasyFunctor } from 'fp-ts/lib/Functor'
 import { connectionExpressionTracker, select as selectGene } from './connection-gene'
-
-export const URI = `${prefix}Genome`
-export type URI = typeof URI
-
 
 /*
   Ultimate structure: 
@@ -34,40 +28,21 @@ export const crossover = Crossover<ConnectionGenes, number, ConnectionGene>({
   mixDisjointValues: mix
 })
 
-export default class Genome implements FantasyFunctor<URI, ConnectionGenes>  {
+export default class Genome {
 
   readonly _A: ConnectionGenes
-  readonly _URI: URI = URI
   readonly connections: ConnectionGenes
 
-  constructor(connections: ConnectionGenes)  {
+  constructor({ connections }: { connections: ConnectionGenes })  {
     this.connections = connections
-  }
-
-  // fantasy land
-
-  concat({ connections }: { connections: ConnectionGenes }): Genome {
-    return this.of(crossover([ this.connections, connections ]))
-  }
-
-  map<B>(f: (a: ConnectionGene, key: number) => B): Genome {
-    return this.of({ connections: this.connections.map(f) })
-  }
-
-  static of({ connections = Map() }: { connections: ConnectionGenes } = {}): Genome {
-    return new Genome({ connections })
-  }
-
-  readonly of = Genome.of
-  static empty = Genome.of
-  readonly empty = Genome.of
-
-  toJSON(){
-    return { [this._URI]: this.connections.toJSON() }
   }
 
   get size() {
     return this.connections.size
+  }
+
+  map(f: (a: ConnectionGene, key: number) => ConnectionGene): Genome {
+    return new Genome({ connections: this.connections.map(f) })
   }
 
   reduce<B>(f: (acc: B, v: ConnectionGene, index: number) => B, seed: B): B {

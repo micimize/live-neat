@@ -1,12 +1,7 @@
-import { prefix } from './io'
 import {
   SortedSetStructure, isSortedSet, fromArray, toArray,
-  map, reduce, add, union, size, some
+  map, reduce, add, union, size
 } from '@collectable/sorted-set';
-import { FantasyFunctor } from 'fp-ts/lib/Functor'
-
-export const URI = `${prefix}SortedSet`
-export type URI = typeof URI
 
 export type Args<A> = {
   values: A | Array<A> | SortedSetStructure<A>,
@@ -17,10 +12,8 @@ function arrayify<V>(v: Array<V> | V): Array<V>{
   return Array.isArray(v) ? v : [v]
 }
 
-export default class SortedSet<A> implements FantasyFunctor<URI, A>  {
+export default class SortedSet<A>  {
 
-  readonly _A: A
-  readonly _URI: URI = URI
   readonly values: SortedSetStructure<A>
   readonly comparator?: (a: A, b: A) => number
 
@@ -57,7 +50,7 @@ export default class SortedSet<A> implements FantasyFunctor<URI, A>  {
   }
 
   toJSON(){
-    return { [this._URI]: toArray(this.values) }
+    return toArray(this.values)
   }
 
   get size() {
@@ -66,10 +59,6 @@ export default class SortedSet<A> implements FantasyFunctor<URI, A>  {
 
   reduce<B>(f: (acc: B, v: A, index: number) => B, seed: B): B {
     return reduce(f, seed, this.values)
-  }
-
-  some(f: (v: A) => boolean): boolean {
-    return some(f, this.values)
   }
 
 }

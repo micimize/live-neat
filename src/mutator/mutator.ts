@@ -1,7 +1,8 @@
-import { Set } from 'immutable'
-import InnovationContext from '../innovation-context'
+import { Set, Record } from 'immutable'
+import InnovationContext from './innovation-context/innovation-context'
 import * as random from '../random-utils'
-import { signature, initializeConnection, mutateWeight } from './connection-gene'
+import { signature, initializeConnection, mutateWeight } from './connection/connection-gene'
+import Genome from './genome'
 import configurator from './configurator'
 
 function randomConnection(genome: Genome): ConnectionGene {
@@ -27,16 +28,12 @@ function initializeNode(
   return mutation
 }
 
-export default class Mutator extends Record({ context: InnovationContext }) implements IContext {
-
-  constructor(context: InnovationContext = empty) {
-    super(context)
-  }
+export default class Mutator extends Record({ context: new InnovationContext() }) {
 
   node(genome: Genome){
     if (Math.random() < configurator().mutation.newNodeProbability) {
       let connection = randomConnection(genome)
-      let mutated = initializeNode(connection, this.context.insertNode(connection))
+      let mutated = initializeNode(connection, this.context.node(connection))
       return Object.assign({}, genome, mutated)
     }
     return genome
@@ -47,7 +44,7 @@ export default class Mutator extends Record({ context: InnovationContext }) impl
   }
 
   randomPotentialConnection(genome: Genome): PotentialConnection | void {
-    let signatures: Set<string> = Set.of(...Object.values(genome).map(signature))
+    let signatures: Set<string> = Set.of(genome.values().map(signature))
     let nodes = getNodes(genome)
     for (let from of random.shuffle(Array.from(nodes))) {
       for (let to of random.shuffle(Array.from(nodes).filter(node => this.validToNode(node)))) {
@@ -62,7 +59,7 @@ export default class Mutator extends Record({ context: InnovationContext }) impl
     if (Math.random() < configurator().mutation.newConnectionProbability) {
       let potentialConnection = this.randomPotentialConnection(genome)
       if (potentialConnection){
-        let connection = this.context.newConnection(potentialConnection)
+        let connection = this.context.connection(potentialConnection)
         let gene = initializeConnection(connection)
         return Object.assign({}, genome, { [gene.innovation]: gene })
       }

@@ -1,15 +1,11 @@
-import { prefix } from './io'
 import SortedSet, { Args as SSArgs } from './SortedSet'
 import { size, filter } from '@collectable/sorted-set';
 
-export const URI = `${prefix}CompetitiveSet`
-export type URI = typeof URI
 
 export type Args<A> = { limit: number } & SSArgs<A>
 
 export default class CompetitiveSet<A> extends SortedSet<A>  {
 
-  readonly _URI = URI
   readonly limit: number
 
   culled(): CompetitiveSet<A>{

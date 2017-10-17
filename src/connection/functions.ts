@@ -1,8 +1,8 @@
-
+import { Connection } from './connection-gene'
 
 export function connectionExpressionTracker(){
-  let tracker: any = (connection: ConnectionGene): ConnectionGene | false => {
-    let sig = signature(connection)
+  let tracker: any = (connection: Connection): Connection | false => {
+    let sig = connection.signature
     if (seen.connections[sig]){
       return seen.connections[sig]
     } else {

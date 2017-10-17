@@ -20,22 +20,22 @@ interface Innovation {
   innovation: number
 }
 
-export default class InnovationContext extends Structure {
+class InnovationContext extends Structure {
 
-  public innovate = (attribute: 'activations' | 'nodes' | 'connections', value): Mutated & Innovation => {
+  innovate(attribute: 'activations' | 'nodes' | 'connections', value): Mutated & Innovation {
     let context = this.set('innovation', this.innovation + 1)
     let innovation = context.innovation
     context = context.setIn([attribute, context.innovation], value)
     return { innovation, context }
   }
 
-  private newNode = (): Mutated & { node: { activation: number } & Innovation } => {
+  private newNode(): Mutated & { node: { activation: number } & Innovation } {
     let activation: number = random.selection(Array.from(this.activations.keys()))
     let { context, innovation } = this.innovate('nodes', activation)
     return { context, node: { innovation, activation } }
   }
 
-  public connection = ({ from, to }: PotentialConnection) => {
+  connection({ from, to }: PotentialConnection){
     let { innovation, context } = this.innovate('connections', { from, to })
     return {
       context,
@@ -65,5 +65,4 @@ export default class InnovationContext extends Structure {
   }
 
 }
-
-let c = InnovationContext.of()
+export default InnovationContext

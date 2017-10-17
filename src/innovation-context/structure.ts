@@ -34,10 +34,6 @@ class Structure extends Record(emptyContext) implements ContextStructure {
   constructor(record: ContextStructure = emptyContext) {
     super(record)
   }
-  static of(record: ContextStructure = emptyContext): Structure {
-    return new Structure(record)
-  }
-  of = Structure.of
 }
 
 export default Structure
