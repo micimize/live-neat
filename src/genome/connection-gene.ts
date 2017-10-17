@@ -12,7 +12,7 @@ declare interface Innovation {
 
 type ConnectionInnovation = PotentialConnection & Innovation
 
-declare interface ConnectionGene extends ConnectionInnovation {
+declare interface Connection extends ConnectionInnovation {
   weight: number,
   active: boolean
 }
@@ -25,19 +25,16 @@ const empty = {
   active: false
 } 
 
-export class Connection extends Record(empty) implements ConnectionGene {
-  constructor({ from, to, weight = Math.random(), active = true }: ConnectionGene){
+class ConnectionGene extends Record(empty) implements Connection {
+  constructor({ from, to, weight = Math.random(), active = true }: Connection){
     super({ from, to , weight, active })
   }
   get signature(): string {
     return [this.from, this.to].join(',')
   }
-  static of(innovation: ConnectionInnovation): Connection {
-    return new Connection({ weight: Math.random(), active: true, ...innovation })
+  static of(innovation: ConnectionInnovation): ConnectionGene {
+    return new ConnectionGene({ weight: Math.random(), active: true, ...innovation })
   }
 }
 
-export function initializeConnection(gene: ConnectionInnovation): ConnectionGene {
-  return new ConnectionGene(gene)
-}
-
+export default ConnectionGene

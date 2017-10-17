@@ -1,10 +1,8 @@
-import { Map, Set } from 'immutable'
+import { Map, Set, Record  } from 'immutable'
 import * as random from '../random-utils'
-import { Crossover } from './functions'
-import { connectionExpressionTracker, select as selectGene } from './connection-gene'
+import ConnectionGene from './connection-gene'
 
-/*
-  Ultimate structure: 
+/* Ultimate structure: 
   Genome = Record({
     ...[facetName]: Map<innovation, Facet>
   })
@@ -12,29 +10,26 @@ import { connectionExpressionTracker, select as selectGene } from './connection-
 
 type ConnectionGenes = Map<number, ConnectionGene>
 
-function mix([ a, b ]: Array<ConnectionGenes>): ConnectionGenes {
-  let [ longer, shorter ] = a.size > b.size ?
-    [ a, b ] :
-    [ b, a ]
-  let total = Math.ceil(
-    Math.min(a.size, b.size) + Math.abs(a.size - b.size) / 2
-  )
-  return random.submap(longer, Math.ceil(total)).merge(
-    random.submap(shorter, Math.floor(total)))
-}
+interface Genes {
+  connections: ConnectionGenes
+} 
 
-export const crossover = Crossover<ConnectionGenes, number, ConnectionGene>({
-  chooseIntersectionValue: (k: number, connections: Array<ConnectionGene>) => selectGene(connections),
-  mixDisjointValues: mix
-})
+const empty = { connections: Map<number, ConnectionGene>() }
 
-export default class Genome {
+class Genome extends Record(empty) implements Genes {
 
-  readonly _A: ConnectionGenes
   readonly connections: ConnectionGenes
 
-  constructor({ connections }: { connections: ConnectionGenes })  {
-    this.connections = connections
+  constructor(genome: Genes = empty)  {
+    super(genome)
+  }
+
+  static of(genome: Genes = empty){
+    return new Genome(genome)
+  }
+
+  static empty(){
+    return Genome.of()
   }
 
   get size() {
@@ -51,3 +46,5 @@ export default class Genome {
 
 }
 
+export default Genome
+export { ConnectionGenes }

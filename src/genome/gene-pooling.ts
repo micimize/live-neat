@@ -6,8 +6,6 @@ type Pool<Iter> = {
   disjoint: Array<Iter>
 }
 
-/* generics */
-
 function pool<T>(sets: Array<Set<T>>): Pool<Set<T>> {
    let intersection = sets.reduce((a, b) => a.intersect(b))
    let disjoint = sets.map(set => set.subtract(intersection))
@@ -37,17 +35,5 @@ function mapPool<K, V>({ chooseIntersectionValue, maps }: {
   }
 }
 
-type Args<K, V> = {
-  chooseIntersectionValue: (k: K, values: Array<V>) => V,
-  mixDisjointValues: (sources: Array<Map<K, V>>) => Map<K, V>,
-}
-
-export function Crossover<T extends Map<K, V>, K, V>({
-  chooseIntersectionValue,
-  mixDisjointValues,
-}: Args<K, V>) {
-  return (sources: Array<Map<K, V>>) => {
-    let { intersection, disjoint } = mapPool<K, V>({ chooseIntersectionValue, maps: sources })
-    return mixDisjointValues(disjoint).merge(intersection)
-  }
-}
+export { pool }
+export default mapPool

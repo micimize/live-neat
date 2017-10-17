@@ -1,15 +1,19 @@
-import { Record } from 'immutable'
-import { pools } from './crossover'
+import { Record, Set } from 'immutable'
+import Genome, { ConnectionGenes } from './genome'
+import { pool } from './gene-pooling'
 import configurator from '../configurator'
+
+
+const genomePools = (genomes: Array<Genome>) =>
+  pool<number>(genomes.map(g => g.connections).map(m => Set(m.keys())))
 
 export const configuration = Record({
   innovationDifferenceCoefficient: 2,
   weightDifferenceCoefficient: 1
 })
 
-
-function weightDifferences(shared, a, b){
-  return Object.keys(shared).reduce((weightDifference, innovation) =>
+function weightDifferences(shared: Set<number>, a: ConnectionGenes, b: ConnectionGenes){
+  return shared.reduce((weightDifference, innovation) =>
     Math.abs(a[innovation].weight - b[innovation].weight), 0)
 }
 
@@ -17,19 +21,19 @@ function weightDifferences(shared, a, b){
 // using the original C++ distance, and assuming disjoint and excess genes have the same cost
 // D = c1 * Ne + c2 * Nd + c3 * W
 //
-export default function distance(a: Genome, b: Genome): number {
+export default function distance([ a, b ]: Array<Genome>): number {
   //let aInnovations = Object.keys(a)
   //let bInnovations = Object.keys(b)
   //let aMostRecentInnovation = Math.max(aInnovations)
   //let bMostRecentInnovation = Math.max(bInnovations)
   //let strandSize = Math.max(aInnovations.length, bInnovations.length)
-  let { shared, uniqueToA, uniqueToB } = pools(a, b, { structuralSharing: false })
-  let innovationDifferences = Object.keys(uniqueToA).length + Object.keys(uniqueToB).length
-  let sharedWeightDifferences = weightDifferences(shared, a, b)
+  let { intersection, disjoint: [ uniqueToA, uniqueToB ] } = genomePools([ a, b ])
+  let innovationDifferences = uniqueToA.size + uniqueToB.size
+  let sharedWeightDifferences = weightDifferences(intersection, a.connections, b.connections)
   let {
     innovationDifferenceCoefficient,
     weightDifferenceCoefficient
-  } = configurator().distance
+  } = configurator().genome.crossover.distance
   return (
     innovationDifferences * innovationDifferenceCoefficient +
     sharedWeightDifferences * weightDifferenceCoefficient
