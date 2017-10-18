@@ -1,3 +1,4 @@
+import { Record, Map } from 'immutable'
 import InnovationContext from '../innovation-context'
 import { Mutator } from '../genome'
 import GeneExpresser from '../network/vanilla'
@@ -25,7 +26,7 @@ interface Dependencies {
 }
 
 class _Population {
-  species: CompetitiveSet<Species> = CompetitiveSet.of(4);
+  species: CompetitiveSet<Species> = CompetitiveSet.of({ limit: 4 });
   expressor: GeneExpresser;
   resources: number = 0;
   age: number = 0;
