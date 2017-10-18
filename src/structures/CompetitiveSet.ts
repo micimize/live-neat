@@ -4,9 +4,14 @@ import { size, filter } from '@collectable/sorted-set';
 
 export type Args<A> = { limit: number } & SSArgs<A>
 
-export default class CompetitiveSet<A> extends SortedSet<A>  {
+export default class CompetitiveSet<A> extends SortedSet<A> {
 
   readonly limit: number
+
+  constructor({ limit, ...args }: Args<A>)  {
+    super(args)
+    this.limit = limit
+  }
 
   culled(): CompetitiveSet<A>{
     let { limit, values } = this
@@ -16,13 +21,12 @@ export default class CompetitiveSet<A> extends SortedSet<A>  {
     else return this
   }
 
-  constructor({ limit, ...args }: Args<A>)  {
-    super(args)
-    this.limit = limit
-  }
-
   concat(set: A | Array<A> | SortedSet<A> | CompetitiveSet<A>): CompetitiveSet<A> {
     return this.of({ limit: this.limit, values: super.concat(set).values })
+  }
+
+  merge(set: A | Array<A> | SortedSet<A> | CompetitiveSet<A>): CompetitiveSet<A> {
+    return this.concat(set)
   }
 
   static of<A>({ limit, values = [], ...args }: Args<A> ): CompetitiveSet<A> {
@@ -35,6 +39,10 @@ export default class CompetitiveSet<A> extends SortedSet<A>  {
 
   empty(): SortedSet<A> {
     return SortedSet.of<A>()
+  }
+
+  setLimit(limit: number = this.limit): CompetitiveSet<A> {
+    return this.of({ limit, values: this.values })
   }
 
 }

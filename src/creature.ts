@@ -1,25 +1,29 @@
-import * as genome from './genome'
+import { Record  } from 'immutable'
+import Genome, * as genome from './genome'
 import configurator from './configurator'
 
-export function distance(a: Creature, b: Creature){
-  return genome.distance(a.network.genome, b.network.genome)
+export function distance([ a, b ]: Array<Creature>): number {
+  return genome.distance([ a.network.genome, b.network.genome ])
 }
 
-const increment = (
-  (ascending = 0) => () => ascending++
-)()
-
-type RankedGenome = {
-  id: number
-  fitness: number
-  genome: Genome
+const empty = {
+  age: 0,
+  energy: 0,
+  genome: Genome.empty(),
+  //network: Network()
 }
 
-export default class Creature implements RankedGenome {
+class Creature extends Record(empty) {
 
-  id: number;
+  get id(){
+    return this.genome.id
+  }
+
+  get fitness(){
+    return this.genome.fitness
+  }
+
   age: number;
-  fitness: number;
   energy: number;
   network: Network;
 
@@ -27,12 +31,8 @@ export default class Creature implements RankedGenome {
     return this.network.genome
   }
 
-  constructor(network: Network) {
-    this.network = network
-    this.id = increment()
-    this.age = 0
-    this.fitness = 0
-    this.energy = 10
+  constructor(creature: { genome: Genome, network: Network }) {
+    super(creature)
   }
 
   think(input){
@@ -40,23 +40,24 @@ export default class Creature implements RankedGenome {
     return this.network.forward(input)
   }
 
-  process(energy: number): void {
-    // default fitness is average energy
-    // increments age
-    this.fitness = ( this.fitness * this.age + energy ) / ++this.age
+  process({ energy }: { energy: number }): Creature {
+    return this.withMutations(creature => {
+      // default fitness is average energy
+      // increments age
+      creature.setIn([ 'genome', 'fitness' ], (creature.fitness * creature.age + energy ) / creature.age + 1)
+      creature.set('age', creature.age + 1)
 
-    // default cost is the age * ageSignificance
-    let cost = Math.floor(this.age * configurator().population.ageSignificance)
+      // default cost is the age * ageSignificance
+      let cost = Math.floor(creature.age * configurator().population.ageSignificance)
 
-    this.energy = Math.max(this.energy + energy - cost, 0)
+      creature.set('energy', Math.max(creature.energy + energy - cost, 0))
+      return creature
+    })
   }
 
   kill() {
   }
 
-  toJSON(){
-
-  }
-
 }
 
+export default Creature

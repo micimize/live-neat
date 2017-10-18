@@ -1,4 +1,3 @@
-import { SortedSet } from 'immutable-sorted'
 import InnovationContext from '../innovation-context'
 import { Mutator } from '../genome'
 import GeneExpresser from '../network/vanilla'
@@ -9,7 +8,7 @@ import configurator from '../configurator'
 import Species from '../species/species'
 import Creature from '../creature'
 
-import { CompetitiveSet } from '../utils'
+import { CompetitiveSet } from '../structures'
 
 
 // Creature should be dynamic, so the utilizing simulation can define it's own creature and have it managed
@@ -26,7 +25,7 @@ interface Dependencies {
 }
 
 class _Population {
-  species: SortedSet<Species> = CompetitiveSet();
+  species: CompetitiveSet<Species> = CompetitiveSet.of(4);
   expressor: GeneExpresser;
   resources: number = 0;
   age: number = 0;

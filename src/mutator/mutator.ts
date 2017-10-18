@@ -112,3 +112,5 @@ function seed(
   return { context, genomes }
 }
 
+
+export { mutate, seed }

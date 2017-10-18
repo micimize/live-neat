@@ -11,25 +11,35 @@ import ConnectionGene from './connection-gene'
 type ConnectionGenes = Map<number, ConnectionGene>
 
 interface Genes {
+  id: number
+  fitness: number
   connections: ConnectionGenes
 } 
 
-const empty = { connections: Map<number, ConnectionGene>() }
+const empty: Genes = {
+  id: NaN,
+  fitness: NaN,
+  connections: Map<number, ConnectionGene>()
+}
 
 class Genome extends Record(empty) implements Genes {
 
-  readonly connections: ConnectionGenes
+  private static incrementor = 0
 
-  constructor(genome: Genes = empty)  {
-    super(genome)
+  private static newId(){
+    return Genome.incrementor++
   }
 
-  static of(genome: Genes = empty){
+  constructor({ id = Genome.newId(), ...genome }: Genes)  {
+    super({ id, ...genome })
+  }
+
+  static of(genome: Genes){
     return new Genome(genome)
   }
 
   static empty(){
-    return Genome.of()
+    return Genome.of(empty)
   }
 
   get size() {
@@ -41,7 +51,8 @@ class Genome extends Record(empty) implements Genes {
   }
 
   map(f: (a: ConnectionGene, key: number) => ConnectionGene): Genome {
-    return new Genome({ connections: this.connections.map(f) })
+    let { id, fitness, connections } = this
+    return new Genome({ id, fitness, connections: connections.map(f) })
   }
 
   reduce<B>(f: (acc: B, v: ConnectionGene, index: number) => B, seed: B): B {
