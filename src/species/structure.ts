@@ -60,3 +60,4 @@ type S = typeof empty
 }
 
 export default Species
+export { comparator }

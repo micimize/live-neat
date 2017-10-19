@@ -1,5 +1,5 @@
 import SortedSet, * as ss from './SortedSet'
-import { size, filter } from '@collectable/sorted-set';
+import { size, filter, map } from '@collectable/sorted-set';
 
 export type Concatable<A> = ss.Concatable<A> | CompetitiveSet<A>
 
@@ -30,6 +30,11 @@ export default class CompetitiveSet<A> extends SortedSet<A> {
     let { limit, comparator } = this
     return this.of({ limit, comparator, values: super.concat(set).values })
   }
+
+  map(f: (a: A) => A): CompetitiveSet<A> {
+    return this.of({ values: map(f, this.values) })
+  }
+
 
   merge(set: A | Array<A> | SortedSet<A> | CompetitiveSet<A>): CompetitiveSet<A> {
     return this.concat(set)

@@ -36,7 +36,7 @@ export default class SortedSet<A>  {
   }
 
   map(f: (a: A) => A): SortedSet<A> {
-    return this.of({ comparator: this.comparator, values: map(f, this.values) })
+    return this.of({ values: map(f, this.values) })
   }
 
   unwrap(): Array<A> {

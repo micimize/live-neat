@@ -1,4 +1,4 @@
-import Structure from './structure'
+import Structure, { comparator } from './structure'
 
 import { Set, Record } from 'immutable'
 import { Args as SSArgs } from '../structures/SortedSet'
@@ -9,7 +9,7 @@ import Creature, { distance } from '../creature'
 import { selection, weightedSelection } from '../random-utils'
 import Genome, { crossover } from '../genome'
 
- class Species extends Structure {
+class Species extends Structure {
 
   selectHero(): Genome {
     return weightedSelection(this.heroes.unwrap(), g => g.fitness ^ 2)
@@ -17,7 +17,7 @@ import Genome, { crossover } from '../genome'
 
   selectGenome({ not }: { not?: Genome } = {}): Genome | null {
     let pool = Array.from(this.genePool).filter(g => g.equals(not))
-    if (!pool.length){
+    if (!pool.length) {
       return null
     }
     // todo 0 fitness should probably be unselectable 
@@ -26,23 +26,28 @@ import Genome, { crossover } from '../genome'
 
   procreate(): Genome {
     let a = this.selectGenome()
-    if(!a){ // TODO should be configurable
+    if (!a) { // TODO should be configurable
       /* if there are no creatures, resurrect hero
        *this might not be as buggy as it seems -
        *  the first dead creature will always be in the hero list.
        */
-      return this.selectHero() 
+      return this.selectHero()
     }
     let b = this.selectGenome({ not: a })
-    if(!b){
+    if (!b) {
       // can only reproduce asexually
       return Object.assign({}, a)
     }
-    return crossover([ a, b ])
+    return crossover([a, b])
   }
 
   add(creature: ss.Concatable<Creature>): Species {
     return this.set('creatures', this.creatures.concat(creature))
+  }
+
+  // TODO dredge up old imperetive add code for this
+  compatible(creature: Creature): boolean {
+    return false
   }
 
   addHero(genome: cs.Concatable<Genome>): Species {
@@ -61,7 +66,7 @@ import Genome, { crossover } from '../genome'
   }
 
   kill(creature: Creature): Species {
-    if (!this.creatures.has(creature)){
+    if (!this.creatures.has(creature)) {
       throw Error('creature does not belong to this species')
     }
     return this
@@ -70,3 +75,6 @@ import Genome, { crossover } from '../genome'
   }
 
  }
+
+ export default Species
+ export { comparator }
