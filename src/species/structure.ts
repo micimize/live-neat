@@ -19,7 +19,7 @@ const comparator = Comparator<Creature>('fitness')
 const empty = {
   id: NaN,
   age: 0,
-  creatures: new SortedSet<Creature>({ comparator: Comparator<Creature>('fitness') }),
+  creatures: new SortedSet<Creature>({ comparator }),
   heroes: new CompetitiveSet<Genome>({ limit: 4, comparator: Comparator<Genome>('fitness') })
 }
 
@@ -33,8 +33,20 @@ type S = typeof empty
     return Species.incrementor++
   }
 
-  constructor({ id = Species.newId(), ...species }: S) {
+  constructor({ id = Species.newId(), ...species }: Partial<S>) {
     super({ id, ...species })
+  }
+
+  static of({
+    creature,
+    creatures,
+  }: Partial<S> & { creature?: Creature }): Species {
+    if(!creatures){
+      creatures = creature ?
+      new SortedSet<Creature>({ comparator, values: [ creature ] }) :
+      empty.creatures
+    }
+    return new this({ creatures })
   }
 
   get size(): number {

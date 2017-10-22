@@ -9,6 +9,7 @@
     "chalk": "^2.1.0",
     "collectable": "^0.23.0",
     "deeplearn": "^0.1.0",
+    "deepmerge": "^2.0.0",
     "immutable": "next",
     "immutable-sorted": "^0.1.0",
     "inversify": "^4.3.0",

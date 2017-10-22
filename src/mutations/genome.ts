@@ -1,13 +1,15 @@
 import { Set, Map, Record } from 'immutable'
-import InnovationContext, { Mutated } from '../innovation-context/innovation-context'
+import { thread, compose } from '../utils'
+import { deepmerge as merge } from 'deepmerge'
+import { InnovationContext, innovations } from '../innovation-context'
 import * as random from '../random-utils'
 import Genome, { ConnectionGenes } from '../genome'
 import ConnectionGene, { PotentialConnection } from '../genome/connection-gene'
 import configurator from '../configurator'
-import * as m from './mutations'
+import * as connection from './connection'
 
-type MutatedGenome = Mutated & { genome: Genome }
-type ContextAndGenome = MutatedGenome
+type Mutation<A extends innovations.Innovatable> = { update?: innovations.Update<A> } & { genome: Genome }
+type ContextAndGenome = { context: InnovationContext, genome: Genome }
 
 function randomConnection({ connections }: Genome): ConnectionGene {
   return random.selection(Array.from(connections.values()))
@@ -17,7 +19,8 @@ function getNodes(genome: Genome): Set<number> {
   return Set(genome.connections.values()).reduce(
     (nodes, { from, to }) => nodes.add(from).add(to),
     Set<number>()
-  ) }
+  )
+}
 
 function initializeConnections(newConnections: Map<number, PotentialConnection>): ConnectionGenes{
   type Entry = [number, PotentialConnection]
@@ -37,17 +40,19 @@ function initializeNode(
     .set(old.innovation, old.set('active', false))
 }
 
-function node({ context: c, genome }: ContextAndGenome): ContextAndGenome {
+function insertNode({ context, genome }: ContextAndGenome): Mutation<'nodes' | 'connections'> {
   if (Math.random() < configurator().mutation.newNodeProbability) {
     let old = randomConnection(genome)
-    let { context, connections } = c.insertNode(old)
-    let mutated = initializeNode(old, connections)
+    let update = innovations.insertNode(context, old)
     return {
-      context,
-      genome: genome.mergeIn(['connections'], mutated)
+      update,
+      genome: genome.mergeIn(
+        ['connections'],
+        initializeNode(old, update.connections)
+      )
     }
   } else {
-    return { context: c, genome }
+    return { genome }
   }
 }
 
@@ -59,58 +64,41 @@ function randomPotentialConnection({ context, genome }: ContextAndGenome): Poten
   let connections: Set<{ from: number, to: number }> = Set(genome.connectionList.map(
     ({ from, to }) => ({ from, to })
   ))
-    let nodes = getNodes(genome)
-    for (let from of random.shuffle(Array.from(nodes))) {
-      for (let to of random.shuffle(Array.from(nodes).filter(node => validToNode(context, node)))) {
-        if(from !== to && !connections.contains({ from, to })){
-          return { from, to }
-        }
-      }
-  }
-}
-
-function connection({ context, genome }: ContextAndGenome): ContextAndGenome {
-  if (Math.random() < configurator().mutation.newConnectionProbability) {
-    let potentialConnection = randomPotentialConnection({ context, genome })
-    if (potentialConnection) {
-      let { context: c, connections } = context.newConnection(potentialConnection)
-      return {
-        context: c,
-        genome: genome.mergeIn(['connections'], initializeConnections(connections))
+  let nodes = getNodes(genome)
+  for (let from of random.shuffle(Array.from(nodes))) {
+    for (let to of random.shuffle(Array.from(nodes).filter(node => validToNode(context, node)))) {
+      if(from !== to && !connections.contains({ from, to })){
+        return { from, to }
       }
     }
   }
-  return { context, genome }
 }
 
-function structural(cg: ContextAndGenome): ContextAndGenome {
-  return node(connection(cg))
-}
-
-function connectionLevel(genome: Genome): Genome {
-  return genome.map(m.connection)
-}
-
-function mutate({ context, genome }: ContextAndGenome): ContextAndGenome {
-  return structural({
-    context,
-    genome: connectionLevel(genome)
-  })
-}
-
-function seed(
-  context: InnovationContext,
-  size: number,
-  genome: Genome = Genome.of({ connections: initializeConnections(context.connections) }),
-): Mutated & { genomes: Set<Genome> } {
-  let genomes: Set<Genome> = Set()
-  while (size--){
-    let { genome: g, context: c } = mutate({ context, genome })
-    context = c
-    genomes = genomes.add(g)
+function newConnection({ context, genome }: ContextAndGenome): Mutation<'connections'> {
+  if (Math.random() < configurator().mutation.newConnectionProbability) {
+    let potentialConnection = randomPotentialConnection({ context, genome })
+    if (potentialConnection) {
+      let update = innovations.newConnection(context, potentialConnection)
+      return {
+        update,
+        genome: genome.mergeIn(
+          ['connections'],
+          initializeConnections(update.connections)
+        )
+      }
+    }
   }
-  return { context, genomes }
+  return { genome }
 }
 
+function mutate({ context, genome }: ContextAndGenome): Mutation<'connections' | 'node'> {
+  return innovations.threadUpdates({
+      context,
+      genome: genome.map(connection.mutate)
+    },
+    newConnection,
+    insertNode,
+  )
+}
 
-export { mutate, seed }
+export { mutate }

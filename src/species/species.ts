@@ -47,7 +47,9 @@ class Species extends Structure {
 
   // TODO dredge up old imperetive add code for this
   compatible(creature: Creature): boolean {
-    return false
+    let { compatibilityThreshold } = configurator().speciation
+    return this.creatures.some(member =>
+      distance([ member, creature ]) < compatibilityThreshold)
   }
 
   addHero(genome: cs.Concatable<Genome>): Species {
@@ -72,6 +74,15 @@ class Species extends Structure {
     return this
       .set('creatures', this.creatures.delete(creature))
       .chronicleHero(creature)
+  }
+
+  static of({
+    id,
+    creature,
+    creatures = SortedSet.of({ comparator, values: [ creature ] }),
+    ...species
+  }: Partial<S> & { creature?: Creature }) {
+    return new Species({ creatures }))
   }
 
  }

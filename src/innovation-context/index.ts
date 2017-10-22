@@ -1,4 +1,12 @@
-import InnovationContext from './innovation-context'
+import {
+  InnovationContext,
+  InnovationMap,
+  PotentialConnection,
+  PotentialNode
+} from './innovation-context'
+import * as innovations from './innovations'
+import { fromConfiguration } from './functions'
 
-export default InnovationContext
-export type InnovationContext = typeof InnovationContext
+export { InnovationContext }
+export { innovations } 
+export { fromConfiguration }

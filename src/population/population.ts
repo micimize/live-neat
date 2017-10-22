@@ -37,15 +37,19 @@ class Population extends Structure {
 
   add(creature: Creature): Population {
     let speciated = false
-    for (let species of this.species){
-      speciated = species.add(creature)
-      if (speciated){
-        break
+    for (let s of this.species){
+      if(s.compatible(creature)){
+        return this.set('species', this.species
+          .delete(s)
+          .concat(s.add(creature)))
       }
     }
-    if (!speciated){
-      this.species = this.species.add(new Species(creature))
-    }
+    return this.set(
+      'species',
+      this.species.concat(
+        Species.of({ creature })
+      )
+    )
   }
 
   selectSpecies(){

@@ -3,6 +3,7 @@ import {
   map, reduce, add, union, size, filter,
   has, remove
 } from '@collectable/sorted-set';
+import * as s from '@collectable/sorted-set';
 
 export type Args<A> = {
   values?: A | Array<A> | SortedSetStructure<A>,
@@ -15,15 +16,28 @@ function arrayify<V>(v: Array<V> | V): Array<V>{
 
 export type Concatable<A> = A | Array<A> | SortedSet<A>
 
-export default class SortedSet<A>  {
+export default class SortedSet<A> {
 
   readonly values: SortedSetStructure<A>
   readonly comparator: (a: A, b: A) => number
 
-  constructor({ values = [], comparator }: Args<A>)  {
+  'constructor': typeof SortedSet
+  constructor({ values = [], comparator }: Args<A>) {
     this.values = (isSortedSet(values)) ?
       values :
       fromArray(arrayify<A>(values), comparator || this.comparator)
+  }
+
+  static of<A>({ values = [], comparator }: Args<A>) {
+    return new this({ values, comparator })
+  }
+
+  of({ values = this.values, comparator = this.comparator }: Partial<Args<A>>) {
+    return this.constructor.of({ values, comparator })
+  }
+
+  [Symbol.iterator](){
+    return this.values[Symbol.iterator]()
   }
 
   concat(set: Concatable<A>): SortedSet<A> {
@@ -35,20 +49,12 @@ export default class SortedSet<A>  {
     return this.of({ values })
   }
 
-  map(f: (a: A) => A): SortedSet<A> {
+  map(f: (a: A) => A) {
     return this.of({ values: map(f, this.values) })
   }
 
   unwrap(): Array<A> {
     return toArray(this.values)
-  }
-
-  static of<A>({ values = [], comparator }: Args<A>): SortedSet<A>{
-    return new SortedSet({ values, comparator })
-  }
-
-  of({ values = this.values, comparator = this.comparator }: Partial<Args<A>>): SortedSet<A> {
-    return new SortedSet({ values, comparator })
   }
 
   get toJSON(){
@@ -69,6 +75,15 @@ export default class SortedSet<A>  {
 
   has(a: A): boolean {
     return has(a, this.values)
+  }
+
+  some(f: (a: A) => boolean): boolean {
+    for (let a of this.values){
+      if(f(a)){
+        return true
+      }
+    }
+    return false
   }
 
   delete(a: A): SortedSet<A> {

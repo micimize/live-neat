@@ -25,11 +25,11 @@ function connectionMutations(configuration: Configuration){
   }
 }
 
-function connection(connection: ConnectionGene): ConnectionGene {
+function mutate(connection: ConnectionGene): ConnectionGene {
   let { weight, active } = connectionMutations(configurator().mutation.connection)
   return connection
       .update('weight', weight)
       .update('active', active)
 }
 
-export { connection }
+export { mutate }

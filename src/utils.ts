@@ -2,10 +2,6 @@ import { SortedSet } from 'immutable-sorted'
 
 interface Living { fitness: number }
 
-export function CompetitiveSet<T extends Living>(units: Array<T> = [])  {
-  return SortedSet<T>(units, (a: T, b: T) => a.fitness - b.fitness)
-}
-
 function LazyCartesianProduct(this: any, sets: any){
   // stolen from http://phrogz.net/lazy-cartesian-product
   for (var dm: any[] = [], f=1, l, i=sets.length; i--; f *= l){
@@ -56,3 +52,28 @@ export function networkDecoder(options: object){
   return decodeDecision
 }
 
+
+export type Diff<T extends string, U extends string> = (
+  {[P in T]: P } &
+  {[P in U]: never } &
+  { [x: string]: never }
+)[T];  
+
+export type StrictSubset<T, K extends keyof T> = {
+  [P in K]: T[P]
+}
+
+export function CERTAINLY_IS<Type>(value: any): value is Type & true {
+  return true
+}
+
+export function compose<I>(first: (i: I) => I, ...fns: Array<(i: I) => I>): (i: I) => I {
+  return fns.reduce(
+    (c, f) => (i: I) => f(c(i)),
+    first
+  )
+}
+
+export function thread<V, R>(value: V, first: (v: V) => R, second: (r: R) => R, ...rest: Array<(r: R) => R>): R {
+  return compose(second, ...rest)(first(value))
+}

@@ -28,7 +28,7 @@ export default class CompetitiveSet<A> extends SortedSet<A> {
 
   concat(set: Concatable<A>): CompetitiveSet<A> {
     let { limit, comparator } = this
-    return this.of({ limit, comparator, values: super.concat(set).values })
+    return this.of(super.concat(set))
   }
 
   map(f: (a: A) => A): CompetitiveSet<A> {
@@ -36,8 +36,16 @@ export default class CompetitiveSet<A> extends SortedSet<A> {
   }
 
 
-  merge(set: A | Array<A> | SortedSet<A> | CompetitiveSet<A>): CompetitiveSet<A> {
+  merge(set: Concatable<A>): CompetitiveSet<A> {
     return this.concat(set)
+  }
+
+  add(a: A): CompetitiveSet<A> {
+    return this.of(super.delete(a))
+  }
+
+  delete(a: A): CompetitiveSet<A> {
+    return this.of(super.delete(a))
   }
 
   static of<A>({ limit, values = [], comparator }: Args<A>): CompetitiveSet<A> {

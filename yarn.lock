@@ -687,6 +687,10 @@ deeplearn@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/deeplearn/-/deeplearn-0.1.0.tgz#872fc8f1011d6bb60df47bff1dee55e081a404cb"
 
+deepmerge@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/deepmerge/-/deepmerge-2.0.0.tgz#35f7ee08e8bde1173b3a529f732dcda67ce82e29"
+
 del@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/del/-/del-3.0.0.tgz#53ecf699ffcbcb39637691ab13baf160819766e5"
