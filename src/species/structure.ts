@@ -1,4 +1,5 @@
-import { Set, Record } from 'immutable'
+import { Set } from 'immutable'
+import { Record } from '../structures/Record'
 import SortedSet, * as ss from '../structures/SortedSet'
 import CompetitiveSet, * as cs from '../structures/CompetitiveSet'
 import configurator from '../configurator'
@@ -10,7 +11,7 @@ export type Args = {
   creatures: Creature | Array<Creature>
 }
 
-function Comparator<A>(attr: string){
+function Comparator<A>(attr: string) {
   return (a: A, b: A) => Number(a[attr]) - Number(b[attr])
 }
 
@@ -25,11 +26,11 @@ const empty = {
 
 type S = typeof empty
 
- class Species extends Record(empty) {
+class Species extends Record(empty) {
 
   private static incrementor = 0
 
-  private static newId(){
+  private static newId() {
     return Species.incrementor++
   }
 
@@ -41,10 +42,10 @@ type S = typeof empty
     creature,
     creatures,
   }: Partial<S> & { creature?: Creature }): Species {
-    if(!creatures){
+    if (!creatures) {
       creatures = creature ?
-      new SortedSet<Creature>({ comparator, values: [ creature ] }) :
-      empty.creatures
+        new SortedSet<Creature>({ comparator, values: [creature] }) :
+        empty.creatures
     }
     return new this({ creatures })
   }

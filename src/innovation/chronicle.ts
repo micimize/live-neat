@@ -1,4 +1,5 @@
-import { Record, Map } from 'immutable'
+import { Map } from 'immutable'
+import { Record } from '../structures/Record'
 
 type Integer = number
 
@@ -26,26 +27,8 @@ const emptyContext = {
   connections: Map<Integer, PotentialConnection>()
 }
 
-let record = Record(emptyContext)
-let empty = record()
+const InnovationChronicle = Record(emptyContext)
+let empty = InnovationChronicle.empty()
+type InnovationChronicle = typeof empty
 
-type InnovationContext = typeof empty
-
-interface Constructor<T> {
-  (partial: Partial<T>): T
-  of(partial: Partial<T>): T
-  empty(): T
-}
-
-function Constructor<T>(record, empty = {}): Constructor<T> {
-  const C = <Constructor<T>> function (partial) {
-    return record(partial)
-  }
-  C.of = C
-  C.empty = () => C(empty)
-  return C
-}
-
-const InnovationContext = Constructor<InnovationContext>(record, emptyContext)
-
-export { InnovationContext, InnovationMap, PotentialConnection, PotentialNode }
+export { InnovationChronicle, InnovationMap, PotentialConnection, PotentialNode }

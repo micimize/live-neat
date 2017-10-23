@@ -1,13 +1,17 @@
 import { Diff, StrictSubset, CERTAINLY_IS, thread, compose } from '../utils'
 import { Record } from 'immutable'
 import { deepmerge as merge } from 'deepmerge'
-import { InnovationContext, InnovationMap, PotentialConnection, PotentialNode } from './innovation-context'
 import * as random from '../random-utils'
 import configurator from '../configurator'
+import {
+  InnovationChronicle as Chronicle,
+  InnovationMap,
+  PotentialConnection,
+  PotentialNode 
+} from './chronicle'
 
-type Context = InnovationContext
-type Innovatable = Diff<keyof Context, 'innovation' | keyof Record<any>>
-type Update<I extends Innovatable> = StrictSubset<InnovationContext, I | 'innovation'> 
+type Innovatable = Diff<keyof Chronicle, 'innovation' | keyof Record<any>>
+type Update<I extends Innovatable> = StrictSubset<Chronicle, I | 'innovation'> 
 type NodeUpdate = Update<'nodes'>
 type ConnectionUpdate = Update<'connections'>
 
@@ -16,7 +20,7 @@ function innovate<
   A extends Innovatable,
   Result = Update<A>
 >(
-  context: Context, attribute: A, value: Type
+  context: Chronicle, attribute: A, value: Type
 ): Result {
   let innovation = context.innovation + 1
   let aspect = context[attribute]
@@ -30,12 +34,12 @@ function innovate<
 }
 
 function withInnovation<
-  Type, A extends Innovatable, Result = Context
->(context: Context, attribute, value): Context {
+  Type, A extends Innovatable, Result = Chronicle
+>(context: Chronicle, attribute, value): Chronicle {
   return context.merge(innovate(context, attribute, value))
 }
 
-function chooseActivation(context: Context){
+function chooseActivation(context: Chronicle){
   return random.selection(Array.from(context.activations.keys()))
 }
 
@@ -58,7 +62,7 @@ function existingConnection(context, connection: PotentialConnection): Connectio
 }
 
 function newConnection(
-  context: Context, 
+  context: Chronicle, 
   connection: PotentialConnection,
 ): ConnectionUpdate {
   return existingConnection(context, connection) ||
@@ -66,7 +70,7 @@ function newConnection(
 }
 
 function insertNode(
-  context: Context, 
+  context: Chronicle, 
   { from , to }: PotentialConnection,
 ): Update<'nodes' | 'connections'> {
   let { innovation, nodes } = newNode(context)
@@ -76,6 +80,12 @@ function insertNode(
     update => merge(update, newConnection(context.merge(update), { from: innovation, to })),
   )
 }
+
+
+export { withInnovation, newNode, newConnection, insertNode, Update, Innovatable }
+
+
+/* failed experiments in high level programming
 
 type C = { context: Context }
 
@@ -89,10 +99,6 @@ function contextualize<
   }
 }
 
-export { contextualize, withInnovation, newNode, newConnection, insertNode, Update, Innovatable }
-
-
-/* failed experiment in high level programming
 function threadUpdates<
   R extends any = any,
   U extends Update<Innovatable> = Update<Innovatable>,

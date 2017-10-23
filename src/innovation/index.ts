@@ -1,12 +1,12 @@
 import {
-  InnovationContext,
+  InnovationChronicle,
   InnovationMap,
   PotentialConnection,
   PotentialNode
-} from './innovation-context'
+} from './chronicle'
 import * as innovations from './innovations'
 import { fromConfiguration } from './functions'
 
-export { InnovationContext }
+export { InnovationChronicle }
 export { innovations } 
 export { fromConfiguration }

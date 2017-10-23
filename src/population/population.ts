@@ -1,10 +1,11 @@
 import Structure from './structure'
 import { Record, Map } from 'immutable'
-import InnovationContext from '../innovation-context'
+import { InnovationContext } from '../innovation-context'
 import { weightedSelection } from '../random-utils'
 import configurator from '../configurator'
 import Species from '../species/species'
 import Creature from '../creature'
+import { mutate, seed } from '../mutations'
 
 import { CompetitiveSet } from '../structures'
 

@@ -81,8 +81,8 @@ class Species extends Structure {
     creature,
     creatures = SortedSet.of({ comparator, values: [ creature ] }),
     ...species
-  }: Partial<S> & { creature?: Creature }) {
-    return new Species({ creatures }))
+  }: Partial<Species> & { creature?: Creature }): Species {
+    return new Species({ creatures, ...species })
   }
 
  }

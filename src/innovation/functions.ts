@@ -1,4 +1,4 @@
-import { InnovationContext, InnovationMap, PotentialConnection, PotentialNode } from './innovation-context'
+import { InnovationChronicle, InnovationMap, PotentialConnection, PotentialNode } from './chronicle'
 import { withInnovation, newNode, newConnection } from './innovations'
 import { thread, compose } from '../utils'
 import  { deepmerge as merge } from 'deepmerge'
@@ -11,10 +11,10 @@ function hiddenNodes(context){
 }
 
 function withNodes(
-  context: InnovationContext,
+  context: InnovationChronicle,
   { type, activation }: PotentialNode,
   count: number
-): InnovationContext {
+): InnovationChronicle {
   return context.withMutations(context => {
     while (count) {
       context.merge(newNode(context, { type, activation }))
@@ -23,7 +23,7 @@ function withNodes(
   })
 }
 
-function getNodesOfType(context: InnovationContext, nodeType: 'INPUT' | 'BIAS' | 'OUTPUT' | 'HIDDEN'): number[] {
+function getNodesOfType(context: InnovationChronicle, nodeType: 'INPUT' | 'BIAS' | 'OUTPUT' | 'HIDDEN'): number[] {
   return Array.from(context.nodes.keys()).filter(k => {
     if (k) {
       let node = context.nodes.get(k)
@@ -33,7 +33,7 @@ function getNodesOfType(context: InnovationContext, nodeType: 'INPUT' | 'BIAS' |
   })
 }
 
-function fullyConnectedOpener(initial: InnovationContext): InnovationContext {
+function fullyConnectedOpener(initial: InnovationChronicle): InnovationChronicle {
   let inputs = getNodesOfType(initial, 'INPUT')
   let outputs = getNodesOfType(initial, 'OUTPUT')
   return inputs.reduce((context, from) =>
@@ -60,9 +60,9 @@ interface Config {
 function fromConfiguration({
     inputs, outputs, opener = 'fully-connected', activations = ['sigmoid']
   } = configurator().initialNetwork
-): InnovationContext {
+): InnovationChronicle {
     let context = activations.reduce((context, a) => withInnovation(context, 'activations', a),
-      InnovationContext.empty()
+      InnovationChronicle.empty()
     )
     context = withNodes(context, { type: 'INPUT', activation: 0 }, inputs)
     context = withNodes(context, { type: 'BIAS', activation: 1 }, 1)
