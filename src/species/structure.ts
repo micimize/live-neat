@@ -1,5 +1,5 @@
-import { Set } from 'immutable'
-import { Record } from '../structures/Record'
+import { Set, Record } from 'immutable'
+import { Constructor } from '../structures/Record'
 import SortedSet, * as ss from '../structures/SortedSet'
 import CompetitiveSet, * as cs from '../structures/CompetitiveSet'
 import configurator from '../configurator'
@@ -73,4 +73,4 @@ class Species extends Record(empty) {
 }
 
 export default Species
-export { comparator }
+export { comparator, S }

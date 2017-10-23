@@ -1,6 +1,6 @@
 import { Set } from 'immutable'
 import { deepmerge } from 'deepmerge'
-import { InnovationContext, innovations } from '../innovation-context'
+import { InnovationChronicle, innovations } from '../innovation'
 import * as random from '../random-utils'
 import Genome, { ConnectionGenes } from '../genome'
 import ConnectionGene, { PotentialConnection } from '../genome/connection-gene'
@@ -9,7 +9,7 @@ import * as connection from './connection'
 import { initializeConnections, initializeNode } from './initializers'
 
 type Mutation<A extends innovations.Innovatable> = { update?: innovations.Update<A> } & { genome: Genome }
-type ContextAndGenome = { context: InnovationContext, genome: Genome }
+type ChronicleAndGenome = { chronicle: InnovationChronicle, genome: Genome }
 
 function randomConnection({ connections }: Genome): ConnectionGene {
   return random.selection(Array.from(connections.values()))
@@ -22,17 +22,17 @@ function getNodes(genome: Genome): Set<number> {
   )
 }
 
-function validToNode(context: InnovationContext, node: number): boolean {
-  return !['INPUT', 'BIAS'].includes(context.nodes[node].type || '')
+function validToNode(chronicle: InnovationChronicle, node: number): boolean {
+  return !['INPUT', 'BIAS'].includes(chronicle.nodes[node].type || '')
 }
 
-function randomPotentialConnection({ context, genome }: ContextAndGenome): PotentialConnection | void {
+function randomPotentialConnection({ chronicle, genome }: ChronicleAndGenome): PotentialConnection | void {
   let connections: Set<{ from: number, to: number }> = Set(genome.connectionList.map(
     ({ from, to }) => ({ from, to })
   ))
   let nodes = getNodes(genome)
   for (let from of random.shuffle(Array.from(nodes))) {
-    for (let to of random.shuffle(Array.from(nodes).filter(node => validToNode(context, node)))) {
+    for (let to of random.shuffle(Array.from(nodes).filter(node => validToNode(chronicle, node)))) {
       if(from !== to && !connections.contains({ from, to })){
         return { from, to }
       }
@@ -40,10 +40,10 @@ function randomPotentialConnection({ context, genome }: ContextAndGenome): Poten
   }
 }
 
-function insertNode({ context, genome }: ContextAndGenome): Mutation<'nodes' | 'connections'> {
+function insertNode({ chronicle, genome }: ChronicleAndGenome): Mutation<'nodes' | 'connections'> {
   if (Math.random() < configurator().mutation.newNodeProbability) {
     let old = randomConnection(genome)
-    let update = innovations.insertNode(context, old)
+    let update = innovations.insertNode(chronicle, old)
     return {
       update,
       genome: genome.mergeIn(
@@ -56,11 +56,11 @@ function insertNode({ context, genome }: ContextAndGenome): Mutation<'nodes' | '
   }
 }
 
-function newConnection({ context, genome }: ContextAndGenome): Mutation<'connections'> {
+function newConnection({ chronicle, genome }: ChronicleAndGenome): Mutation<'connections'> {
   if (Math.random() < configurator().mutation.newConnectionProbability) {
-    let potentialConnection = randomPotentialConnection({ context, genome })
+    let potentialConnection = randomPotentialConnection({ chronicle, genome })
     if (potentialConnection) {
-      let update = innovations.newConnection(context, potentialConnection)
+      let update = innovations.newConnection(chronicle, potentialConnection)
       return {
         update,
         genome: genome.mergeIn(
@@ -73,16 +73,16 @@ function newConnection({ context, genome }: ContextAndGenome): Mutation<'connect
   return { genome }
 }
 
-function structural(args: ContextAndGenome): ContextAndGenome {
+function structural(args: ChronicleAndGenome): ChronicleAndGenome {
   let { update = {}, genome } = newConnection(args)
-  let context = args.context.merge(update || {})
-  let up = insertNode({ context, genome })
-  return { context, genome: up.genome }
+  let chronicle = args.chronicle.merge(update || {})
+  let up = insertNode({ chronicle, genome })
+  return { chronicle, genome: up.genome }
 }
 
-function mutate({ context, genome }: ContextAndGenome): ContextAndGenome {
+function mutate({ chronicle, genome }: ChronicleAndGenome): ChronicleAndGenome {
   return structural({
-    context,
+    chronicle,
     genome: genome.map(connection.mutate)
   })
 }

@@ -4,29 +4,29 @@ import { thread, compose } from '../utils'
 import  { deepmerge as merge } from 'deepmerge'
 import configurator from '../configurator'
 
-function hiddenNodes(context){
+function hiddenNodes(chronicle){
   return InnovationMap<PotentialNode>(
-    Object.entries(context.nodes).filter(([id, { type }]) => !type || type === 'HIDDEN')
+    Object.entries(chronicle.nodes).filter(([id, { type }]) => !type || type === 'HIDDEN')
   )
 }
 
 function withNodes(
-  context: InnovationChronicle,
+  chronicle: InnovationChronicle,
   { type, activation }: PotentialNode,
   count: number
 ): InnovationChronicle {
-  return context.withMutations(context => {
+  return chronicle.withMutations(chronicle => {
     while (count) {
-      context.merge(newNode(context, { type, activation }))
+      chronicle.merge(newNode(chronicle, { type, activation }))
       count--
     }
   })
 }
 
-function getNodesOfType(context: InnovationChronicle, nodeType: 'INPUT' | 'BIAS' | 'OUTPUT' | 'HIDDEN'): number[] {
-  return Array.from(context.nodes.keys()).filter(k => {
+function getNodesOfType(chronicle: InnovationChronicle, nodeType: 'INPUT' | 'BIAS' | 'OUTPUT' | 'HIDDEN'): number[] {
+  return Array.from(chronicle.nodes.keys()).filter(k => {
     if (k) {
-      let node = context.nodes.get(k)
+      let node = chronicle.nodes.get(k)
       return !node ? false : node.type === nodeType
     }
     return false
@@ -36,10 +36,10 @@ function getNodesOfType(context: InnovationChronicle, nodeType: 'INPUT' | 'BIAS'
 function fullyConnectedOpener(initial: InnovationChronicle): InnovationChronicle {
   let inputs = getNodesOfType(initial, 'INPUT')
   let outputs = getNodesOfType(initial, 'OUTPUT')
-  return inputs.reduce((context, from) =>
-    context.merge(outputs.reduce((inner, to) =>
-      context.merge(newConnection(inner, { from, to })),
-      context
+  return inputs.reduce((chronicle, from) =>
+    chronicle.merge(outputs.reduce((inner, to) =>
+      chronicle.merge(newConnection(inner, { from, to })),
+      chronicle
     )),
     initial
   )
@@ -61,14 +61,14 @@ function fromConfiguration({
     inputs, outputs, opener = 'fully-connected', activations = ['sigmoid']
   } = configurator().initialNetwork
 ): InnovationChronicle {
-    let context = activations.reduce((context, a) => withInnovation(context, 'activations', a),
+    let chronicle = activations.reduce((chronicle, a) => withInnovation(chronicle, 'activations', a),
       InnovationChronicle.empty()
     )
-    context = withNodes(context, { type: 'INPUT', activation: 0 }, inputs)
-    context = withNodes(context, { type: 'BIAS', activation: 1 }, 1)
+    chronicle = withNodes(chronicle, { type: 'INPUT', activation: 0 }, inputs)
+    chronicle = withNodes(chronicle, { type: 'BIAS', activation: 1 }, 1)
     // hardcoded: output is first activation
-    context = withNodes(context, { type: 'OUTPUT', activation: 1 }, outputs)
-    return openers[opener](context)
+    chronicle = withNodes(chronicle, { type: 'OUTPUT', activation: 1 }, outputs)
+    return openers[opener](chronicle)
 }
 
 export { fromConfiguration }

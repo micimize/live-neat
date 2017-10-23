@@ -1,4 +1,4 @@
-import Structure, { comparator } from './structure'
+import Structure, { S, comparator } from './structure'
 
 import { Set, Record } from 'immutable'
 import { Args as SSArgs } from '../structures/SortedSet'
@@ -9,10 +9,10 @@ import Creature, { distance } from '../creature'
 import { selection, weightedSelection } from '../random-utils'
 import Genome, { crossover } from '../genome'
 
+// TODO refactor into struct/fp paradigm
 class Species extends Structure {
 
-  selectHero(): Genome {
-    return weightedSelection(this.heroes.unwrap(), g => g.fitness ^ 2)
+  selectHero(): Genome { return weightedSelection(this.heroes.unwrap(), g => g.fitness ^ 2)
   }
 
   selectGenome({ not }: { not?: Genome } = {}): Genome | null {
@@ -28,8 +28,8 @@ class Species extends Structure {
     let a = this.selectGenome()
     if (!a) { // TODO should be configurable
       /* if there are no creatures, resurrect hero
-       *this might not be as buggy as it seems -
-       *  the first dead creature will always be in the hero list.
+       * this might not be as buggy as it seems -
+       * the first dead creature will always be in the hero list.
        */
       return this.selectHero()
     }
@@ -38,7 +38,7 @@ class Species extends Structure {
       // can only reproduce asexually
       return Object.assign({}, a)
     }
-    return crossover([a, b])
+    return crossover([ a, b ])
   }
 
   add(creature: ss.Concatable<Creature>): Species {
@@ -79,13 +79,12 @@ class Species extends Structure {
   static of({
     id,
     creature,
-    creatures = SortedSet.of({ comparator, values: [ creature ] }),
+    creatures = SortedSet.of<Creature>({ comparator, values: creature ? [ creature ] : [] }),
     ...species
-  }: Partial<Species> & { creature?: Creature }): Species {
+  }: Partial<S> & { creature?: Creature }): Species {
     return new Species({ creatures, ...species })
   }
 
  }
 
- export default Species
- export { comparator }
+ export { Species, comparator }

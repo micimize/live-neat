@@ -20,10 +20,10 @@ function innovate<
   A extends Innovatable,
   Result = Update<A>
 >(
-  context: Chronicle, attribute: A, value: Type
+  chronicle: Chronicle, attribute: A, value: Type
 ): Result {
-  let innovation = context.innovation + 1
-  let aspect = context[attribute]
+  let innovation = chronicle.innovation + 1
+  let aspect = chronicle[attribute]
   let r = {
     innovation,
     [attribute]: CERTAINLY_IS<InnovationMap<Type>>(aspect) && aspect.set(innovation, value)
@@ -35,24 +35,24 @@ function innovate<
 
 function withInnovation<
   Type, A extends Innovatable, Result = Chronicle
->(context: Chronicle, attribute, value): Chronicle {
-  return context.merge(innovate(context, attribute, value))
+>(chronicle: Chronicle, attribute, value): Chronicle {
+  return chronicle.merge(innovate(chronicle, attribute, value))
 }
 
-function chooseActivation(context: Chronicle){
-  return random.selection(Array.from(context.activations.keys()))
+function chooseActivation(chronicle: Chronicle){
+  return random.selection(Array.from(chronicle.activations.keys()))
 }
 
 function newNode(
-  context,
-  node: PotentialNode = { activation: chooseActivation(context) }
+  chronicle,
+  node: PotentialNode = { activation: chooseActivation(chronicle) }
 ): Update<'nodes'> {
-  return innovate(context, 'nodes', node)
+  return innovate(chronicle, 'nodes', node)
 }
 
-function existingConnection(context, connection: PotentialConnection): ConnectionUpdate | false {
+function existingConnection(chronicle, connection: PotentialConnection): ConnectionUpdate | false {
   if (configurator().genome.connection.maintainStructuralUniqueness) {
-    for (let [innovation, existing] of context.connections.entries()) {
+    for (let [innovation, existing] of chronicle.connections.entries()) {
       if(existing.equals(connection)){
         return innovation
       }
@@ -62,22 +62,22 @@ function existingConnection(context, connection: PotentialConnection): Connectio
 }
 
 function newConnection(
-  context: Chronicle, 
+  chronicle: Chronicle, 
   connection: PotentialConnection,
 ): ConnectionUpdate {
-  return existingConnection(context, connection) ||
-    innovate(context, 'connections', connection)
+  return existingConnection(chronicle, connection) ||
+    innovate(chronicle, 'connections', connection)
 }
 
 function insertNode(
-  context: Chronicle, 
+  chronicle: Chronicle, 
   { from , to }: PotentialConnection,
 ): Update<'nodes' | 'connections'> {
-  let { innovation, nodes } = newNode(context)
+  let { innovation, nodes } = newNode(chronicle)
   return thread(
     { innovation, nodes },
-    update => merge(update, newConnection(context.merge(update), { from, to: innovation })),
-    update => merge(update, newConnection(context.merge(update), { from: innovation, to })),
+    update => merge(update, newConnection(chronicle.merge(update), { from, to: innovation })),
+    update => merge(update, newConnection(chronicle.merge(update), { from: innovation, to })),
   )
 }
 
@@ -87,15 +87,15 @@ export { withInnovation, newNode, newConnection, insertNode, Update, Innovatable
 
 /* failed experiments in high level programming
 
-type C = { context: Context }
+type C = { chronicle: chronicle }
 
-function contextualize<
+function chronicleualize<
   Up extends { update?: Update<Innovatable> } = { update?: Update<Innovatable> } 
->(f: ({ context, ...inbound }: C & any) => { update?: Up } & any){
-  type Full = { context: Context, inbound: any }
-  return ({ context, ...inbound }: C & any): C & any => {
-    let { update, ...outbound }: Up & any = f({ context, ...inbound })
-    return { context: context.merge(update || {}), ...outbound }
+>(f: ({ chronicle, ...inbound }: C & any) => { update?: Up } & any){
+  type Full = { chronicle: chronicle, inbound: any }
+  return ({ chronicle, ...inbound }: C & any): C & any => {
+    let { update, ...outbound }: Up & any = f({ chronicle, ...inbound })
+    return { chronicle: chronicle.merge(update || {}), ...outbound }
   }
 }
 
@@ -104,14 +104,14 @@ function threadUpdates<
   U extends Update<Innovatable> = Update<Innovatable>,
   Up = { update?: U },
   Updater = (
-    { context, update, ...inbound }: { context: Context, update?: U, inbound: R },
+    { chronicle, update, ...inbound }: { chronicle: chronicle, update?: U, inbound: R },
     f?: Updater
   ) => Up & R
 >(data: C & Up & R, ...fs: Array<Updater>){
   fs.reduce(
-    <Updater>({ context, update = {}, ...inbound }, f) => {
-      let { update: u = {}, ...outbound }: Up & any = f({ context, ...inbound })
-      return { context: context.merge(u), update: merge(update, u), ...outbound }
+    <Updater>({ chronicle, update = {}, ...inbound }, f) => {
+      let { update: u = {}, ...outbound }: Up & any = f({ chronicle, ...inbound })
+      return { chronicle: chronicle.merge(u), update: merge(update, u), ...outbound }
     },
     data
   )

@@ -1,21 +1,21 @@
 import { Set, Map } from 'immutable'
-import { InnovationContext }  from '../innovation-context'
+import { InnovationChronicle }  from '../innovation'
 import Genome from '../genome'
 import { mutate } from './genome'
 import { initializeConnections } from './initializers'
 
 function seed({
-  context,
-  genome = Genome.of({ connections: initializeConnections(context.connections) }),
+  chronicle,
+  genome = Genome.of({ connections: initializeConnections(chronicle.connections) }),
   size
-}: { context: InnovationContext, genome: Genome, size: number }
-): { context: InnovationContext, genomes: Set<Genome> } {
+}: { chronicle: InnovationChronicle, genome: Genome, size: number }
+): { chronicle: InnovationChronicle, genomes: Set<Genome> } {
   let genomes: Set<Genome> = Set()
   while (size--){
-    ({ genome, context } = mutate({ context, genome }))
+    ({ genome, chronicle } = mutate({ chronicle, genome }))
     genomes = genomes.add(genome)
   }
-  return { context, genomes }
+  return { chronicle, genomes }
 }
 
 export { seed }

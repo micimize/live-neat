@@ -27,10 +27,6 @@ class Creature extends Record(empty) {
   energy: number;
   network: Network;
 
-  get genome(): Genome {
-    return this.network.genome
-  }
-
   constructor(creature: { genome: Genome, network: Network }) {
     super(creature)
   }
