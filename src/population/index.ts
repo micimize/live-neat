@@ -1,2 +1,3 @@
 import { Population } from './population'
-export default Population
+import { step } from './step'
+export { step, Population }

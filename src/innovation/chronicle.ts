@@ -27,25 +27,28 @@ const emptyContext = {
 }
 
 let record = Record(emptyContext)
-let empty = record()
+let emptyChronicle = record()
 
-type InnovationChronicle = typeof empty
+type Chronicle = typeof emptyChronicle
 
-interface Constructor<T> {
-  (partial: Partial<T>): T
-  of(partial: Partial<T>): T
-  empty(): T
+function Chronicle(partial: Partial<Chronicle> ={ }): Chronicle {
+  return record(partial)
 }
 
-function Constructor<T>(record, empty = {}): Constructor<T> {
-  const C = <Constructor<T>> function (partial) {
-    return record(partial)
+const factory = Chronicle
+
+namespace Chronicle {
+  export const of = factory 
+  export function empty() {
+    return factory(emptyChronicle)
   }
-  C.of = C
-  C.empty = () => C(empty)
-  return C
+  export type Activation = ActivationRef
+  export type Connection = PotentialConnection
+  export type Node = PotentialNode
+
+  export type Map<V> = InnovationMap<V>
+
+  export const Map = InnovationMap
 }
 
-const InnovationChronicle = Constructor<InnovationChronicle>(record, emptyContext)
-
-export { InnovationChronicle, InnovationMap, PotentialConnection, PotentialNode }
+export { Chronicle, InnovationMap, PotentialConnection, PotentialNode }

@@ -4,7 +4,7 @@ import { InnovationChronicle } from '../innovation'
 import { weightedSelection } from '../random-utils'
 import configurator from '../configurator'
 import { Species } from '../species'
-import Creature from '../creature'
+import { Creature } from '../creature'
 import { litter } from './reproduction'
 
 type ChronicleAndCreatures = { chronicle: InnovationChronicle, creatures: Set<Creature> }

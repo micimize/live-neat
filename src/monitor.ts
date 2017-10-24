@@ -1,41 +1,63 @@
+import { Set } from 'immutable'
+import { Population, step } from './population'
+import { Creature } from './creature'
+import { Genome } from './genome'
 import * as chalk from 'chalk'
 import { max, median, standardDeviation } from 'simple-statistics'
 
-function summarizeComplexity(genome) {
-  let connections = Object.values(genome)
-  let nodes: Set<any> = new Set()
-  connections.forEach(({ from, to }) => {
-    nodes.add(from)
-    nodes.add(to)
-  })
-  return {
-    latestInnovation: max(Object.keys(genome).map(i => Number(i))), 
-    nodes: nodes.size,
-    connections: connections.length
+function summarizeComplexity({ connections }: Genome) {
+  return Object.assign(
+    connections.reduce(({ nodes, latestInnovation }, { from, to }, innovation) =>
+      ({
+        latestInnovation: innovation > latestInnovation ? innovation : latestInnovation,
+        nodes: nodes.add(from).add(to)
+      }),
+      { nodes: Set<number>(), latestInnovation: 0 }
+    ),
+    { connections: connections.size }
+  )
+}
+
+interface Stats {
+  min: Creature,
+  max: Creature,
+  allTime: Creature,
+  stddev: number,
+  median: number,
+  mean: number,
+}
+
+function resurrectHero(population: Population): Creature | void {
+  let genome = population.heroes.first()
+  if(genome){
+    let { Creature, chronicle, express } = population
+    return new Creature({ genome, network: express({ chronicle, genome }) })
   }
 }
 
-function getStats(population){
+function getStats(population: Population): Stats {
   let totalFitness = 0
-  let stats: any = population.creatures.reduce(
+  let rep = population.creatures.first()
+  if (rep === undefined){
+    throw Error('empty populations have no stats')
+  }
+  let { max, min }: Pick<Stats, 'max' | 'min'> = population.creatures.reduce(
     ({ max, min }, c) => (
       totalFitness += c.fitness,
       {
         max: (c.fitness > max.fitness ? c : max),
         min: (c.fitness < min.fitness ? c : min),
       }
-    ), { max: population.creatures[0], min: population.creatures[0]})
+    ), { max: rep, min: rep })
   let fitnesses = population.creatures.map(c => c.fitness)
-  stats.stddev = standardDeviation(fitnesses)
-  stats.median = median(fitnesses)
-  stats.mean = totalFitness / population.creatures.length
-  if(population.heroes[0] && population.heroes[0] >= stats.max.allTime){
-    let allTime = population.heroes[0]
-    stats.allTime = Object.assign({}, allTime, { network: population.expressor(allTime.genome) })
-  } else {
-    stats.allTime = stats.max
+  return {
+    max,
+    min,
+    allTime: resurrectHero(population) || max,
+    stddev: standardDeviation(fitnesses),
+    median: median(fitnesses),
+    mean: totalFitness / population.creatures.size,
   }
-  return stats
 }
 
 const defaultFormatters = {
@@ -56,22 +78,22 @@ const defaultFormatters = {
     return 'stddev: ' + chalk.yellow(f.toFixed(3))
   },
 
-  genome(g){
+  genome(g: Genome): string {
     let { latestInnovation, nodes, connections } = summarizeComplexity(g)
-    latestInnovation = latestInnovation.toString().padStart(4, '_')
+    let latest = latestInnovation.toString().padStart(4, '_')
     let n = nodes.toString().padStart(3, '_')
     let c = connections.toString().padStart(4, '_')
-    return chalk.white(`${latestInnovation}I,`) + chalk.whiteBright(`${n}Nx${c}C`)
+    return chalk.white(`${latest}I,`) + chalk.whiteBright(`${n}Nx${c}C`)
   },
-  creature(c){
-    let { id, fitness, network: { genome } }  = c
+  creature(c: Creature): string {
+    let { id, fitness, genome }  = c
     id = id.toString().padStart(6, '_')
     return `${chalk.green(this.fitness(fitness))} id: ${id} ${this.genome(genome)} ${chalk.cyan(this.performance(c))}`
   },
   max(c){ return 'max: ' + this.creature(c) },
   allTime(c){ return 'best: ' + this.creature(c) },
 
-  stats(s){
+  stats(s: Stats): string {
     return [ 'min', 'stddev', 'mean', 'median', 'max', 'allTime' ]
       .map(key => this[key](s[key]))
       .join(', ')
@@ -114,19 +136,20 @@ export default class Monitor {
 
 export class Experiment {
   constructor(public evaluate, public monitor){ }
-  generation(population){
-    population.step()
-    population.creatures.forEach(this.evaluate)
+  generation(population: Population): Population {
+    return step(population).map(this.evaluate)
   }
-  epoch(population, rounds = 100){
+  epoch(population: Population, rounds = 100): Population {
     while (rounds--){
-      this.generation(population)
+      population = this.generation(population)
     }
+    return population
   }
-  run(population, epochs=10){
+  run(population: Population, epochs=10): Population {
     while (epochs--){
-      this.epoch(population)
+      population = this.epoch(population)
       this.monitor.stats(population)
     }
+    return population
   }
 }

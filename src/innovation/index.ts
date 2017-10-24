@@ -1,8 +1,8 @@
 import {
-  InnovationChronicle,
+  Chronicle as InnovationChronicle,
   InnovationMap,
   PotentialConnection,
-  PotentialNode
+  PotentialNode,
 } from './chronicle'
 import * as innovations from './innovations'
 import { hiddenNodeActivations, getNodesOfType, fromConfiguration } from './functions'

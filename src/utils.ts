@@ -52,7 +52,6 @@ export function networkDecoder(options: object){
   return decodeDecision
 }
 
-
 export type Diff<T extends string, U extends string> = (
   {[P in T]: P } &
   {[P in U]: never } &

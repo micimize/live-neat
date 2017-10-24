@@ -1,7 +1,7 @@
 import {
   SortedSetStructure, isSortedSet, fromArray, toArray,
   map, reduce, add, union, size, filter,
-  has, remove
+  has, remove, first
 } from '@collectable/sorted-set';
 import * as s from '@collectable/sorted-set';
 
@@ -11,8 +11,7 @@ export type Args<A> = {
 }
 
 function arrayify<V>(v: Array<V> | V): Array<V>{
-  return Array.isArray(v) ? v : [v]
-}
+  return Array.isArray(v) ? v : [v] }
 
 export type Concatable<A> = A | Array<A> | SortedSet<A>
 
@@ -75,6 +74,10 @@ export default class SortedSet<A> {
 
   has(a: A): boolean {
     return has(a, this.values)
+  }
+
+  first(): A | undefined {
+    return first(this.values)
   }
 
   some(f: (a: A) => boolean): boolean {

@@ -5,9 +5,9 @@ import { Args as SSArgs } from '../structures/SortedSet'
 import SortedSet, * as ss from '../structures/SortedSet'
 import CompetitiveSet, * as cs from '../structures/CompetitiveSet'
 import configurator from '../configurator'
-import Creature, { distance } from '../creature'
+import { Creature, distance } from '../creature'
 import { selection, weightedSelection } from '../random-utils'
-import Genome, { crossover } from '../genome'
+import { Genome, crossover } from '../genome'
 
 // TODO refactor into struct/fp paradigm
 class Species extends Structure {
@@ -83,6 +83,10 @@ class Species extends Structure {
     ...species
   }: Partial<S> & { creature?: Creature }): Species {
     return new Species({ creatures, ...species })
+  }
+
+  map(f: (creature: Creature) => Creature): Species {
+    return this.set('creatures', this.creatures.map(f))
   }
 
  }

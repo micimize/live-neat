@@ -4,7 +4,7 @@ import { weightedSelection } from '../random-utils'
 import configurator from '../configurator'
 import { Population } from './population'
 import { Species } from '../species'
-import Creature from '../creature'
+import { Creature } from '../creature'
 import { mutate, seed } from '../mutation'
 
 import { CompetitiveSet } from '../structures'
@@ -23,7 +23,7 @@ function reproduce(population: Population): ChronicleAndCreature {
     genome: selectSpecies(population.species).procreate()
   })
   let network = population.express({ chronicle, genome })
-  return { chronicle, creature: new population.CreatureType({ genome, network }) }
+  return { chronicle, creature: new population.Creature({ genome, network }) }
 } 
 
 function litter(population: Population, batch: number): ChronicleAndCreatures  {

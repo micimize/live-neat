@@ -2,8 +2,9 @@ import { Diff, StrictSubset, CERTAINLY_IS, thread, compose } from '../utils'
 import { Record } from 'immutable'
 import * as random from '../random-utils'
 import configurator from '../configurator'
+import Configuration from './configuration'
 import {
-  InnovationChronicle as Chronicle,
+  Chronicle,
   InnovationMap,
   PotentialConnection,
   PotentialNode 
@@ -50,7 +51,7 @@ function newNode(
 }
 
 function existingConnection(chronicle: Chronicle, connection: PotentialConnection): ConnectionUpdate | false {
-  if (configurator().genome.connection.maintainStructuralUniqueness) {
+  if (Configuration().chronicle.connections.unique) {
     for (let [innovation, { from, to}] of chronicle.connections.entries()) {
       if(connection.from == from && connection.to == to){
         let connections = Chronicle.empty().connections.set(innovation, connection)

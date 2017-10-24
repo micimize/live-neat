@@ -1,5 +1,5 @@
 import { Record  } from 'immutable'
-import Genome, * as genome from './genome'
+import * as genome from './genome'
 import configurator from './configurator'
 
 export function distance([ a, b ]: Array<Creature>): number {
@@ -9,7 +9,7 @@ export function distance([ a, b ]: Array<Creature>): number {
 const empty = {
   age: 0,
   energy: 0,
-  genome: Genome.empty(),
+  genome: genome.Genome.empty(),
   //network: Network()
 }
 
@@ -23,11 +23,15 @@ class Creature extends Record(empty) {
     return this.genome.fitness
   }
 
+  set fitness(fit: number){
+    this.setIn(['genome', 'fitness'], fit)
+  }
+
   age: number;
   energy: number;
   network: Network;
 
-  constructor(creature: { genome: Genome, network: Network }) {
+  constructor(creature: { genome: genome.Genome, network: Network }) {
     super(creature)
   }
 
@@ -36,7 +40,8 @@ class Creature extends Record(empty) {
     return this.network.forward(input)
   }
 
-  process({ energy }: { energy: number }): Creature {
+  step(info: any): Creature {
+    let { energy = 0 } = info
     return this.withMutations(creature => {
       // default fitness is average energy
       // increments age
@@ -47,7 +52,6 @@ class Creature extends Record(empty) {
       let cost = Math.floor(creature.age * configurator().population.ageSignificance)
 
       creature.set('energy', Math.max(creature.energy + energy - cost, 0))
-      return creature
     })
   }
 
@@ -56,4 +60,4 @@ class Creature extends Record(empty) {
 
 }
 
-export default Creature
+export { Creature }

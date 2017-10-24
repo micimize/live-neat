@@ -1,10 +1,11 @@
 import { Set, Record } from 'immutable'
 
-import { InnovationChronicle } from '../innovation'
+import { InnovationChronicle, fromConfiguration } from '../innovation'
+import * as chronicle from '../innovation'
 import { GeneExpresser, Express } from '../network/vanilla'
 import { Species } from '../species'
-import Creature from '../creature'
-import configurator from '../configurator'
+import { Creature } from '../creature'
+import Configuration from './configuration'
 
 import { SortedSet, CompetitiveSet } from '../structures'
 
@@ -20,7 +21,8 @@ function Comparator<A>(attr: string){
 const comparator = Comparator<Species>('fitness')
 
 interface I {
-  CreatureType: new (...rest: any[]) => Creature,
+  Creature: new (...rest: any[]) => Creature,
+  configuration: Partial<Configuration>,
   chronicle: InnovationChronicle,
   express: Express,
   resources: number,
@@ -28,18 +30,25 @@ interface I {
 }
 
 const empty = {
-  CreatureType: Creature,
+  Creature: Creature,
+  configuration: Configuration(),
   chronicle: InnovationChronicle.empty(),
-  species: new CompetitiveSet<Species>({ limit: 0, comparator }),
+  species: CompetitiveSet.of<Species>({ limit: 0, comparator }),
   express: GeneExpresser({ chronicle: InnovationChronicle.empty() }),
   resources: 0,
   age: 0
 }
 
-class Population extends Record(empty) {
+class Population extends Record(empty) implements I {
 
-  constructor(population: I) {
-    super(population)
+  constructor({ chronicle, configuration: partial, ...population }: Partial<I>) {
+    let configuration = Configuration(partial)
+    chronicle = chronicle || fromConfiguration(configuration.innovation)
+    super({
+      chronicle,
+      configuration,
+      ...population
+    })
   }
 
   get livingSpecies(): SortedSet<Species> {
@@ -80,6 +89,14 @@ class Population extends Record(empty) {
         Species.of({ creature })
       )
     )
+  }
+
+  static of(population: Partial<I>): Population {
+    return new Population(population)
+  }
+
+  map(f: (creature: Creature) => Creature): Population {
+    return this.set('species', this.species.map(species => species.map(f)))
   }
 
 }
