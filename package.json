@@ -12,7 +12,6 @@
     "deepmerge": "^2.0.0",
     "immutable": "next",
     "immutable-sorted": "^0.1.0",
-    "inversify": "^4.3.0",
     "paralleljs": "^0.2.1",
     "ramda": "^0.25.0",
     "simple-statistics": "^5.0.0",
