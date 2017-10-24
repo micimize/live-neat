@@ -61,5 +61,4 @@ class Genome extends Record(empty) implements Genes {
 
 }
 
-export default Genome
-export { ConnectionGenes }
+export { Genome, ConnectionGenes }

@@ -1,29 +1,28 @@
 import { Set, Record } from 'immutable'
 
 import { InnovationChronicle } from '../innovation'
-import GeneExpresser from '../network/vanilla'
+import { GeneExpresser, Express } from '../network/vanilla'
 import { Species } from '../species'
 import Creature from '../creature'
 import configurator from '../configurator'
 
 import { SortedSet, CompetitiveSet } from '../structures'
 
-import Genome from '../genome'
+import { Genome } from '../genome'
 
 // Creature should be dynamic, so the utilizing simulation can define it's own creature and have it managed
 // * live-neat manages Population and evolution
 // * utilizing simulation manages fitness and calls population.step as appropriate
 
 function Comparator<A>(attr: string){
-  return (a: A, b: A) => Number(a[attr]) - Number(b[attr])
-}
+  return (a: A, b: A) => Number(a[attr]) - Number(b[attr]) }
 
 const comparator = Comparator<Species>('fitness')
 
 interface I {
   CreatureType: new (...rest: any[]) => Creature,
   chronicle: InnovationChronicle,
-  expressor: object,
+  express: Express,
   resources: number,
   age: number,
 }
@@ -32,7 +31,7 @@ const empty = {
   CreatureType: Creature,
   chronicle: InnovationChronicle.empty(),
   species: new CompetitiveSet<Species>({ limit: 0, comparator }),
-  expressor: {},
+  express: GeneExpresser({ chronicle: InnovationChronicle.empty() }),
   resources: 0,
   age: 0
 }

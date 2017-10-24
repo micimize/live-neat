@@ -2,11 +2,10 @@ import { Set } from 'immutable'
 import { deepmerge } from 'deepmerge'
 import { InnovationChronicle, innovations } from '../innovation'
 import * as random from '../random-utils'
-import Genome, { ConnectionGenes } from '../genome'
+import { Genome, ConnectionGenes, initialize } from '../genome'
 import ConnectionGene, { PotentialConnection } from '../genome/connection-gene'
 import configurator from '../configurator'
 import * as connection from './connection'
-import { initializeConnections, initializeNode } from './initializers'
 
 type Mutation<A extends innovations.Innovatable> = { update?: innovations.Update<A> } & { genome: Genome }
 type ChronicleAndGenome = { chronicle: InnovationChronicle, genome: Genome }
@@ -48,7 +47,7 @@ function insertNode({ chronicle, genome }: ChronicleAndGenome): Mutation<'nodes'
       update,
       genome: genome.mergeIn(
         ['connections'],
-        initializeNode(old, update.connections)
+        initialize.node(old, update.connections)
       )
     }
   } else {
@@ -65,7 +64,7 @@ function newConnection({ chronicle, genome }: ChronicleAndGenome): Mutation<'con
         update,
         genome: genome.mergeIn(
           ['connections'],
-          initializeConnections(update.connections)
+          initialize.connections(update.connections)
         )
       }
     }
@@ -87,4 +86,4 @@ function mutate({ chronicle, genome }: ChronicleAndGenome): ChronicleAndGenome {
   })
 }
 
-export { mutate, initializeConnections }
+export { mutate }

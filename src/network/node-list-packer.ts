@@ -1,3 +1,5 @@
+import { ConnectionGene } from '../genome'
+
 type NodeReference = number
 
 interface BaseParameters {

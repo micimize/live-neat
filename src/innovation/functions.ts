@@ -4,10 +4,16 @@ import { thread, compose } from '../utils'
 import  { deepmerge as merge } from 'deepmerge'
 import configurator from '../configurator'
 
-function hiddenNodes(chronicle){
+function hiddenNodes(chronicle: InnovationChronicle){
   return InnovationMap<PotentialNode>(
     Object.entries(chronicle.nodes).filter(([id, { type }]) => !type || type === 'HIDDEN')
   )
+}
+
+function hiddenNodeActivations(chronicle: InnovationChronicle){
+  let nodes = hiddenNodes(chronicle)
+  return Object.keys(nodes)
+    .reduce((nodeAct, n) => (nodeAct[n] = chronicle.activations[nodes[n]], nodeAct), {})
 }
 
 function withNodes(
@@ -27,7 +33,7 @@ function getNodesOfType(chronicle: InnovationChronicle, nodeType: 'INPUT' | 'BIA
   return Array.from(chronicle.nodes.keys()).filter(k => {
     if (k) {
       let node = chronicle.nodes.get(k)
-      return !node ? false : node.type === nodeType
+      return !node ? false : node.type || 'HIDDEN' === nodeType
     }
     return false
   })
@@ -71,4 +77,4 @@ function fromConfiguration({
     return openers[opener](chronicle)
 }
 
-export { fromConfiguration }
+export { hiddenNodeActivations, getNodesOfType, fromConfiguration }

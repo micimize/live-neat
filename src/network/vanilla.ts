@@ -1,4 +1,9 @@
-import InnovationContext from '../innovation-context'
+import { InnovationChronicle, getNodesOfType, hiddenNodeActivations } from '../innovation'
+import { Genome } from '../genome'
+
+type AndGenome = { genome: Genome }
+type Chronicle = { chronicle: InnovationChronicle }
+
 import NodeListPacker from './node-list-packer'
 
 const activations = {
@@ -94,34 +99,34 @@ class SimpleNetwork implements Network {
 
 }
 
+function Packer({ chronicle }: Chronicle){
+  let inputs = getNodesOfType(chronicle, 'INPUT').sort()
+  let bias = getNodesOfType(chronicle, 'BIAS')
+  let outputs = getNodesOfType(chronicle, 'OUTPUT').sort()
+  return new NodeListPacker({ inputs, bias, outputs, outputActivation: 'sigmoid' })
+}
 
-export default class GeneExpresser {
-  context: InnovationContext;
-  readonly packer: NodeListPacker;
+interface Express {
+  (args: Chronicle & AndGenome, packer?: NodeListPacker): SimpleNetwork,
+  packer: NodeListPacker
+}
 
-  constructor(context: InnovationContext){
-    this.context = context
-    let inputs = this.context.getNodesOfType('INPUT').sort()
-    let bias = this.context.getNodesOfType('BIAS')
-    let outputs = this.context.getNodesOfType('OUTPUT').sort()
-    this.packer = new NodeListPacker({ inputs, bias, outputs, outputActivation: 'sigmoid' })
-  }
-
-  nodeActivations(){
-    let { hiddenNodes: nodes, activations } = this.context
-    return Object.keys(nodes)
-      .reduce((nodeAct, n) => (nodeAct[n] = activations[nodes[n]], nodeAct), {})
-  }
-
-  express(genome: Genome){
+function GeneExpresser(args: Chronicle): Express {
+  let express = <Express> function (
+    { chronicle, genome }: Chronicle & AndGenome,
+    packer: NodeListPacker = express.packer
+  ){
     return new SimpleNetwork(
-      this.packer.fromConnections(
+      packer.fromConnections(
         Object.values(genome).filter(c => c.active),
-        this.nodeActivations()
+        hiddenNodeActivations(chronicle)
       ),
-      this.packer.ranges,
+      packer.ranges,
       genome
     )
   }
-
+  express.packer = Packer(args)
+  return express
 }
+
+export { GeneExpresser, Express }

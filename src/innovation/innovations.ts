@@ -1,6 +1,5 @@
 import { Diff, StrictSubset, CERTAINLY_IS, thread, compose } from '../utils'
 import { Record } from 'immutable'
-import { deepmerge as merge } from 'deepmerge'
 import * as random from '../random-utils'
 import configurator from '../configurator'
 import {
@@ -50,11 +49,12 @@ function newNode(
   return innovate(chronicle, 'nodes', node)
 }
 
-function existingConnection(chronicle, connection: PotentialConnection): ConnectionUpdate | false {
+function existingConnection(chronicle: Chronicle, connection: PotentialConnection): ConnectionUpdate | false {
   if (configurator().genome.connection.maintainStructuralUniqueness) {
-    for (let [innovation, existing] of chronicle.connections.entries()) {
-      if(existing.equals(connection)){
-        return innovation
+    for (let [innovation, { from, to}] of chronicle.connections.entries()) {
+      if(connection.from == from && connection.to == to){
+        let connections = Chronicle.empty().connections.set(innovation, connection)
+        return { innovation, connections }
       }
     }
   }
@@ -69,20 +69,52 @@ function newConnection(
     innovate(chronicle, 'connections', connection)
 }
 
+
+function newConnections({
+  chronicle,
+  connections,
+}: {
+  chronicle: Chronicle,
+  connections: Array<PotentialConnection>,
+}): Update<'connections'> {
+  return connections.reduce((update, connection) => {
+    chronicle = chronicle.merge(update)
+    let { innovation, connections } = newConnection(chronicle, connection)
+    return { innovation, connections: connections.merge(update.connections) }
+  }, {
+    innovation: chronicle.innovation,
+    connections: Chronicle.empty().connections
+  })
+}
+
+
 function insertNode(
   chronicle: Chronicle, 
   { from , to }: PotentialConnection,
 ): Update<'nodes' | 'connections'> {
-  let { innovation, nodes } = newNode(chronicle)
-  return thread(
-    { innovation, nodes },
-    update => merge(update, newConnection(chronicle.merge(update), { from, to: innovation })),
-    update => merge(update, newConnection(chronicle.merge(update), { from: innovation, to })),
+  let node = newNode(chronicle)
+  return Object.assign(
+    node,
+    newConnections({
+      chronicle: chronicle.merge(node),
+      connections: [
+        { from, to: node.innovation },
+        { from: node.innovation, to }
+      ]
+    })
   )
 }
 
 
-export { withInnovation, newNode, newConnection, insertNode, Update, Innovatable }
+export {
+  withInnovation,
+  newNode,
+  newConnection,
+  newConnections,
+  insertNode,
+  Update,
+  Innovatable
+}
 
 
 /* failed experiments in high level programming

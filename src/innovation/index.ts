@@ -5,8 +5,8 @@ import {
   PotentialNode
 } from './chronicle'
 import * as innovations from './innovations'
-import { fromConfiguration } from './functions'
+import { hiddenNodeActivations, getNodesOfType, fromConfiguration } from './functions'
 
 export { InnovationChronicle }
 export { innovations } 
-export { fromConfiguration }
+export { hiddenNodeActivations, getNodesOfType, fromConfiguration }

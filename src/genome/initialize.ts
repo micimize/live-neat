@@ -1,8 +1,8 @@
 import { Map } from 'immutable'
-import Genome, { ConnectionGenes } from '../genome'
-import ConnectionGene, { PotentialConnection } from '../genome/connection-gene'
+import { Genome, ConnectionGenes } from './genome'
+import ConnectionGene, { PotentialConnection } from './connection-gene'
 
-function initializeConnections(newConnections: Map<number, PotentialConnection>): ConnectionGenes {
+function connections(newConnections: Map<number, PotentialConnection>): ConnectionGenes {
   type Entry = [number, PotentialConnection]
   type GeneEntry = [number, ConnectionGene]
   return Map<number, ConnectionGene>(
@@ -12,12 +12,12 @@ function initializeConnections(newConnections: Map<number, PotentialConnection>)
   )
 }
 
-function initializeNode(
+function node(
   old: ConnectionGene,
   newConnections: Map<number, PotentialConnection>
 ): ConnectionGenes {
-  return initializeConnections(newConnections)
+  return connections(newConnections)
     .set(old.innovation, old.set('active', false))
 }
 
-export { initializeConnections, initializeNode }
+export { connections, node }

@@ -22,7 +22,7 @@ function reproduce(population: Population): ChronicleAndCreature {
     chronicle: population.chronicle,
     genome: selectSpecies(population.species).procreate()
   })
-  let network = population.expressor.express(genome)
+  let network = population.express({ chronicle, genome })
   return { chronicle, creature: new population.CreatureType({ genome, network }) }
 } 
 
