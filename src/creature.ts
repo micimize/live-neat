@@ -8,6 +8,7 @@ import configurator from './configurator'
 export function distance([ a, b ]: Array<Creature>): number {
   return genome.distance([ a.genome, b.genome ])
 }
+
 // TODO awful, network inflexible, just hacking
 let _genome = genome.Genome.empty()
 let _chronicle = InnovationChronicle.empty()
@@ -45,7 +46,6 @@ class Creature extends Record(empty) {
   }
 
   think(input){
-    console.log(this.network)
     this.network.clear()
     return this.network.forward(input)
   }

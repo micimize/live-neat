@@ -57,7 +57,7 @@ export default class NodeListPacker implements Network.Data {
       if (!translator[id]){
         translator[id] = nodeList.push({
           id,
-          activation: activations[id],
+          activation: activations.get(id),
           value: 0,
           from: {}
         }) - 1

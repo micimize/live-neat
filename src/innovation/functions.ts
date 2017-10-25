@@ -11,10 +11,9 @@ function hiddenNodes(chronicle: Chronicle){
   )
 }
 
-function hiddenNodeActivations(chronicle: Chronicle){
-  let nodes = hiddenNodes(chronicle)
-  return Object.keys(nodes)
-    .reduce((nodeAct, n) => (nodeAct[n] = chronicle.activations[nodes[n]], nodeAct), {})
+function hiddenNodeActivations(chronicle: Chronicle): InnovationMap<Chronicle.Activation> {
+  return hiddenNodes(chronicle).map(({ activation }) =>
+    chronicle.activations.get(activation) || 'sigmoid')
 }
 
 function withNodes(

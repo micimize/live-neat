@@ -49,13 +49,14 @@ class Population extends Record<I>(empty) {
   constructor({
     chronicle: c,
     configuration: partial,
-    express = empty.express,
+    express: _,
     Creature: C = empty.Creature,
     species = undefined,
     ...population
   }: Partial<I>) {
     let configuration = Configuration(partial)
     let chronicle = c || fromConfiguration(configuration.innovation)
+    let express = GeneExpresser({ chronicle })
     if(!species){
       let { chronicle: _c, genomes } = seed({
         chronicle,

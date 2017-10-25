@@ -62,6 +62,7 @@ class SimpleNetwork implements Network {
       .filter(from => nodeActivationValues[from] !== null)
       .map(from => nodeActivationValues[from] * node.from[from])
     if (inputs.length) {
+      console.log(node)
       node.value = activations[node.activation](
         inputs.reduce((sum, input) => sum + input))
     }
