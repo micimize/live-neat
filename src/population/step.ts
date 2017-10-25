@@ -13,7 +13,8 @@ import { thread } from '../utils'
 // * utilizing simulation manages fitness and calls population.step as appropriate
 
 function step(population: Population): Population {
-  return thread(population,
+  return thread(
+    population,
     buryTheDead,
     age,
     cull,

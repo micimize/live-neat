@@ -87,8 +87,8 @@ const defaultFormatters = {
   },
   creature(c: Creature): string {
     let { id, fitness, genome }  = c
-    id = id.toString().padStart(6, '_')
-    return `${chalk.green(this.fitness(fitness))} id: ${id} ${this.genome(genome)} ${chalk.cyan(this.performance(c))}`
+    let idPadded = id.toString().padStart(6, '_')
+    return `${chalk.green(this.fitness(fitness))} id: ${idPadded} ${this.genome(genome)} ${chalk.cyan(this.performance(c))}`
   },
   max(c){ return 'max: ' + this.creature(c) },
   allTime(c){ return 'best: ' + this.creature(c) },

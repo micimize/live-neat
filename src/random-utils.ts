@@ -41,7 +41,7 @@ export function weightedChoice(weights: { [choice: string]: number }): string {
       return choice
     }
   }
-  throw Error('weights somehow invalid')
+  throw Error(`weights somehow invalid`)
 }
 
 

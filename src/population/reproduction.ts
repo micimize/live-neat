@@ -7,13 +7,12 @@ import { Species } from '../species'
 import { Creature } from '../creature'
 import { mutate, seed } from '../mutation'
 
-import { CompetitiveSet } from '../structures'
-
+import { SortedSet } from '../structures'
 type ChronicleAndCreature = { chronicle: InnovationChronicle, creature: Creature }
 type ChronicleAndCreatures = { chronicle: InnovationChronicle, creatures: Set<Creature> }
 
 
-function selectSpecies(species: CompetitiveSet<Species>): Species {
+function selectSpecies(species: SortedSet<Species>): Species {
   return weightedSelection(Array.from(species), s => s.fitness ^ 2)
 }
 

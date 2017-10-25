@@ -1,15 +1,17 @@
 import { Set, Record } from 'immutable'
+import { SortedSet, CompetitiveSet } from '../structures'
+import { thread } from '../utils'
+
+import Configuration from './configuration'
 
 import { InnovationChronicle, fromConfiguration } from '../innovation'
 import * as chronicle from '../innovation'
+
 import { GeneExpresser, Express } from '../network/vanilla'
-import { Species } from '../species'
-import { Creature } from '../creature'
-import Configuration from './configuration'
-
-import { SortedSet, CompetitiveSet } from '../structures'
-
 import { Genome } from '../genome'
+import { Creature } from '../creature'
+import { Species, speciate } from '../species'
+import { seed } from '../mutation'
 
 // Creature should be dynamic, so the utilizing simulation can define it's own creature and have it managed
 // * live-neat manages Population and evolution
@@ -25,29 +27,53 @@ interface I {
   configuration: Partial<Configuration>,
   chronicle: InnovationChronicle,
   express: Express,
+  species: SortedSet<Species>,
   resources: number,
   age: number,
 }
+
+let emptySpecies = SortedSet.of<Species>({ comparator })
 
 const empty = {
   Creature: Creature,
   configuration: Configuration(),
   chronicle: InnovationChronicle.empty(),
-  species: CompetitiveSet.of<Species>({ limit: 0, comparator }),
+  species: emptySpecies,
   express: GeneExpresser({ chronicle: InnovationChronicle.empty() }),
   resources: 0,
   age: 0
 }
 
-class Population extends Record(empty) implements I {
+class Population extends Record<I>(empty) {
 
-  constructor({ chronicle, configuration: partial, ...population }: Partial<I>) {
+  constructor({
+    chronicle: c,
+    configuration: partial,
+    express = empty.express,
+    Creature: C = empty.Creature,
+    species = undefined,
+    ...population
+  }: Partial<I>) {
     let configuration = Configuration(partial)
-    chronicle = chronicle || fromConfiguration(configuration.innovation)
+    let chronicle = c || fromConfiguration(configuration.innovation)
+    if(!species){
+      let { chronicle: _c, genomes } = seed({
+        chronicle,
+        size: configuration.population.initialSize
+      })
+      chronicle = _c
+      let creatures = genomes.map(genome => new C({
+        genome,
+        network: express({ genome, chronicle })
+      }))
+      species = creatures.reduce(speciate, emptySpecies)
+    }
     super({
+      express,
       chronicle,
-      configuration,
-      ...population
+      species,
+      Creature: C,
+      ...population,
     })
   }
 

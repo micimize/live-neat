@@ -11,7 +11,8 @@ export type Args<A> = {
 }
 
 function arrayify<V>(v: Array<V> | V): Array<V>{
-  return Array.isArray(v) ? v : [v] }
+  return Array.isArray(v) ? v : [v]
+}
 
 export type Concatable<A> = A | Array<A> | SortedSet<A>
 
@@ -41,10 +42,8 @@ export default class SortedSet<A> {
 
   concat(set: Concatable<A>): SortedSet<A> {
     let values = (set instanceof SortedSet) ?
-      union(this.values, set.values) :
-      (Array.isArray(set)) ?
-        union(this.values, fromArray(set)) :
-        add(set, this.values)
+      union(set.values, this.values) :
+      union(this.values, fromArray<A>(arrayify(set)))
     return this.of({ values })
   }
 

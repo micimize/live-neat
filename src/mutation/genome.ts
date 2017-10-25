@@ -22,7 +22,8 @@ function getNodes(genome: Genome): Set<number> {
 }
 
 function validToNode(chronicle: InnovationChronicle, node: number): boolean {
-  return !['INPUT', 'BIAS'].includes(chronicle.nodes[node].type || '')
+  let { type = 'HIDDEN' } = chronicle.nodes[node] || {}
+  return !['INPUT', 'BIAS'].includes(type)
 }
 
 function randomPotentialConnection({ chronicle, genome }: ChronicleAndGenome): PotentialConnection | void {

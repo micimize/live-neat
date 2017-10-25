@@ -18,11 +18,11 @@ interface Genes {
 
 const empty: Genes = {
   id: NaN,
-  fitness: NaN,
+  fitness: 0,
   connections: Map<number, ConnectionGene>()
 }
 
-class Genome extends Record(empty) implements Genes {
+class Genome extends Record<Genes>(empty) {
 
   private static incrementor = 0
 
@@ -51,8 +51,7 @@ class Genome extends Record(empty) implements Genes {
   }
 
   map(f: (a: ConnectionGene, key: number) => ConnectionGene): Genome {
-    let { id, fitness, connections } = this
-    return new Genome({ id, fitness, connections: connections.map(f) })
+    return Genome.of({ connections: this.connections.map(f) })
   }
 
   reduce<B>(f: (acc: B, v: ConnectionGene, index: number) => B, seed: B): B {

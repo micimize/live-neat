@@ -38,7 +38,8 @@ function buryTheDead(population: Population): Population {
   let dead = population.size - species.reduce((size, s) => size + s.size, 1)
   let { chronicle, creatures } = replaceDying(population, dead)
   return population
-    .merge({ chronicle, species })
+    .set('chronicle', chronicle)
+    .set('species', species)
     .withMutations(population => {
       for( let baby of creatures ) {
         population.add(baby)

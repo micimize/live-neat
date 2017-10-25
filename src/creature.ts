@@ -1,16 +1,25 @@
 import { Record  } from 'immutable'
 import * as genome from './genome'
+import { Network } from './network/network'
+import { InnovationChronicle } from './innovation'
+import { GeneExpresser, SimpleNetwork } from './network/vanilla'
 import configurator from './configurator'
 
 export function distance([ a, b ]: Array<Creature>): number {
-  return genome.distance([ a.network.genome, b.network.genome ])
+  return genome.distance([ a.genome, b.genome ])
 }
+// TODO awful, network inflexible, just hacking
+let _genome = genome.Genome.empty()
+let _chronicle = InnovationChronicle.empty()
 
 const empty = {
   age: 0,
   energy: 0,
-  genome: genome.Genome.empty(),
-  //network: Network()
+  genome: _genome,
+  network: GeneExpresser({ chronicle: _chronicle })({
+    chronicle: _chronicle,
+    genome: _genome
+  })
 }
 
 class Creature extends Record(empty) {
@@ -29,13 +38,14 @@ class Creature extends Record(empty) {
 
   age: number;
   energy: number;
-  network: Network;
+  network: SimpleNetwork;
 
-  constructor(creature: { genome: genome.Genome, network: Network }) {
+  constructor(creature: { genome: genome.Genome, network: SimpleNetwork }) {
     super(creature)
   }
 
   think(input){
+    console.log(this.network)
     this.network.clear()
     return this.network.forward(input)
   }

@@ -1,6 +1,8 @@
 import { Genome, initialize  } from '../genome'
 import { innovations, fromConfiguration } from '../innovation'
-import { InnovationChronicle, PotentialConnection } from '../innovation/chronicle'
+import Configuration from '../innovation/configuration'
+import { Chronicle, PotentialConnection } from '../innovation/chronicle'
+import { Network } from './network'
 
 const serializers = {
   node({ activation, from = {} }) {
@@ -42,23 +44,23 @@ function fillNodes(count: number, activation: string, value: number = 0): Array<
 
 type SerializedConnection = PotentialConnection & { weight: number }
 
-function getConnectionsFromNode({ id, from = {} }: NNode) {
+function getConnectionsFromNode({ id, from = {} }: Network.Node) {
   return Object.keys(from).reduce((connections, f) => {
     connections.push({ to: id, from: Number(f), weight: from[f] })
     return connections
   }, Array<SerializedConnection>()) 
 }
 
-function getConnections(nodeList: Array<NNode>) {
+function getConnections(nodeList: Array<Network.Node>) {
   return nodeList.reduce((connections, node) =>
     connections.concat(getConnectionsFromNode(node)),
     Array<SerializedConnection>()) 
 }
 
 function reviveConnections(
-  chronicle: InnovationChronicle,
+  chronicle: Chronicle,
   connections: Array<SerializedConnection>
-): { genome: Genome, chronicle: InnovationChronicle } {
+): { genome: Genome, chronicle: Chronicle } {
   let update = innovations.newConnections({ chronicle, connections })
   return {
     chronicle: chronicle.merge(update),
@@ -67,7 +69,7 @@ function reviveConnections(
 }
 
 
-export function deserialize(network: string): { genome: Genome, chronicle: InnovationChronicle } {
+export function deserialize(network: string): { genome: Genome, chronicle: Chronicle } {
   let [ properties, nodes ] = network.split('/')
   let { inputs, outputs, bias } = deserializers.properties(properties)
   let ranges = {
@@ -79,12 +81,14 @@ export function deserialize(network: string): { genome: Genome, chronicle: Innov
     ...fillNodes(bias, 'static', 1),
     ...nodes.split(';').map(deserializers.node)
   ].map((n, id) => ({ id, ...n }))
-  let chronicle = fromConfiguration({
-    inputs,
-    outputs,
-    activations: ['sigmoid'],
-    opener: 'custom',
-  })
+  let chronicle = fromConfiguration(
+    Configuration().setIn(['chronicle', 'initialize'], {
+      inputs,
+      outputs,
+      activations: ['sigmoid'],
+      opener: 'custom',
+    })
+  )
   return reviveConnections(chronicle, getConnections(nodeList))
 }
 

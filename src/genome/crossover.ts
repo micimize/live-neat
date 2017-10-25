@@ -1,7 +1,7 @@
 import { Map } from 'immutable'
 import genePool from './gene-pooling'
 import * as random from '../random-utils'
-import Genome, { ConnectionGenes } from './genome'
+import { Genome, ConnectionGenes } from './genome'
 import ConnectionGene from './connection-gene'
 import configurator from '../configurator'
 
@@ -28,11 +28,11 @@ function selectGene([ a, b ]: Array<ConnectionGene>){
       return Math.random() > 0.50 ? a : b
     } else {
       // weight tossup if neither active
-      return Math.random() > configurator().mutation.reenable ? a : b
+      return Math.random() > configurator().mutation.connection.reenable ? a : b
     }
   } else { // if (a.active) {
     if (!b.active){
-      return Math.random() > configurator().mutation.reenable ? b : a
+      return Math.random() > configurator().mutation.connection.reenable ? b : a
     } else {
       return Math.random() > 0.50 ? a : b
     }

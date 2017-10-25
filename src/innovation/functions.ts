@@ -6,7 +6,8 @@ import Configuration from './configuration'
 
 function hiddenNodes(chronicle: Chronicle){
   return InnovationMap<PotentialNode>(
-    Object.entries(chronicle.nodes).filter(([id, { type }]) => !type || type === 'HIDDEN')
+    Array.from(chronicle.nodes.entries())
+      .filter(([id, { type }]) => !type || type === 'HIDDEN')
   )
 }
 

@@ -1,10 +1,9 @@
 import { Set, Record } from 'immutable'
-import { Constructor } from '../structures/Record'
 import SortedSet, * as ss from '../structures/SortedSet'
 import CompetitiveSet, * as cs from '../structures/CompetitiveSet'
 import configurator from '../configurator'
-import Creature from '../creature'
-import Genome from '../genome'
+import { Creature } from '../creature'
+import { Genome } from '../genome'
 
 export type Args = {
   heroLimit: number,

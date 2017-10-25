@@ -1,5 +1,5 @@
 import { Record, Set } from 'immutable'
-import Genome, { ConnectionGenes } from './genome'
+import { Genome, ConnectionGenes } from './genome'
 import { pool } from './gene-pooling'
 import configurator from '../configurator'
 
@@ -12,9 +12,17 @@ export const configuration = Record({
   weightDifferenceCoefficient: 1
 })
 
+function forcefulGetWeight(genes: ConnectionGenes, innovation: number){
+  let connection = genes.get(innovation)
+  if(!connection){
+    throw Error(`Impossible! connection ${innovation} missing from genes ${genes}`)
+  }
+  return connection.weight
+}
+
 function weightDifferences(shared: Set<number>, a: ConnectionGenes, b: ConnectionGenes){
-  return shared.reduce((weightDifference, innovation) =>
-    Math.abs(a[innovation].weight - b[innovation].weight), 0)
+  return shared.reduce((weightDifference, innovation) => 
+    Math.abs(forcefulGetWeight(a, innovation) - forcefulGetWeight(b, innovation)), 0)
 }
 
 // http://sharpneat.sourceforge.net/research/speciation-canonical-neat.html

@@ -12,22 +12,24 @@ import { Genome, crossover } from '../genome'
 // TODO refactor into struct/fp paradigm
 class Species extends Structure {
 
-  selectHero(): Genome { return weightedSelection(this.heroes.unwrap(), g => g.fitness ^ 2)
+  selectHero(): Genome {
+    return weightedSelection(this.heroes.unwrap(), g => g.fitness ^ 2)
   }
 
-  selectGenome({ not }: { not?: Genome } = {}): Genome | null {
-    let pool = Array.from(this.genePool).filter(g => g.equals(not))
-    if (!pool.length) {
-      return null
+  selectGenome({ not }: { not?: Genome } = {}): Genome | void {
+    let pool = this.genePool.filter(g => !g.equals(not))
+    if (!pool.size) {
+      return
     }
     // todo 0 fitness should probably be unselectable 
-    return weightedSelection(pool, h => h.fitness ^ 2)
+    return weightedSelection(Array.from(pool), h => h.fitness ^ 2)
   }
 
   procreate(): Genome {
     let a = this.selectGenome()
-    if (!a) { // TODO should be configurable
-      /* if there are no creatures, resurrect hero
+    if (!a) {
+      /* TODO should be configurable
+       * if there are no creatures, resurrect hero
        * this might not be as buggy as it seems -
        * the first dead creature will always be in the hero list.
        */
@@ -36,7 +38,7 @@ class Species extends Structure {
     let b = this.selectGenome({ not: a })
     if (!b) {
       // can only reproduce asexually
-      return Object.assign({}, a)
+      return a
     }
     return crossover([ a, b ])
   }

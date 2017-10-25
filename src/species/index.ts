@@ -1,3 +1,4 @@
 import { Species } from './species'
+import { speciate } from './speciation'
 
-export { Species }
+export { Species, speciate  }

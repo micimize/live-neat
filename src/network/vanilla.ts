@@ -1,5 +1,6 @@
 import { InnovationChronicle, getNodesOfType, hiddenNodeActivations } from '../innovation'
 import { Genome } from '../genome'
+import { Network } from './network'
 
 type AndGenome = { genome: Genome }
 type Chronicle = { chronicle: InnovationChronicle }
@@ -12,32 +13,32 @@ const activations = {
   }
 }
 
-function serializeNode({ activation, from = {} }: NNode) {
+function serializeNode({ activation, from = {} }: Network.Node) {
   let connections = Object.keys(from).map(k => `${k}*${from[k]}`)
   return `${activation}:${connections.join(',')}` 
 }
 
 class SimpleNetwork implements Network {
   constructor(
-    public nodeList: Array<NNode>,
+    public nodeList: Array<Network.Node>,
     public ranges,
     public genome: Genome,
   ){ }
 
-  setInputs(inputs: Array<ActivationValue>): void {
+  setInputs(inputs: Array<Network.ActivationValue>): void {
     // range is [ first, last ] indices
     //assert (inputs.length - 1 == this.ranges.input[1])
     inputs.forEach((input, index) =>
       this.nodeList[index].value = input)
   }
 
-  get inputs(): Array<ActivationValue> {
+  get inputs(): Array<Network.ActivationValue> {
     return this.nodeList
       .slice(...this.ranges.input)
       .map(({ value }) => value)
   }
 
-  get outputs(): Array<ActivationValue> {
+  get outputs(): Array<Network.ActivationValue> {
     return this.nodeList
       .slice(...this.ranges.output)
       .map(({ value }) => value)
@@ -80,7 +81,7 @@ class SimpleNetwork implements Network {
     }
   }
     
-  forward(inputs, count = 10): Array<ActivationValue> {
+  forward(inputs, count = 10): Array<Network.ActivationValue> {
     this.setInputs(inputs)
     while(!this.complete && count--){
       this.tick()
@@ -118,7 +119,7 @@ function GeneExpresser(args: Chronicle): Express {
   ){
     return new SimpleNetwork(
       packer.fromConnections(
-        Object.values(genome).filter(c => c.active),
+        Array.from(genome.connections.values()).filter(c => c.active),
         hiddenNodeActivations(chronicle)
       ),
       packer.ranges,
@@ -129,4 +130,4 @@ function GeneExpresser(args: Chronicle): Express {
   return express
 }
 
-export { GeneExpresser, Express }
+export { GeneExpresser, Express, SimpleNetwork }
