@@ -6,16 +6,18 @@ import * as chalk from 'chalk'
 import { max, median, standardDeviation } from 'simple-statistics'
 
 function summarizeComplexity({ connections }: Genome) {
-  return Object.assign(
-    connections.reduce(({ nodes, latestInnovation }, { from, to }, innovation) =>
-      ({
-        latestInnovation: innovation > latestInnovation ? innovation : latestInnovation,
-        nodes: nodes.add(from).add(to)
-      }),
-      { nodes: Set<number>(), latestInnovation: 0 }
-    ),
-    { connections: connections.size }
+  let { nodes, latestInnovation } = connections.reduce(
+    ({ nodes, latestInnovation }, { from, to }, innovation) => ({
+      latestInnovation: innovation > latestInnovation ? innovation : latestInnovation,
+      nodes: nodes.add(from).add(to)
+    }),
+    { nodes: Set<number>(), latestInnovation: 0 }
   )
+  return {
+    latestInnovation,
+    nodes: nodes.size,
+    connections: connections.size,
+  }
 }
 
 interface Stats {
@@ -49,7 +51,7 @@ function getStats(population: Population): Stats {
         min: (c.fitness < min.fitness ? c : min),
       }
     ), { max: rep, min: rep })
-  let fitnesses = population.creatures.map(c => c.fitness)
+  let fitnesses = population.creatures.map(c => c.fitness).toArray()
   return {
     max,
     min,

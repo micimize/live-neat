@@ -18,6 +18,10 @@ function serializeNode({ activation, from = {} }: Network.Node) {
   return `${activation}:${connections.join(',')}` 
 }
 
+function isToNode(node: Network.Node): node is Network.ToNode {
+  return node.hasOwnProperty('from')
+}
+
 class SimpleNetwork implements Network {
   constructor(
     public nodeList: Array<Network.Node>,
@@ -44,6 +48,12 @@ class SimpleNetwork implements Network {
       .map(({ value }) => value)
   }
 
+  get mutable(): Array<Network.Node> {
+    // we know the packer packs [...inputs, ...biases, ...outputs, so slice starting at outputs]
+    return this.nodeList
+      .slice(this.ranges.output[0])
+  }
+
   get complete(): boolean {
     return Boolean(this.outputs.filter(output => output != null).length)
   }
@@ -57,14 +67,19 @@ class SimpleNetwork implements Network {
     })
   }
 
-  activate(node, nodeActivationValues){
+  activate(node: Network.ToNode, nodeActivationValues): void {
     let inputs = Object.keys(node.from)
       .filter(from => nodeActivationValues[from] !== null)
       .map(from => nodeActivationValues[from] * node.from[from])
     if (inputs.length) {
-      console.log(node)
-      node.value = activations[node.activation](
-        inputs.reduce((sum, input) => sum + input))
+      try {
+        node.value = activations[node.activation](
+          inputs.reduce((sum, input) => sum + input)
+        )
+      } catch (e){
+        console.log(`cannot activate ${JSON.stringify(node)} with inputs ${inputs}`)
+        throw e
+      }
     }
   }
 
@@ -75,8 +90,8 @@ class SimpleNetwork implements Network {
     //           I'm not sure what kind of performance boost that would yield
 
     let nodeActivationValues = this.nodeList.map(node => node.value)
-    for (let node of this.nodeList){
-      if (!['static', 'input'].includes(node.activation) && node.from){
+    for (let node of this.mutable){
+      if (isToNode(node)){
         this.activate(node, nodeActivationValues)
       }
     }

@@ -17,12 +17,12 @@ class Species extends Structure {
   }
 
   selectGenome({ not }: { not?: Genome } = {}): Genome | void {
-    let pool = this.genePool.filter(g => !g.equals(not))
-    if (!pool.size) {
+    let pool = Array.from(this.genePool.filter(g => !g.equals(not)))
+    if (!pool.length) {
       return
     }
     // todo 0 fitness should probably be unselectable 
-    return weightedSelection(Array.from(pool), h => h.fitness ^ 2)
+    return weightedSelection(pool, h => h.fitness ^ 2)
   }
 
   procreate(): Genome {

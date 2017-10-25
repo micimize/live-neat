@@ -20,7 +20,7 @@ interface PotentialNode {
 }
 
 const emptyContext = {
-  innovation: 2,
+  innovation: 1,
   activations: Map<Integer, ActivationRef>([[ 0, 'INPUT' ], [ 1, 'BIAS' ]]),
   nodes: Map<Integer, PotentialNode>(),
   connections: Map<Integer, PotentialConnection>()

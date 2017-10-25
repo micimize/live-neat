@@ -19,15 +19,15 @@ export default class NodeListPacker implements Network.Data {
   };
   constructor({ inputs, bias, outputs, outputActivation = 'sigmoid' }: BaseParameters){
     // TODO outputActivation is baked into the entire system, but should be flexible on a per-neuron basis
-    let nodeList: Array<Network.Node> = inputs.sort().map(id => ({
-      id,
+    let nodeList: Array<Network.Node> = inputs.sort().map(innovation => ({
+      innovation,
       value: 0,
       activation: 'input'
     }))
     let translator = inputs.reduce((t, input, index) => (t[input] = index, t), {})
 
     translator[bias[0]] = nodeList.push({
-      id: bias[0], value: 1, activation: 'static'
+      innovation: bias[0], value: 1, activation: 'static'
     }) - 1
 
     let ranges = {
@@ -37,7 +37,7 @@ export default class NodeListPacker implements Network.Data {
 
     outputs.sort().forEach(output => {
       translator[output] = nodeList.push({
-        id: output,
+        innovation: output,
         activation: outputActivation,
         value: 0,
         from: {}
@@ -53,11 +53,12 @@ export default class NodeListPacker implements Network.Data {
     let translator = Object.assign({}, this.translator)
 
     // add all "to" nodes 
-    connections.forEach(({ to: id }) => {
-      if (!translator[id]){
-        translator[id] = nodeList.push({
-          id,
-          activation: activations.get(id),
+    connections.forEach(({ to: innovation }) => {
+      if (!translator[innovation]){
+        // translate from innovation to index
+        translator[innovation] = nodeList.push({
+          innovation,
+          activation: activations.get(innovation),
           value: 0,
           from: {}
         }) - 1
@@ -69,6 +70,9 @@ export default class NodeListPacker implements Network.Data {
       if (translator[from] !== undefined){
         let node = nodeList[translator[to]]
         if (node.from) {
+          if(node.activation !== 'sigmoid'){
+            debugger;
+          }
           node.from[translator[from]] = weight
         }
       }

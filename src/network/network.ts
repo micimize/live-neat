@@ -5,10 +5,16 @@ namespace Network {
   export type NodeRange = [ number, number ] // [ start, end ]
   export type ActivationValue = number | null
   export interface Node {
-    id: number,
+    innovation: number,
     value: number | null,
     activation: string,
     from?: { [ nodeReference: number ]: Weight },
+  }
+  export interface ToNode extends Node {
+    innovation: number,
+    value: number | null,
+    activation: string,
+    from: { [ nodeReference: number ]: Weight },
   }
   export interface Data {
     nodeList: Array<Node>,

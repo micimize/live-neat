@@ -33,7 +33,7 @@ function getNodesOfType(chronicle: Chronicle, nodeType: 'INPUT' | 'BIAS' | 'OUTP
   return Array.from(chronicle.nodes.keys()).filter(k => {
     if (k) {
       let node = chronicle.nodes.get(k)
-      return !node ? false : node.type || 'HIDDEN' === nodeType
+      return !node ? false : (node.type || 'HIDDEN') === nodeType
     }
     return false
   })
@@ -69,8 +69,8 @@ function fromConfiguration(
     )
     chronicle = withNodes(chronicle, { type: 'INPUT', activation: 0 }, inputs)
     chronicle = withNodes(chronicle, { type: 'BIAS', activation: 1 }, 1)
-    // hardcoded: output is first activation
-    chronicle = withNodes(chronicle, { type: 'OUTPUT', activation: 1 }, outputs)
+    // TODO hardcoded: output is first activation, which is the first real innovation which we "know" is 2
+    chronicle = withNodes(chronicle, { type: 'OUTPUT', activation: 2 }, outputs)
     return openers[opener](chronicle)
 }
 

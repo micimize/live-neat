@@ -40,7 +40,10 @@ function withInnovation<
 }
 
 function chooseActivation(chronicle: Chronicle){
-  return random.selection(Array.from(chronicle.activations.keys()))
+  return random.selection(Array.from(chronicle.activations
+    .filter(activation => !['INPUT', 'BIAS'].includes(activation))
+    .keys())
+  )
 }
 
 function newNode(

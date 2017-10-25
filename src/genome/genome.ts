@@ -30,12 +30,18 @@ class Genome extends Record<Genes>(empty) {
     return Genome.incrementor++
   }
 
-  constructor({ id = Genome.newId(), ...genome }: Partial<Genes>)  {
-    super({ id, ...genome })
+  private static id(id: number | undefined): number {
+    return (id === undefined || Number.isNaN(id) || id == Infinity) ?
+      Genome.newId() :
+      id
   }
 
-  static of({ id = Genome.newId(), ...genome }: Partial<Genes>){
-    return new Genome({ id, ...genome })
+  constructor({ id, ...genome }: Partial<Genes>)  {
+    super({ id: Genome.id(id), ...genome })
+  }
+
+  static of(genome: Partial<Genes>){
+    return new Genome(genome)
   }
 
   static empty(){

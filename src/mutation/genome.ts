@@ -22,7 +22,7 @@ function getNodes(genome: Genome): Set<number> {
 }
 
 function validToNode(chronicle: InnovationChronicle, node: number): boolean {
-  let { type = 'HIDDEN' } = chronicle.nodes[node] || {}
+  let { type = 'HIDDEN' } = chronicle.nodes.get(node) || {}
   return !['INPUT', 'BIAS'].includes(type)
 }
 
@@ -77,7 +77,7 @@ function structural(args: ChronicleAndGenome): ChronicleAndGenome {
   let { update = {}, genome } = newConnection(args)
   let chronicle = args.chronicle.merge(update || {})
   let up = insertNode({ chronicle, genome })
-  return { chronicle, genome: up.genome }
+  return { chronicle: chronicle.merge(up.update || {}), genome: up.genome }
 }
 
 function mutate({ chronicle, genome }: ChronicleAndGenome): ChronicleAndGenome {
