@@ -25,7 +25,7 @@ function age(population: Population): Population {
 function replaceDying(population: Population, dying: number): ChronicleAndCreatures {
   return litter(
     population,
-    configurator().population.minSize - population.size - dying
+    population.configuration.population.minSize - population.size - dying
   )
 }
 
@@ -34,7 +34,8 @@ function buryTheDead(population: Population): Population {
   let species = population.species.map(species =>
     species.creatures
       .filter(creature => creature.energy <= 0)
-      .reduce((s, dead) => species.kill(dead), species))
+      .reduce((s, dead) => species.kill(dead), species)
+  )
   let dead = population.size - species.reduce((size, s) => size + s.size, 1)
   let { chronicle, creatures } = replaceDying(population, dead)
   return population

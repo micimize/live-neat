@@ -1,9 +1,18 @@
+import * as fs from 'fs'
 import { Set } from 'immutable'
 import { Population, step } from './population'
 import { Creature } from './creature'
 import { Genome } from './genome'
 import * as chalk from 'chalk'
 import { max, median, standardDeviation } from 'simple-statistics'
+
+import * as memwatch from 'memwatch-next'
+
+function profileLog(data){
+  return fs.appendFileSync('profile.json', JSON.stringify(data, null, 2) )
+}
+memwatch.on('leak', profileLog)
+memwatch.on('stats', profileLog)
 
 function summarizeComplexity({ connections }: Genome) {
   let { nodes, latestInnovation } = connections.reduce(
@@ -106,7 +115,7 @@ const defaultFormatters = {
   },
 
   population(pop){
-    return chalk.blue(`gen: ${pop.age} species: [`) + 
+    return chalk.blue(`${new Date().toISOString()} gen: ${pop.age} species: [`) + 
       Array.from(pop.livingSpecies.map(s => this.species(s))).join(', ') +
     chalk.blue(']')
   }
@@ -139,16 +148,18 @@ export default class Monitor {
 export class Experiment {
   constructor(public evaluate, public monitor){ }
   generation(population: Population): Population {
-    return step(population).map(this.evaluate)
+    return step(population.map(this.evaluate))
   }
   epoch(population: Population, rounds = 100): Population {
-    while (rounds--){
+    let hd = new memwatch.HeapDiff();
+    while (rounds-- > 0){
       population = this.generation(population)
     }
+    profileLog(hd.end())
     return population
   }
   run(population: Population, epochs=10): Population {
-    while (epochs--){
+    while (epochs-- > 0){
       population = this.epoch(population)
       this.monitor.stats(population)
     }

@@ -24,13 +24,23 @@ const comparator = Comparator<Species>('fitness')
 
 interface I {
   Creature: new (...rest: any[]) => Creature,
-  configuration: Partial<Configuration>,
+  configuration: Configuration,
   chronicle: InnovationChronicle,
   express: Express,
   species: SortedSet<Species>,
   resources: number,
   age: number,
 }
+// TODO copy pasted
+type PI = Partial<{
+  Creature: new (...rest: any[]) => Creature,
+  configuration: Partial<Configuration>,
+  chronicle: InnovationChronicle,
+  express: Express,
+  species: SortedSet<Species>,
+  resources: number,
+  age: number,
+}>
 
 let emptySpecies = SortedSet.of<Species>({ comparator })
 
@@ -53,7 +63,7 @@ class Population extends Record<I>(empty) {
     Creature: C = empty.Creature,
     species = undefined,
     ...population
-  }: Partial<I>) {
+  }: Partial<PI>) {
     let configuration = Configuration(partial)
     let chronicle = c || fromConfiguration(configuration.innovation)
     let express = GeneExpresser({ chronicle })
@@ -118,7 +128,7 @@ class Population extends Record<I>(empty) {
     )
   }
 
-  static of(population: Partial<I>): Population {
+  static of(population: PI): Population {
     return new Population(population)
   }
 

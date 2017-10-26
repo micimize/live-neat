@@ -99,7 +99,7 @@ class SimpleNetwork implements Network {
     
   forward(inputs, count = 10): Array<Network.ActivationValue> {
     this.setInputs(inputs)
-    while(!this.complete && count--){
+    while(!this.complete && (count-- > 0)){
       this.tick()
     }
     if(!count){

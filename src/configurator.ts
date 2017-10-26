@@ -3,17 +3,6 @@ export const INPUT_VECTOR_SIZE = 2
 export const OUTPUT_VECTOR_SIZE = 1
 
 export default () => ({
-  initialNetwork: {
-    inputs: INPUT_VECTOR_SIZE,
-    outputs: OUTPUT_VECTOR_SIZE,
-    opener: 'fully-connected',
-    activations: [ 'sigmoid' ]
-  },
-  population: {
-    initialSize: 50,
-    minSize: 50,
-    ageSignificance: 1,// / 5,
-  },
   reproduction: {
     requiredResources: 100,
     desiredRate: 0.01,

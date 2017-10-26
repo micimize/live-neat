@@ -27,7 +27,7 @@ function reproduce(population: Population): ChronicleAndCreature {
 
 function litter(population: Population, batch: number): ChronicleAndCreatures  {
   let creatures = Set<Creature>().withMutations(creatures => {
-    while (batch--) {
+    while (batch-- > 0) {
       let { creature, chronicle } = reproduce(population)
       creatures.add(creature)
       population = population.set('chronicle', chronicle)

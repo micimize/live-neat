@@ -10,7 +10,7 @@ function seed({
 }: { chronicle: InnovationChronicle, genome?: Genome, size: number }
 ): { chronicle: InnovationChronicle, genomes: Set<Genome> } {
   let genomes: Set<Genome> = Set()
-  while (size--){
+  while (size-- > 0){
     ({ genome, chronicle } = mutate({ chronicle, genome }))
     genomes = genomes.add(genome)
   }

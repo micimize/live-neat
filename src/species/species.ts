@@ -65,7 +65,6 @@ class Species extends Structure {
   }
 
   chronicleHero(creature: Creature): Species {
-    // returns true if creature was a hero
     return this.addHero(creature.genome)
   }
 

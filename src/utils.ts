@@ -76,3 +76,37 @@ export function compose<I>(first: (i: I) => I, ...fns: Array<(i: I) => I>): (i: 
 export function thread<V, R>(value: V, first: (v: V) => R, second: (r: R) => R, ...rest: Array<(r: R) => R>): R {
   return compose(second, ...rest)(first(value))
 }
+
+
+function CompetitiveTuple<T>(limit: number, comparator: (a: T, b: T) => number) {
+  return {
+    limit,
+    comparator,
+    tuple: new Array<T>(),
+    sort(){
+      this.tuple.sort(this.comparator)
+    },
+    get size(): number {
+      return this.tuple.length
+    },
+    get last(): T {
+      return this.tuple[this.size - 1]
+    },
+    set last(a: T) {
+      this.tuple[this.size - 1] = a
+    },
+    add(a: T): boolean {
+      let { size, comparator } = this
+      if (this.size < this.limit) {
+        this.tuple.push(a)
+        this.sort()
+        return true
+      } else if (this.comparator(this.last, a) > 0) {
+        this.last = a
+        this.sort()
+        return true
+      }
+      return false
+    }
+  }
+}
