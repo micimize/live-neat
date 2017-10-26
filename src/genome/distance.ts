@@ -1,8 +1,8 @@
 import { Record, Set } from 'immutable'
 import { Genome, ConnectionGenes } from './genome'
 import { pool } from './gene-pooling'
-import configurator from '../configurator'
 
+// TODO configuration here is disjoint from rest of app
 
 const genomePools = (genomes: Array<Genome>) =>
   pool<number>(genomes.map(g => g.connections).map(m => Set(m.keys())))
@@ -41,7 +41,7 @@ export default function distance([ a, b ]: Array<Genome>): number {
   let {
     innovationDifferenceCoefficient,
     weightDifferenceCoefficient
-  } = configurator().genome.crossover.distance
+  } = configuration()
   return (
     innovationDifferences * innovationDifferenceCoefficient +
     sharedWeightDifferences * weightDifferenceCoefficient

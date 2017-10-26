@@ -1,7 +1,6 @@
 import { Diff, StrictSubset, CERTAINLY_IS, thread, compose } from '../utils'
 import { Record } from 'immutable'
 import * as random from '../random-utils'
-import configurator from '../configurator'
 import Configuration from './configuration'
 import {
   Chronicle,

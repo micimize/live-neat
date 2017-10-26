@@ -11,7 +11,7 @@ type Args<K, V> = {
   mixDisjointValues: (sources: Array<Map<K, V>>) => Map<K, V>,
 }
 
-function Crossover<T extends Map<K, V>, K, V>({
+function MapCrossover<T extends Map<K, V>, K, V>({
   chooseIntersectionValue,
   mixDisjointValues,
 }: Args<K, V>) {
@@ -21,20 +21,22 @@ function Crossover<T extends Map<K, V>, K, V>({
   }
 }
 
-function selectGene(configuration: MutationConfiguration, [ a, b ]: Array<ConnectionGene>){
-  if (!a.active){
-    if (!b.active){
-      // weight tossup if neither active
-      return Math.random() > 0.50 ? a : b
-    } else {
-      // weight tossup if neither active
-      return Math.random() > configuration.connection.reenable ? a : b
-    }
-  } else { // if (a.active) {
-    if (!b.active){
-      return Math.random() > configuration.connection.reenable ? b : a
-    } else {
-      return Math.random() > 0.50 ? a : b
+function GeneSelecter(configuration: MutationConfiguration) {
+  return function select(k: number, [a, b]: Array<ConnectionGene>){
+    if (!a.active) {
+      if (!b.active) {
+        // weight tossup if neither active
+        return Math.random() > 0.50 ? a : b
+      } else {
+        // weight tossup if neither active
+        return Math.random() > configuration.connection.reenable ? a : b
+      }
+    } else { // if (a.active) {
+      if (!b.active) {
+        return Math.random() > configuration.connection.reenable ? b : a
+      } else {
+        return Math.random() > 0.50 ? a : b
+      }
     }
   }
 }
@@ -50,22 +52,18 @@ function mix([ a, b ]: Array<ConnectionGenes>): ConnectionGenes {
     random.submap(shorter, Math.floor(total)))
 }
 
-function connectionCrossover(configuration: MutationConfiguration){
-  return Crossover<ConnectionGenes, number, ConnectionGene>({
-    chooseIntersectionValue: (k: number, connections: Array<ConnectionGene>) =>
-      selectGene(configuration, connections),
+function ConnectionCrossover(configuration: MutationConfiguration){
+  return MapCrossover<ConnectionGenes, number, ConnectionGene>({
+    chooseIntersectionValue: GeneSelecter(configuration),
     mixDisjointValues: mix
   })
 }
 
-function crossover(
-  configuration: MutationConfiguration = MutationConfiguration(),
-  [ a, b ]: Array<Genome>
-): Genome {
-  let connections = connectionCrossover(configuration)
-  return Genome.of({
-    connections: connections([ a.connections, b.connections ])
+function GenomeCrossover(configuration: MutationConfiguration = MutationConfiguration()){
+  let connectionCrossover = ConnectionCrossover(configuration)
+  return ([ a, b ]: Array<Genome>) => Genome.of({
+    connections: connectionCrossover([ a.connections, b.connections ])
   })
 }
 
-export default crossover
+export default GenomeCrossover

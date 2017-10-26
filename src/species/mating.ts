@@ -4,12 +4,18 @@ import { weightedSelection } from '../random-utils'
 import Configuration from '../population/configuration'
 
 type GenePool = Array<Genome>
-type MatingScope = { species: Species, configuration: Configuration['reproduction'] }
+type PoolScope = {
+  species: Species,
+  reproduction: Configuration['reproduction'],
+}
+type MatingScope = PoolScope & {
+  mutation: Configuration['mutation']
+}
 
-function genePool({ species, configuration }: MatingScope): GenePool {
+function genePool({ species, reproduction }: MatingScope): GenePool {
   let livingPool = species.creatures.unwrap().map(c => c.genome)
   let heroes = species.heroes.map(
-    g => g.set('fitness', configuration.includeHeroGenesRate * g.fitness)
+    g => g.set('fitness', reproduction.includeHeroGenesRate * g.fitness)
   ).unwrap()
   return livingPool.concat(heroes)
 }
@@ -44,7 +50,8 @@ function mate(scope: MatingScope): Genome {
     // can only reproduce asexually
     return a
   }
-  return crossover([a, b])
+  // TODO this is some weak and hacky DI
+  return crossover(scope.mutation)([a, b])
 }
 
 export { mate }

@@ -2,7 +2,6 @@ import { Population } from './population'
 import { Record, Map, Set } from 'immutable'
 import { InnovationChronicle } from '../innovation'
 import { weightedSelection } from '../random-utils'
-import configurator from '../configurator'
 import { Species } from '../species'
 import { Creature } from '../creature'
 import { litter } from './reproduction'
@@ -51,7 +50,8 @@ function buryTheDead(population: Population): Population {
 
 // destroy poor performing and stagnating species
 function cull(population: Population): Population {
-  let { culling, stagnation, speciesCount } = configurator().speciation
+  /*
+  let { culling, stagnation, speciesCount } = configuration
   if (population.age % culling.regularity) {
     population.species
       .filter(({ age }) => age >= culling.minimumAge)
@@ -59,6 +59,7 @@ function cull(population: Population): Population {
   if (population.species.size > speciesCount) {
     // cull bottom (size - count) species
   }
+  */
   return population
 }
 
