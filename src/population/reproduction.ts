@@ -1,13 +1,13 @@
-import { Record, Map, Set } from 'immutable'
+import { Set } from 'immutable'
 import { InnovationChronicle } from '../innovation'
 import { weightedSelection } from '../random-utils'
-import configurator from '../configurator'
 import { Population } from './population'
-import { Species } from '../species'
+import { Species, mate } from '../species'
 import { Creature } from '../creature'
 import { mutate, seed } from '../mutation'
 
 import { SortedSet } from '../structures'
+
 type ChronicleAndCreature = { chronicle: InnovationChronicle, creature: Creature }
 type ChronicleAndCreatures = { chronicle: InnovationChronicle, creatures: Set<Creature> }
 
@@ -17,9 +17,14 @@ function selectSpecies(species: SortedSet<Species>): Species {
 }
 
 function reproduce(population: Population): ChronicleAndCreature {
+  let { mutation, reproduction } = population.configuration
   let { chronicle, genome } = mutate({
     chronicle: population.chronicle,
-    genome: selectSpecies(population.species).procreate()
+    genome: mate({
+      species: selectSpecies(population.species),
+      configuration: reproduction
+    }),
+    configuration: mutation,
   })
   let network = population.express({ chronicle, genome })
   return { chronicle, creature: new population.Creature({ genome, network }) }
@@ -39,7 +44,7 @@ function litter(population: Population, batch: number): ChronicleAndCreatures  {
 function attemptReproduction(
   population: Population
 ): Population {
-  let { desiredRate, requiredResources } = configurator().reproduction
+  let { desiredRate, requiredResources } = population.configuration.reproduction
   if (Math.random() < desiredRate && population.resources >= requiredResources) {
     let resources = population.resources - requiredResources
     let { chronicle, creature } = reproduce(population)

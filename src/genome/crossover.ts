@@ -3,7 +3,8 @@ import genePool from './gene-pooling'
 import * as random from '../random-utils'
 import { Genome, ConnectionGenes } from './genome'
 import ConnectionGene from './connection-gene'
-import configurator from '../configurator'
+import MutationConfiguration from '../mutation/configuration'
+import { curry } from 'fp-ts/lib/function'
 
 type Args<K, V> = {
   chooseIntersectionValue: (k: K, values: Array<V>) => V,
@@ -20,19 +21,18 @@ function Crossover<T extends Map<K, V>, K, V>({
   }
 }
 
-
-function selectGene([ a, b ]: Array<ConnectionGene>){
+function selectGene(configuration: MutationConfiguration, [ a, b ]: Array<ConnectionGene>){
   if (!a.active){
     if (!b.active){
       // weight tossup if neither active
       return Math.random() > 0.50 ? a : b
     } else {
       // weight tossup if neither active
-      return Math.random() > configurator().mutation.connection.reenable ? a : b
+      return Math.random() > configuration.connection.reenable ? a : b
     }
   } else { // if (a.active) {
     if (!b.active){
-      return Math.random() > configurator().mutation.connection.reenable ? b : a
+      return Math.random() > configuration.connection.reenable ? b : a
     } else {
       return Math.random() > 0.50 ? a : b
     }
@@ -50,14 +50,21 @@ function mix([ a, b ]: Array<ConnectionGenes>): ConnectionGenes {
     random.submap(shorter, Math.floor(total)))
 }
 
-const connectionCrossover = Crossover<ConnectionGenes, number, ConnectionGene>({
-  chooseIntersectionValue: (k: number, connections: Array<ConnectionGene>) => selectGene(connections),
-  mixDisjointValues: mix
-})
+function connectionCrossover(configuration: MutationConfiguration){
+  return Crossover<ConnectionGenes, number, ConnectionGene>({
+    chooseIntersectionValue: (k: number, connections: Array<ConnectionGene>) =>
+      selectGene(configuration, connections),
+    mixDisjointValues: mix
+  })
+}
 
-function crossover([ a, b ]: Array<Genome>): Genome {
+function crossover(
+  configuration: MutationConfiguration = MutationConfiguration(),
+  [ a, b ]: Array<Genome>
+): Genome {
+  let connections = connectionCrossover(configuration)
   return Genome.of({
-    connections: connectionCrossover([ a.connections, b.connections ])
+    connections: connections([ a.connections, b.connections ])
   })
 }
 

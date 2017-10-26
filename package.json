@@ -10,6 +10,7 @@
     "collectable": "^0.23.0",
     "deeplearn": "^0.1.0",
     "deepmerge": "^2.0.0",
+    "fp-ts": "^0.5.4",
     "immutable": "next",
     "immutable-sorted": "^0.1.0",
     "memwatch-next": "^0.3.0",

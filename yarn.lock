@@ -1084,6 +1084,10 @@ forwarded@~0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/forwarded/-/forwarded-0.1.0.tgz#19ef9874c4ae1c297bcf078fde63a09b66a84363"
 
+fp-ts@^0.5.4:
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/fp-ts/-/fp-ts-0.5.4.tgz#cd8f20b7a73807bc2bf274f4d26072b0a42f8b5c"
+
 fresh@0.5.0:
   version "0.5.0"
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.0.tgz#f474ca5e6a9246d6fd8e0953cfa9b9c805afa78e"

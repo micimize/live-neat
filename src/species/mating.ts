@@ -1,0 +1,50 @@
+import { Species } from './species'
+import { Genome, crossover } from '../genome'
+import { weightedSelection } from '../random-utils'
+import Configuration from '../population/configuration'
+
+type GenePool = Array<Genome>
+type MatingScope = { species: Species, configuration: Configuration['reproduction'] }
+
+function genePool({ species, configuration }: MatingScope): GenePool {
+  let livingPool = species.creatures.unwrap().map(c => c.genome)
+  let heroes = species.heroes.map(
+    g => g.set('fitness', configuration.includeHeroGenesRate * g.fitness)
+  ).unwrap()
+  return livingPool.concat(heroes)
+}
+
+function selectHero(species: Species): Genome {
+  return weightedSelection(species.heroes.unwrap(), g => g.fitness ^ 2)
+}
+
+function selectGenome(pool: GenePool, { not }: { not?: Genome } = {}): Genome | void {
+  pool = pool.filter(g => !g.equals(not))
+  if (!pool.length) {
+    return
+  }
+  // todo 0 fitness should probably be unselectable 
+  return weightedSelection(pool, h => h.fitness ^ 2)
+}
+
+
+function mate(scope: MatingScope): Genome {
+  let pool = genePool(scope)
+  let a = selectGenome(pool)
+  if (!a) {
+    /* TODO should be configurable
+     * if there are no creatures, resurrect hero
+     * this might not be as buggy as it seems -
+     * the first dead creature will always be in the hero list.
+     */
+    return selectHero(scope.species)
+  }
+  let b = selectGenome(pool, { not: a })
+  if (!b) {
+    // can only reproduce asexually
+    return a
+  }
+  return crossover([a, b])
+}
+
+export { mate }

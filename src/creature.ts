@@ -3,7 +3,10 @@ import * as genome from './genome'
 import { Network } from './network/network'
 import { InnovationChronicle } from './innovation'
 import { GeneExpresser, SimpleNetwork } from './network/vanilla'
-import configurator from './configurator'
+import Configuration from './population/configuration'
+
+// TODO essentially hard coded
+const defaultConf = Configuration().creature
 
 export function distance([ a, b ]: Array<Creature>): number {
   return genome.distance([ a.genome, b.genome ])
@@ -27,8 +30,7 @@ class Creature extends Record(empty) {
 
   get id(){
     return this.genome.id
-  }
-
+  } 
   get fitness(){
     return this.genome.fitness
   }
@@ -50,7 +52,7 @@ class Creature extends Record(empty) {
     return this.network.forward(input)
   }
 
-  step(info: any): Creature {
+  step(info: any, { ageSignificance }: Configuration['creature'] = defaultConf): Creature {
     let { energy = 0 } = info
     return this.withMutations(creature => {
       // default fitness is average energy
@@ -59,7 +61,7 @@ class Creature extends Record(empty) {
       creature.set('age', creature.age + 1)
 
       // default cost is the age * ageSignificance
-      let cost = Math.floor(creature.age * configurator().population.ageSignificance)
+      let cost = Math.floor(creature.age * ageSignificance)
 
       creature.set('energy', Math.max(creature.energy + energy - cost, 0))
     })

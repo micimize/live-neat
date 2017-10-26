@@ -4,11 +4,17 @@ import { InnovationChronicle, innovations } from '../innovation'
 import * as random from '../random-utils'
 import { Genome, ConnectionGenes, initialize } from '../genome'
 import ConnectionGene, { PotentialConnection } from '../genome/connection-gene'
-import configurator from '../configurator'
+import Configuration from './configuration'
 import * as connection from './connection'
 
 type Mutation<A extends innovations.Innovatable> = { update?: innovations.Update<A> } & { genome: Genome }
-type ChronicleAndGenome = { chronicle: InnovationChronicle, genome: Genome }
+type InnovationScope = {
+  chronicle: InnovationChronicle,
+  genome: Genome
+}
+type MutationScope = InnovationScope & {
+  configuration: Configuration
+}
 
 function randomConnection({ connections }: Genome): ConnectionGene {
   return random.selection(Array.from(connections.values()))
@@ -26,7 +32,7 @@ function validToNode(chronicle: InnovationChronicle, node: number): boolean {
   return !['INPUT', 'BIAS'].includes(type)
 }
 
-function randomPotentialConnection({ chronicle, genome }: ChronicleAndGenome): PotentialConnection | void {
+function randomPotentialConnection({ chronicle, genome }: InnovationScope): PotentialConnection | void {
   let connections: Set<{ from: number, to: number }> = Set(genome.connectionList.map(
     ({ from, to }) => ({ from, to })
   ))
@@ -40,8 +46,8 @@ function randomPotentialConnection({ chronicle, genome }: ChronicleAndGenome): P
   }
 }
 
-function insertNode({ chronicle, genome }: ChronicleAndGenome): Mutation<'nodes' | 'connections'> {
-  if (Math.random() < configurator().mutation.newNodeProbability) {
+function insertNode({ chronicle, genome, configuration = Configuration() }: MutationScope): Mutation<'nodes' | 'connections'> {
+  if (Math.random() < configuration.newNodeProbability) {
     let old = randomConnection(genome)
     let update = innovations.insertNode(chronicle, old)
     return {
@@ -56,8 +62,8 @@ function insertNode({ chronicle, genome }: ChronicleAndGenome): Mutation<'nodes'
   }
 }
 
-function newConnection({ chronicle, genome }: ChronicleAndGenome): Mutation<'connections'> {
-  if (Math.random() < configurator().mutation.newConnectionProbability) {
+function newConnection({ chronicle, genome, configuration = Configuration() }: MutationScope): Mutation<'connections'> {
+  if (Math.random() < configuration.newConnectionProbability) {
     let potentialConnection = randomPotentialConnection({ chronicle, genome })
     if (potentialConnection) {
       let update = innovations.newConnection(chronicle, potentialConnection)
@@ -73,17 +79,17 @@ function newConnection({ chronicle, genome }: ChronicleAndGenome): Mutation<'con
   return { genome }
 }
 
-function structural(args: ChronicleAndGenome): ChronicleAndGenome {
-  let { update = {}, genome } = newConnection(args)
-  let chronicle = args.chronicle.merge(update || {})
-  let up = insertNode({ chronicle, genome })
+function structural(scope: MutationScope): InnovationScope {
+  let { update = {}, genome } = newConnection(scope)
+  let chronicle = scope.chronicle.merge(update || {})
+  let up = insertNode({ chronicle, genome, configuration: scope.configuration })
   return { chronicle: chronicle.merge(up.update || {}), genome: up.genome }
 }
 
-function mutate({ chronicle, genome }: ChronicleAndGenome): ChronicleAndGenome {
+function mutate({ genome, ...scope }: MutationScope): InnovationScope {
   return structural({
-    chronicle,
-    genome: genome.map(connection.mutate)
+    ...scope,
+    genome: genome.map(connection.mutater(scope.configuration.connection))
   })
 }
 

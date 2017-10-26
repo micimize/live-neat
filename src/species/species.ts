@@ -1,57 +1,55 @@
-import Structure, { S, comparator } from './structure'
-
-import { Set, Record } from 'immutable'
-import { Args as SSArgs } from '../structures/SortedSet'
+import { Record } from 'immutable'
 import SortedSet, * as ss from '../structures/SortedSet'
 import CompetitiveSet, * as cs from '../structures/CompetitiveSet'
-import configurator from '../configurator'
-import { Creature, distance } from '../creature'
-import { selection, weightedSelection } from '../random-utils'
-import { Genome, crossover } from '../genome'
+import { Creature } from '../creature'
+import { Genome } from '../genome'
 
-// TODO refactor into struct/fp paradigm
-class Species extends Structure {
+export type Args = {
+  heroLimit: number,
+  creatures: Creature | Array<Creature>
+}
 
-  selectHero(): Genome {
-    return weightedSelection(this.heroes.unwrap(), g => g.fitness ^ 2)
+function Comparator<A>(attr: string) {
+  return (a: A, b: A) => Number(a[attr]) - Number(b[attr])
+}
+
+const comparator = Comparator<Creature>('fitness')
+
+const empty = {
+  id: NaN,
+  age: 0,
+  creatures: new SortedSet<Creature>({ comparator }),
+  heroes: new CompetitiveSet<Genome>({ limit: 4, comparator: Comparator<Genome>('fitness') })
+}
+
+type S = typeof empty
+
+class Species extends Record(empty) {
+
+  private static incrementor = 0
+
+  private static newId() {
+    return Species.incrementor++
   }
 
-  selectGenome({ not }: { not?: Genome } = {}): Genome | void {
-    let pool = Array.from(this.genePool.filter(g => !g.equals(not)))
-    if (!pool.length) {
-      return
-    }
-    // todo 0 fitness should probably be unselectable 
-    return weightedSelection(pool, h => h.fitness ^ 2)
+  constructor({ id = Species.newId(), ...species }: Partial<S>) {
+    super({ id, ...species })
   }
 
-  procreate(): Genome {
-    let a = this.selectGenome()
-    if (!a) {
-      /* TODO should be configurable
-       * if there are no creatures, resurrect hero
-       * this might not be as buggy as it seems -
-       * the first dead creature will always be in the hero list.
-       */
-      return this.selectHero()
-    }
-    let b = this.selectGenome({ not: a })
-    if (!b) {
-      // can only reproduce asexually
-      return a
-    }
-    return crossover([ a, b ])
+  get size(): number {
+    return this.creatures.size
   }
 
+  get fitness(): number {
+    return this.creatures.reduce(
+      (total, creature) => total + creature.fitness,
+      0
+    ) / this.size
+  }
+
+  // exposed functionality
   add(creature: ss.Concatable<Creature>): Species {
     return this.set('creatures', this.creatures.concat(creature))
-  }
-
-  // TODO dredge up old imperetive add code for this
-  compatible(creature: Creature): boolean {
-    let { compatibilityThreshold } = configurator().speciation
-    return this.creatures.some(member =>
-      distance([ member, creature ]) < compatibilityThreshold)
   }
 
   addHero(genome: cs.Concatable<Genome>): Species {
@@ -64,17 +62,13 @@ class Species extends Structure {
       .add(creatures)
   }
 
-  chronicleHero(creature: Creature): Species {
-    return this.addHero(creature.genome)
-  }
-
   kill(creature: Creature): Species {
     if (!this.creatures.has(creature)) {
       throw Error('creature does not belong to this species')
     }
     return this
       .set('creatures', this.creatures.delete(creature))
-      .chronicleHero(creature)
+      .addHero(creature.genome)
   }
 
   static of({
@@ -89,7 +83,6 @@ class Species extends Structure {
   map(f: (creature: Creature) => Creature): Species {
     return this.set('creatures', this.creatures.map(f))
   }
+}
 
- }
-
- export { Species, comparator }
+export { Species }

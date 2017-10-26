@@ -1,23 +1,18 @@
 import { ConnectionGene } from '../genome'
-import configurator from '../configurator'
-
-let conf = configurator().mutation.connection
-type Configuration = typeof conf
+import Configuration from './configuration'
 
 function should(probability: number): boolean {
   return Math.random() < probability
 }
 
-function connectionMutations(configuration: Configuration){
+function connectionMutations({ weightChange, reenable, disable }: Configuration['connection']){
   return {
     weight(weight: number): number {
-      let { weightChange } = configuration
       return weight + (should(weightChange.probability) ?
         (Math.random() * 2 - 1) * weightChange.power :
         0)
     },
     active(active: boolean): boolean {
-      let { reenable, disable } = configuration
       return active ?
         !should(disable) :
         should(reenable)
@@ -25,11 +20,13 @@ function connectionMutations(configuration: Configuration){
   }
 }
 
-function mutate(connection: ConnectionGene): ConnectionGene {
-  let { weight, active } = connectionMutations(configurator().mutation.connection)
-  return connection
-      .update('weight', weight)
-      .update('active', active)
+function mutater(configuration: Configuration['connection']){
+  let { weight, active } = connectionMutations(configuration)
+  return function mutate(connection: ConnectionGene): ConnectionGene {
+    return connection
+        .update('weight', weight)
+        .update('active', active)
+  }
 }
 
-export { mutate }
+export { mutater }

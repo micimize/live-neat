@@ -10,7 +10,7 @@ import * as chronicle from '../innovation'
 import { GeneExpresser, Express } from '../network/vanilla'
 import { Genome } from '../genome'
 import { Creature } from '../creature'
-import { Species, speciate } from '../species'
+import { Species, speciater } from '../species'
 import { seed } from '../mutation'
 
 // Creature should be dynamic, so the utilizing simulation can define it's own creature and have it managed
@@ -27,6 +27,7 @@ interface I {
   configuration: Configuration,
   chronicle: InnovationChronicle,
   express: Express,
+  speciate: (species: SortedSet<Species>, creature: Creature) => SortedSet<Species>,
   species: SortedSet<Species>,
   resources: number,
   age: number,
@@ -36,6 +37,7 @@ type PI = Partial<{
   Creature: new (...rest: any[]) => Creature,
   configuration: Partial<Configuration>,
   chronicle: InnovationChronicle,
+  speciate: (species: SortedSet<Species>, creature: Creature) => SortedSet<Species>,
   express: Express,
   species: SortedSet<Species>,
   resources: number,
@@ -49,6 +51,7 @@ const empty = {
   configuration: Configuration(),
   chronicle: InnovationChronicle.empty(),
   species: emptySpecies,
+  speciate: (species: SortedSet<Species>, creature: Creature) => species,
   express: GeneExpresser({ chronicle: InnovationChronicle.empty() }),
   resources: 0,
   age: 0
@@ -56,17 +59,21 @@ const empty = {
 
 class Population extends Record<I>(empty) {
 
+  // TODO this thing is a mess
+  // basically dumping complexity here to refactor the rest of the code base
   constructor({
     chronicle: c,
     configuration: partial,
     express: _,
     Creature: C = empty.Creature,
+    speciate = empty.speciate,
     species = undefined,
     ...population
   }: Partial<PI>) {
     let configuration = Configuration(partial)
     let chronicle = c || fromConfiguration(configuration.innovation)
     let express = GeneExpresser({ chronicle })
+    speciate = speciater(configuration.speciation)
     if(!species){
       let { chronicle: _c, genomes } = seed({
         chronicle,
@@ -83,6 +90,7 @@ class Population extends Record<I>(empty) {
       express,
       chronicle,
       species,
+      speciate,
       Creature: C,
       ...population,
     })
@@ -112,20 +120,8 @@ class Population extends Record<I>(empty) {
   }
 
   add(creature: Creature): Population {
-    let speciated = false
-    for (let s of this.species){
-      if(s.compatible(creature)){
-        return this.set('species', this.species
-          .delete(s)
-          .concat(s.add(creature)))
-      }
-    }
-    return this.set(
-      'species',
-      this.species.concat(
-        Species.of({ creature })
-      )
-    )
+    return this.set('species',
+      this.speciate(this.species, creature))
   }
 
   static of(population: PI): Population {

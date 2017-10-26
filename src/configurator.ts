@@ -3,15 +3,6 @@ export const INPUT_VECTOR_SIZE = 2
 export const OUTPUT_VECTOR_SIZE = 1
 
 export default () => ({
-  reproduction: {
-    requiredResources: 100,
-    desiredRate: 0.01,
-    // a dead species will be as fit as their heroes with this modifier
-    resurrectFromHeroesRate: 1,
-    // living species will have their heroes genes included in the pool at this rate
-    includeHeroGenesRate: 1,
-    survivalThreshold: 0.2, // top 20% of each species may reproduce
-  },
   genome: {
     connection: {
       initialWeightPower: 1,
@@ -49,18 +40,4 @@ export default () => ({
       minimumAge: 20
     }
   },
-  mutation: {
-    newNodeProbability: 0.01,
-    newConnectionProbability: 0.3,
-    connection: {
-      newProbability: 0.3,
-      disable: 0.01,
-      reenable: 0.2,
-      weightChange: {
-        probability: 0.8,
-        power: 1
-      },
-      // recurrent: 0
-    },
-  }
 })
