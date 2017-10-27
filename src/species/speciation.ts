@@ -3,11 +3,11 @@ import { Creature, distance } from '../creature'
 import { Species } from './species'
 import Configuration from '../population/configuration'
 
-function CompatibilityChecker({ compatibilityThreshold }: Configuration['speciation']) {
+function CompatibilityChecker({ compatibility }: Configuration['speciation']) {
   // TODO dredge up old imperetive add code for this
   return function compatible(species, creature: Creature): boolean {
     return species.creatures.some(member =>
-      distance([ member, creature ]) < compatibilityThreshold)
+      distance(compatibility.distance, [ member, creature ]) < compatibility.threshold)
   }
 }
 

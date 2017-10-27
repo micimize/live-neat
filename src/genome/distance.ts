@@ -1,16 +1,11 @@
 import { Record, Set } from 'immutable'
 import { Genome, ConnectionGenes } from './genome'
 import { pool } from './gene-pooling'
-
-// TODO configuration here is disjoint from rest of app
+import Configuration from '../species/configuration'
 
 const genomePools = (genomes: Array<Genome>) =>
   pool<number>(genomes.map(g => g.connections).map(m => Set(m.keys())))
 
-export const configuration = Record({
-  innovationDifferenceCoefficient: 2,
-  weightDifferenceCoefficient: 1
-})
 
 function forcefulGetWeight(genes: ConnectionGenes, innovation: number){
   let connection = genes.get(innovation)
@@ -29,7 +24,12 @@ function weightDifferences(shared: Set<number>, a: ConnectionGenes, b: Connectio
 // using the original C++ distance, and assuming disjoint and excess genes have the same cost
 // D = c1 * Ne + c2 * Nd + c3 * W
 //
-export default function distance([ a, b ]: Array<Genome>): number {
+// TODO should distance be a custom module?
+// otherwise, the configuration for genome distance should exist in /genome
+export default function distance(
+  configuration: Configuration['compatibility']['distance']['genome'],
+  [ a, b ]: Array<Genome>
+): number {
   //let aInnovations = Object.keys(a)
   //let bInnovations = Object.keys(b)
   //let aMostRecentInnovation = Math.max(aInnovations)
@@ -41,7 +41,7 @@ export default function distance([ a, b ]: Array<Genome>): number {
   let {
     innovationDifferenceCoefficient,
     weightDifferenceCoefficient
-  } = configuration()
+  } = configuration
   return (
     innovationDifferences * innovationDifferenceCoefficient +
     sharedWeightDifferences * weightDifferenceCoefficient

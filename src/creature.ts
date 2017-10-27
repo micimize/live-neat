@@ -3,13 +3,18 @@ import * as genome from './genome'
 import { Network } from './network/network'
 import { InnovationChronicle } from './innovation'
 import { GeneExpresser, SimpleNetwork } from './network/vanilla'
-import Configuration from './population/configuration'
+import Configuration from './species/configuration'
+import PopConfiguration from './population/configuration'
+
 
 // TODO essentially hard coded
-const defaultConf = Configuration().creature
+const defaultConf = PopConfiguration().creature
 
-export function distance([ a, b ]: Array<Creature>): number {
-  return genome.distance([ a.genome, b.genome ])
+export function distance(
+  configuration: Configuration['compatibility']['distance'],
+  [ a, b ]: Array<Creature>
+): number {
+  return genome.distance(configuration.genome, [ a.genome, b.genome ])
 }
 
 // TODO awful, network inflexible, just hacking
@@ -52,7 +57,7 @@ class Creature extends Record(empty) {
     return this.network.forward(input)
   }
 
-  step(info: any, { ageSignificance }: Configuration['creature'] = defaultConf): Creature {
+  step(info: any, { ageSignificance }: PopConfiguration['creature'] = defaultConf): Creature {
     let { energy = 0 } = info
     return this.withMutations(creature => {
       // default fitness is average energy

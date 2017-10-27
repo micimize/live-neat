@@ -55,6 +55,7 @@ const empty = {
   age: 0
 }
 
+
 class Population extends Record<I>(empty) {
 
   // TODO this thing is a mess

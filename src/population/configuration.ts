@@ -1,6 +1,7 @@
 import { Record } from 'immutable'
 import Innovation from '../innovation/configuration'
 import Mutation from '../mutation/configuration'
+import Speciation from '../species/configuration'
 
 const global = {
   reproduction: {
@@ -18,29 +19,15 @@ const global = {
     }
   },
   population: {
-    initialSize: 100,
-    minSize: 100,
-  },
-  speciation: {
-    speciesCount: 4,
-    heroCount: 5,
-    initialCompatibilityThreshold: 20.0,
-    compatibilityThreshold: 20.0,
-    compatibilityModifier: 0.3,
-    stagnation: {
-      acceptableGenerations: 20,
-      cost: 10, 
-    },
-    culling: {
-      regularity: 30,
-      minimumAge: 20
-    }
+    initialSize: 50,
+    minSize: 50,
   },
   creature: {
     ageSignificance: 1,// / 5,
   },
   innovation: Innovation(),
-  mutation: Mutation()
+  mutation: Mutation(),
+  speciation: Speciation()
 }
 
 type PopulationConfiguration = typeof global
