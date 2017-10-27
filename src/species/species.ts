@@ -9,17 +9,13 @@ export type Args = {
   creatures: Creature | Array<Creature>
 }
 
-function Comparator<A>(attr: string) {
-  return (a: A, b: A) => Number(a[attr]) - Number(b[attr])
-}
-
-const comparator = Comparator<Creature>('fitness')
+const comparator = ss.Sort.Descending<Creature>('fitness')
 
 const empty = {
   id: NaN,
   age: 0,
   creatures: new SortedSet<Creature>({ comparator }),
-  heroes: new CompetitiveSet<Genome>({ limit: 4, comparator: Comparator<Genome>('fitness') })
+  heroes: new CompetitiveSet<Genome>({ limit: 4, comparator: ss.Sort.Descending<Genome>('fitness') })
 }
 
 type S = typeof empty
@@ -83,6 +79,7 @@ class Species extends Record(empty) {
   map(f: (creature: Creature) => Creature): Species {
     return this.set('creatures', this.creatures.map(f))
   }
+
 }
 
 export { Species }

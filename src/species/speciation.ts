@@ -16,7 +16,7 @@ function speciater(configuration: Configuration['speciation']){
   return function speciate(species: SortedSet<Species>, creature: Creature): SortedSet<Species> {
     let speciated = false
     for (let s of species){
-      if(compatible(species, creature)){
+      if(compatible(s, creature)){
         return species.delete(s).concat(s.add(creature))
       }
     }

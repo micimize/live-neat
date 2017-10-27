@@ -1,5 +1,6 @@
 import { Set, Record } from 'immutable'
 import { SortedSet, CompetitiveSet } from '../structures'
+import { Sort } from '../structures/SortedSet'
 import { thread } from '../utils'
 
 import Configuration from './configuration'
@@ -17,10 +18,7 @@ import { seed } from '../mutation'
 // * live-neat manages Population and evolution
 // * utilizing simulation manages fitness and calls population.step as appropriate
 
-function Comparator<A>(attr: string){
-  return (a: A, b: A) => Number(a[attr]) - Number(b[attr]) }
-
-const comparator = Comparator<Species>('fitness')
+const comparator = Sort.Descending<Species>('fitness')
 
 interface I {
   Creature: new (...rest: any[]) => Creature,
@@ -77,7 +75,8 @@ class Population extends Record<I>(empty) {
     if(!species){
       let { chronicle: _c, genomes } = seed({
         chronicle,
-        size: configuration.population.initialSize
+        size: configuration.population.initialSize,
+        configuration: configuration.mutation
       })
       chronicle = _c
       let creatures = genomes.map(genome => new C({
@@ -115,7 +114,7 @@ class Population extends Record<I>(empty) {
     return this.species
       .reduce(
         (heroes, s) => heroes.concat(s.heroes),
-        new CompetitiveSet<Genome>({ limit: 5, comparator: Comparator<Genome>('fitness') })
+        new CompetitiveSet<Genome>({ limit: 5, comparator: Sort.Descending<Genome>('fitness') })
       )
   }
 

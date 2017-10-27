@@ -5,6 +5,15 @@ import {
 } from '@collectable/sorted-set';
 import * as s from '@collectable/sorted-set';
 
+export namespace Sort {
+  export function Descending<A>(attr: string) {
+    return (a: A, b: A) => Number(b[attr]) - Number(a[attr])
+  }
+  export function Ascending<A>(attr: string) {
+    return (a: A, b: A) => Number(a[attr]) - Number(b[attr])
+  }
+}
+
 export type Args<A> = {
   values?: A | Array<A> | SortedSetStructure<A>,
   comparator: (a: A, b: A) => number
@@ -92,4 +101,5 @@ export default class SortedSet<A> {
     return this.of({ values: remove(a, this.values) })
   }
 }
+
 

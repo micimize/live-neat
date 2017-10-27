@@ -6,19 +6,12 @@ interface PotentialConnection {
   to: number
 } 
 
-declare interface Innovation {
-  innovation: number
-}
-
-type ConnectionInnovation = PotentialConnection & Innovation
-
-declare interface Connection extends ConnectionInnovation {
+interface Connection extends PotentialConnection {
   weight: number,
   active: boolean
 }
 
 const empty = {
-  innovation: NaN,
   from: NaN,
   to: NaN,
   weight: 0,
@@ -32,8 +25,8 @@ class ConnectionGene extends Record(empty) implements Connection {
   get signature(): string {
     return [this.from, this.to].join(',')
   }
-  static of(innovation: ConnectionInnovation): ConnectionGene {
-    return new ConnectionGene({ weight: Math.random(), active: true, ...innovation })
+  static of(connection: PotentialConnection | Connection): ConnectionGene {
+    return new ConnectionGene({ weight: Math.random(), active: true, ...connection })
   }
 }
 

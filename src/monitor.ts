@@ -6,13 +6,16 @@ import { Genome } from './genome'
 import * as chalk from 'chalk'
 import { max, median, standardDeviation } from 'simple-statistics'
 
+/*
 import * as memwatch from 'memwatch-next'
-
 function profileLog(data){
   return fs.appendFileSync('profile.json', JSON.stringify(data, null, 2) )
 }
 memwatch.on('leak', profileLog)
 memwatch.on('stats', profileLog)
+    //let hd = new memwatch.HeapDiff();
+    //profileLog(hd.end())
+*/
 
 function summarizeComplexity({ connections }: Genome) {
   let { nodes, latestInnovation } = connections.reduce(
@@ -148,18 +151,17 @@ export default class Monitor {
 export class Experiment {
   constructor(public evaluate, public monitor){ }
   generation(population: Population): Population {
-    return step(population.map(this.evaluate))
+    return step(population).map(this.evaluate)
   }
   epoch(population: Population, rounds = 100): Population {
-    let hd = new memwatch.HeapDiff();
-    while (rounds-- > 0){
+    while (rounds --> 0){
       population = this.generation(population)
     }
-    profileLog(hd.end())
     return population
   }
   run(population: Population, epochs=10): Population {
-    while (epochs-- > 0){
+    population = population.map(this.evaluate)
+    while (epochs --> 0){
       population = this.epoch(population)
       this.monitor.stats(population)
     }

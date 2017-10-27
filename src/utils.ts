@@ -78,7 +78,7 @@ export function thread<V, R>(value: V, first: (v: V) => R, second: (r: R) => R, 
 }
 
 
-function CompetitiveTuple<T>(limit: number, comparator: (a: T, b: T) => number) {
+export function CompetitiveTuple<T>(limit: number, comparator: (a: T, b: T) => number) {
   return {
     limit,
     comparator,

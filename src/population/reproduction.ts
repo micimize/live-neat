@@ -22,7 +22,8 @@ function reproduce(population: Population): ChronicleAndCreature {
     chronicle: population.chronicle,
     genome: mate({
       species: selectSpecies(population.species),
-      configuration: reproduction
+      reproduction,
+      mutation,
     }),
     configuration: mutation,
   })

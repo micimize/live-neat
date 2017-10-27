@@ -2,6 +2,7 @@ import { Set } from 'immutable'
 import { deepmerge } from 'deepmerge'
 import { InnovationChronicle, innovations } from '../innovation'
 import * as random from '../random-utils'
+import { CERTAINLY_IS } from '../utils'
 import { Genome, ConnectionGenes, initialize } from '../genome'
 import ConnectionGene, { PotentialConnection } from '../genome/connection-gene'
 import Configuration from './configuration'
@@ -16,8 +17,13 @@ type MutationScope = InnovationScope & {
   configuration: Configuration
 }
 
-function randomConnection({ connections }: Genome): ConnectionGene {
-  return random.selection(Array.from(connections.values()))
+function randomConnection({ connections }: Genome): { innovation: number, connection: ConnectionGene } {
+  let innovation = random.selection(Array.from(connections.keys()))
+  let connection = connections.get(innovation)
+  if (CERTAINLY_IS<ConnectionGene>(connection)){
+    return { innovation, connection }
+  }
+  throw Error('impossible.')
 }
 
 function getNodes(genome: Genome): Set<number> {
@@ -49,7 +55,7 @@ function randomPotentialConnection({ chronicle, genome }: InnovationScope): Pote
 function insertNode({ chronicle, genome, configuration = Configuration() }: MutationScope): Mutation<'nodes' | 'connections'> {
   if (Math.random() < configuration.newNodeProbability) {
     let old = randomConnection(genome)
-    let update = innovations.insertNode(chronicle, old)
+    let update = innovations.insertNode(chronicle, old.connection)
     return {
       update,
       genome: genome.mergeIn(

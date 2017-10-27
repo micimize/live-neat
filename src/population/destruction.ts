@@ -24,7 +24,7 @@ function age(population: Population): Population {
 function replaceDying(population: Population, dying: number): ChronicleAndCreatures {
   return litter(
     population,
-    population.configuration.population.minSize - population.size - dying
+    population.configuration.population.minSize - (population.size - dying)
   )
 }
 

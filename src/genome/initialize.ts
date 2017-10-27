@@ -8,16 +8,16 @@ function connections(newConnections: Map<number, PotentialConnection>): Connecti
   return Map<number, ConnectionGene>(
     Array.from(newConnections.entries())
       .map(([innovation, connection]: Entry): GeneEntry =>
-        [innovation, ConnectionGene.of({ innovation, ...connection })])
+        [innovation, ConnectionGene.of(connection)])
   )
 }
 
 function node(
-  old: ConnectionGene,
+  old: { innovation: number, connection: ConnectionGene },
   newConnections: Map<number, PotentialConnection>
 ): ConnectionGenes {
   return connections(newConnections)
-    .set(old.innovation, old.set('active', false))
+    .set(old.innovation, old.connection.set('active', false))
 }
 
 export { connections, node }
