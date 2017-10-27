@@ -1,9 +1,6 @@
 import { ConnectionGene } from '../genome'
+import { should } from '../random-utils'
 import Configuration from './configuration'
-
-function should(probability: number): boolean {
-  return Math.random() < probability
-}
 
 function connectionMutations({ weightChange, reenable, disable }: Configuration['connection']){
   return {

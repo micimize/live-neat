@@ -1,5 +1,9 @@
 import { Map, Set } from 'immutable'
 
+export function should(probability: number): boolean {
+  return Math.random() < probability
+}
+
 export function shuffle(_array: Array<any>): Array<any> {
   // Fisher-Yates Shuffle
   let array = [..._array] 

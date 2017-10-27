@@ -21,7 +21,21 @@ const domain = [
 ].map(([ a, b ]) =>
   ([ [ a, b ], a ^ b ]))
 
-function gotAnswer(actual: number, prediction: number){
+type Performance = { confidence: number, success: number }
+
+function CorrectnessWeighter(weights: Performance, exp: number = 2) {
+  const total = Object.values(weights).reduce((a, b) => a + b)
+  return (performance: Performance) => 
+    Object.entries(performance).reduce(
+      (sum, [ metric, value ]) =>
+      sum + (weights[metric] * value),
+      0
+    ) / total ** exp
+}
+
+const weighter = CorrectnessWeighter({ confidence: 1, success: 1 })
+
+function gotAnswer(actual: number, prediction: number): number {
   return Number(actual == Math.round(prediction))
 }
 
@@ -32,7 +46,7 @@ function correctness(actual: number, prediction: number | null): number {
   let success = gotAnswer(actual, prediction) 
   let confidence = 1 - (actual - prediction) ** 2
   // success is 2x more important than confidence
-  return ((2 * success + confidence) / 3) ** 2
+  return weighter({ success, confidence  })
 }
 
 function evaluate(creature: XORCreature): XORCreature {

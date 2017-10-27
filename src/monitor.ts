@@ -159,7 +159,7 @@ export class Experiment {
     }
     return population
   }
-  run(population: Population, epochs=10): Population {
+  run(population: Population, epochs=100): Population {
     population = population.map(this.evaluate)
     while (epochs --> 0){
       population = this.epoch(population)

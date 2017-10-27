@@ -37,10 +37,10 @@ class Species extends Record(empty) {
   }
 
   get fitness(): number {
-    return this.creatures.reduce(
-      (total, creature) => total + creature.fitness,
-      0
-    ) / this.size
+    // TODO did I decide against hero resurrection?
+    return !this.size ? 0 :
+      (this.creatures.reduce((total, creature) =>
+        total + creature.fitness, 0) / this.size)
   }
 
   // exposed functionality

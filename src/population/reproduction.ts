@@ -13,7 +13,7 @@ type ChronicleAndCreatures = { chronicle: InnovationChronicle, creatures: Set<Cr
 
 
 function selectSpecies(species: SortedSet<Species>): Species {
-  return weightedSelection(Array.from(species), s => s.fitness ^ 2)
+  return weightedSelection(Array.from(species), s => s.fitness ** 2)
 }
 
 function reproduce(population: Population): ChronicleAndCreature {

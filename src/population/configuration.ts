@@ -11,10 +11,15 @@ const global = {
     // living species will have their heroes genes included in the pool at this rate
     includeHeroGenesRate: 1,
     survivalThreshold: 0.2, // top 20% of each species may reproduce
+    // must sum to 1
+    kinds: {
+      asexual: 0.25,
+      sexual: 0.75,
+    }
   },
   population: {
-    initialSize: 50,
-    minSize: 50,
+    initialSize: 100,
+    minSize: 100,
   },
   speciation: {
     speciesCount: 4,

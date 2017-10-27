@@ -1,6 +1,6 @@
 import { Species } from './species'
 import { Genome, crossover } from '../genome'
-import { weightedSelection } from '../random-utils'
+import { weightedSelection, should } from '../random-utils'
 import Configuration from '../population/configuration'
 
 type GenePool = Array<Genome>
@@ -21,7 +21,7 @@ function genePool({ species, reproduction }: MatingScope): GenePool {
 }
 
 function selectHero(species: Species): Genome {
-  return weightedSelection(species.heroes.unwrap(), g => g.fitness ^ 2)
+  return weightedSelection(species.heroes.unwrap(), g => g.fitness ** 2)
 }
 
 function selectGenome(pool: GenePool, { not }: { not?: Genome } = {}): Genome | void {
@@ -30,9 +30,8 @@ function selectGenome(pool: GenePool, { not }: { not?: Genome } = {}): Genome | 
     return
   }
   // todo 0 fitness should probably be unselectable 
-  return weightedSelection(pool, h => h.fitness ^ 2)
+  return weightedSelection(pool, h => h.fitness ** 2)
 }
-
 
 function mate(scope: MatingScope): Genome {
   let pool = genePool(scope)
@@ -46,7 +45,7 @@ function mate(scope: MatingScope): Genome {
     return selectHero(scope.species)
   }
   let b = selectGenome(pool, { not: a })
-  if (!b) {
+  if (!b || should(scope.reproduction.kinds.asexual)) {
     // can only reproduce asexually
     return a
   }

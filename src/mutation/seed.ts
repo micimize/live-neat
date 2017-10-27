@@ -19,7 +19,7 @@ function seed({
 }: SeedScope 
 ): { chronicle: InnovationChronicle, genomes: Set<Genome> } {
   let genomes: Set<Genome> = Set()
-  while (size-- > 0){
+  while (size --> 0){
     ({ genome, chronicle } = mutate({ chronicle, genome, configuration }))
     genomes = genomes.add(genome)
   }
