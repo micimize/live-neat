@@ -8,6 +8,7 @@ const global = {
     requiredResources: 100,
     desiredRate: 0.01,
     // a dead species will be as fit as their heroes with this modifier
+    // TODO was ripped out in refactor
     resurrectFromHeroesRate: 1,
     // living species will have their heroes genes included in the pool at this rate
     includeHeroGenesRate: 1,
@@ -19,8 +20,8 @@ const global = {
     }
   },
   population: {
-    initialSize: 50,
-    minSize: 50,
+    initialSize: 100,
+    minSize: 100,
   },
   creature: {
     ageSignificance: 1,// / 5,

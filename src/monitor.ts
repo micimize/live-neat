@@ -7,15 +7,15 @@ import * as chalk from 'chalk'
 import { max, median, standardDeviation } from 'simple-statistics'
 
 /*
-import * as memwatch from 'memwatch-next'
-function profileLog(data){
-  return fs.appendFileSync('profile.json', JSON.stringify(data, null, 2) )
-}
-memwatch.on('leak', profileLog)
-memwatch.on('stats', profileLog)
-    //let hd = new memwatch.HeapDiff();
-    //profileLog(hd.end())
-*/
+ *  import * as memwatch from 'memwatch-next'
+ *  function profileLog(data){
+ *      return fs.appendFileSync('profile.json', JSON.stringify(data, null, 2) )
+ *  }
+ *  memwatch.on('leak', profileLog)
+ *  memwatch.on('stats', profileLog)
+ *    //let hd = new memwatch.HeapDiff();
+ *    //profileLog(hd.end())
+ */
 
 function summarizeComplexity({ connections }: Genome) {
   let { nodes, latestInnovation } = connections.reduce(
@@ -47,6 +47,11 @@ function resurrectHero(population: Population): Creature | void {
     let { Creature, chronicle, express } = population
     return new Creature({ genome, network: express({ chronicle, genome }) })
   }
+}
+function best({ allTime, max }: Stats): Creature {
+  return allTime.fitness > max.fitness ?
+    allTime :
+    max
 }
 
 function getStats(population: Population): Stats {
@@ -117,39 +122,51 @@ const defaultFormatters = {
     return chalk.white(size) + ` @ ` + chalk.magenta(this.fitness(fitness))
   },
 
+  configuration({ speciation: { compatibility: { threshold }} }){
+    return `t/h: ${threshold}`
+  },
+
   population(pop){
-    return chalk.blue(`${new Date().toISOString()} gen: ${pop.age} species: [`) + 
-      Array.from(pop.livingSpecies.map(s => this.species(s))).join(', ') +
+    let conf = this.configuration(pop.configuration)
+    return chalk.blue(
+      `${new Date().toISOString()} gen: ${pop.age}, ${conf}, ${pop.livingSpecies.size} species: [`
+    ) +
+      pop.livingSpecies.unwrap().map(s => this.species(s)).join(', ') +
     chalk.blue(']')
   }
 
 }
 
-export default class Monitor {
+class Monitor {
 
   history: Array<any> = []
   formatters: any
 
   get latest(){
-    return this.history[this.history.length-1]
+    return this.history[this.history.length - 1]
   }
 
   constructor(formatters = {}) {
     this.formatters = Object.assign(defaultFormatters, formatters)
   }
 
-  stats(population){
+  stats(population): Stats {
     let stats = getStats(population)
     console.log(this.formatters.population(population))
     console.log(this.formatters.stats(stats))
     //console.log(stats.allTime.network.toJSON())
     this.history.push(stats)
+    return stats
   }
 
 }
 
-export class Experiment {
-  constructor(public evaluate, public monitor){ }
+class Experiment {
+  constructor(
+    public evaluate: (creature: Creature) => Creature,
+    public monitor,
+    public desiredFitness: number = 3.5
+  ){ }
   generation(population: Population): Population {
     return step(population).map(this.evaluate)
   }
@@ -159,12 +176,17 @@ export class Experiment {
     }
     return population
   }
-  run(population: Population, epochs=100): Population {
+  run(population: Population, epochs=1000): Population {
     population = population.map(this.evaluate)
     while (epochs --> 0){
       population = this.epoch(population)
-      this.monitor.stats(population)
+      let stats = this.monitor.stats(population)
+      if (best(stats).fitness >= this.desiredFitness){
+        console.log('success!')
+      }
     }
     return population
   }
 }
+
+export { Experiment, Monitor }

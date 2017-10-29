@@ -11,7 +11,7 @@ import * as chronicle from '../innovation'
 import { GeneExpresser, Express } from '../network/vanilla'
 import { Genome } from '../genome'
 import { Creature } from '../creature'
-import { Species, speciater } from '../species'
+import { Species, speciate } from '../species'
 import { seed } from '../mutation'
 
 // Creature should be dynamic, so the utilizing simulation can define it's own creature and have it managed
@@ -65,14 +65,12 @@ class Population extends Record<I>(empty) {
     configuration: partial,
     express: _,
     Creature: C = empty.Creature,
-    speciate = empty.speciate,
     species = undefined,
     ...population
   }: Partial<PI>) {
     let configuration = Configuration(partial)
     let chronicle = c || fromConfiguration(configuration.innovation)
     let express = GeneExpresser({ chronicle })
-    speciate = speciater(configuration.speciation)
     if(!species){
       let { chronicle: _c, genomes } = seed({
         chronicle,
@@ -84,13 +82,12 @@ class Population extends Record<I>(empty) {
         genome,
         network: express({ genome, chronicle })
       }))
-      species = creatures.reduce(speciate, emptySpecies)
+      species = creatures.reduce(speciate.curry(configuration.speciation), emptySpecies)
     }
     super({
       express,
       chronicle,
       species,
-      speciate,
       Creature: C,
       ...population,
     })
@@ -120,8 +117,11 @@ class Population extends Record<I>(empty) {
   }
 
   add(creature: Creature): Population {
-    return this.set('species',
-      this.speciate(this.species, creature))
+    return this.set('species', speciate(
+      this.configuration.speciation,
+      this.species,
+      creature
+    ))
   }
 
   static of(population: PI): Population {

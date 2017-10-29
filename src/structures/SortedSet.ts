@@ -34,7 +34,8 @@ export default class SortedSet<A> {
   constructor({ values = [], comparator }: Args<A>) {
     this.values = (isSortedSet(values)) ?
       values :
-      fromArray(arrayify<A>(values), comparator || this.comparator)
+      fromArray(arrayify<A>(values), comparator)
+    this.comparator = comparator
   }
 
   static of<A>({ values = [], comparator }: Args<A>) {
@@ -52,7 +53,7 @@ export default class SortedSet<A> {
   concat(set: Concatable<A>): SortedSet<A> {
     let values = (set instanceof SortedSet) ?
       union(set.values, this.values) :
-      union(this.values, fromArray<A>(arrayify(set)))
+      union(fromArray<A>(arrayify(set)), this.values)
     return this.of({ values })
   }
 

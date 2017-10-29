@@ -11,17 +11,28 @@ function CompatibilityChecker({ compatibility }: Configuration['speciation']) {
   }
 }
 
-function speciater(configuration: Configuration['speciation']){
+function speciate(
+  configuration: Configuration['speciation'],
+  species: SortedSet<Species>,
+  creature: Creature
+): SortedSet<Species> {
   let compatible = CompatibilityChecker(configuration)
-  return function speciate(species: SortedSet<Species>, creature: Creature): SortedSet<Species> {
-    let speciated = false
-    for (let s of species){
-      if(compatible(s, creature)){
-        return species.delete(s).concat(s.add(creature))
-      }
+  let speciated = false
+  for (let s of species){
+    if(compatible(s, creature)){
+      return species.delete(s).concat(s.add(creature))
     }
-    return species.concat(Species.of({ creature }))
+  }
+  return species.concat(Species.of({ creature }))
+}
+
+const _speciate: typeof speciate = speciate
+
+namespace speciate {
+  export function curry(configuration: Configuration['speciation']){
+    return (species: SortedSet<Species>, creature: Creature) =>
+      _speciate(configuration, species, creature)
   }
 }
 
-export { speciater }
+export { speciate }

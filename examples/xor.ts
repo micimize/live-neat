@@ -1,5 +1,5 @@
 import { Population, Creature } from '../src'
-import Monitor, { Experiment } from '../src/monitor'
+import { Monitor, Experiment } from '../src/monitor'
 import { shuffle } from 'simple-statistics'
 
 class XORCreature extends Creature {
@@ -25,15 +25,15 @@ type Performance = { confidence: number, success: number }
 
 function CorrectnessWeighter(weights: Performance, exp: number = 2) {
   const total = Object.values(weights).reduce((a, b) => a + b)
-  return (performance: Performance) => 
+  return (performance: Performance) => ((
     Object.entries(performance).reduce(
-      (sum, [ metric, value ]) =>
-      sum + (weights[metric] * value),
-      0
-    ) / total ** exp
+      (sum, [ metric, value ]) => sum + (weights[metric] * value), 0
+    ) / total
+  ) ** exp )
 }
 
-const weighter = CorrectnessWeighter({ confidence: 1, success: 1 })
+  // success is 2x more important than confidence
+const weighter = CorrectnessWeighter({ confidence: 1, success: 2 })
 
 function gotAnswer(actual: number, prediction: number): number {
   return Number(actual == Math.round(prediction))
@@ -45,8 +45,7 @@ function correctness(actual: number, prediction: number | null): number {
   }
   let success = gotAnswer(actual, prediction) 
   let confidence = 1 - (actual - prediction) ** 2
-  // success is 2x more important than confidence
-  return weighter({ success, confidence  })
+  return weighter({ success, confidence })
 }
 
 function evaluate(creature: XORCreature): XORCreature {

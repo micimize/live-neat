@@ -38,14 +38,23 @@ function validToNode(chronicle: InnovationChronicle, node: number): boolean {
   return !['INPUT', 'BIAS'].includes(type)
 }
 
-function randomPotentialConnection({ chronicle, genome }: InnovationScope): PotentialConnection | void {
-  let connections: Set<{ from: number, to: number }> = Set(genome.connectionList.map(
+function randomPotentialConnection(
+  { chronicle, genome, configuration }: MutationScope
+): PotentialConnection | void {
+  let { canBeRecurrent } = configuration.connection
+  let connections: Set<PotentialConnection> = Set(genome.connectionList.map(
     ({ from, to }) => ({ from, to })
   ))
+  let isValid = (testing: PotentialConnection) =>
+    (testing.from !== testing.to) &&
+    !connections.has(testing) && (
+      canBeRecurrent ||
+      connection.checkForCycle(connections, testing)
+    )
   let nodes = getNodes(genome)
   for (let from of random.shuffle(Array.from(nodes))) {
     for (let to of random.shuffle(Array.from(nodes).filter(node => validToNode(chronicle, node)))) {
-      if(from !== to && !connections.contains({ from, to })){
+      if(isValid({ from, to })){
         return { from, to }
       }
     }
@@ -53,7 +62,7 @@ function randomPotentialConnection({ chronicle, genome }: InnovationScope): Pote
 }
 
 function insertNode({ chronicle, genome, configuration = Configuration() }: MutationScope): Mutation<'nodes' | 'connections'> {
-  if (Math.random() < configuration.newNodeProbability) {
+  if (random.should(configuration.newNodeProbability)) {
     let old = randomConnection(genome)
     let update = innovations.insertNode(chronicle, old.connection)
     return {
@@ -69,8 +78,8 @@ function insertNode({ chronicle, genome, configuration = Configuration() }: Muta
 }
 
 function newConnection({ chronicle, genome, configuration = Configuration() }: MutationScope): Mutation<'connections'> {
-  if (Math.random() < configuration.newConnectionProbability) {
-    let potentialConnection = randomPotentialConnection({ chronicle, genome })
+  if (random.should(configuration.newConnectionProbability)) {
+    let potentialConnection = randomPotentialConnection({ chronicle, genome, configuration })
     if (potentialConnection) {
       let update = innovations.newConnection(chronicle, potentialConnection)
       return {

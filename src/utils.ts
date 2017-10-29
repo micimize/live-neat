@@ -77,7 +77,6 @@ export function thread<V, R>(value: V, first: (v: V) => R, second: (r: R) => R, 
   return compose(second, ...rest)(first(value))
 }
 
-
 export function CompetitiveTuple<T>(limit: number, comparator: (a: T, b: T) => number) {
   return {
     limit,
@@ -109,4 +108,29 @@ export function CompetitiveTuple<T>(limit: number, comparator: (a: T, b: T) => n
       return false
     }
   }
+}
+
+function OnChangeLogger(){
+  let previous = ''
+  return function log(...value){
+    let str = JSON.stringify(value)
+    if (str !== previous){
+      console.log(value)
+      previous = str
+    }
+  }
+}
+
+export function bounder({ minimum, maximum }: { minimum: number, maximum: number }){
+  return (value: number) =>
+    value < minimum ? minimum :
+    value > maximum ? maximum :
+    value
+}
+
+export function adjuster(modifier: number){
+  return (value: number, condition: number): number => //log(value, condition) ||
+    condition > 0 ? value + modifier :
+    condition < 0 ? value - modifier :
+  /*condition = 0*/ value
 }

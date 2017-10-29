@@ -4,6 +4,10 @@ export function should(probability: number): boolean {
   return Math.random() < probability
 }
 
+export function within(min: number, max: number): number {
+  return Math.random() * (max - min) + min
+}
+
 export function shuffle(_array: Array<any>): Array<any> {
   // Fisher-Yates Shuffle
   let array = [..._array] 
@@ -79,4 +83,3 @@ export function selection<T>(choices: Array<T>): T {
   var index = Math.floor(Math.random() * choices.length)
   return choices[index]
 }
-

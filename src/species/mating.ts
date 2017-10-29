@@ -12,8 +12,16 @@ type MatingScope = PoolScope & {
   mutation: Configuration['mutation']
 }
 
-function genePool({ species, reproduction }: MatingScope): GenePool {
-  let livingPool = species.creatures.unwrap().map(c => c.genome)
+
+function selectElite({ species: { creatures }, reproduction }: PoolScope): GenePool {
+  let eliteCount = Math.ceil(reproduction.survivalThreshold * creatures.size)
+  return creatures.unwrap()
+    .slice(0, eliteCount)
+    .map(c => c.genome)
+}
+
+function genePool({ species, reproduction }: PoolScope): GenePool {
+  let livingPool = selectElite({ species, reproduction })
   let heroes = species.heroes.map(
     g => g.set('fitness', reproduction.includeHeroGenesRate * g.fitness)
   ).unwrap()
@@ -46,7 +54,6 @@ function mate(scope: MatingScope): Genome {
   }
   let b = selectGenome(pool, { not: a })
   if (!b || should(scope.reproduction.kinds.asexual)) {
-    // can only reproduce asexually
     return a
   }
   // TODO this is some weak and hacky DI

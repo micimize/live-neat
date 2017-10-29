@@ -42,9 +42,7 @@ function litter(population: Population, batch: number): ChronicleAndCreatures  {
   return { chronicle: population.chronicle, creatures }
 }
 
-function attemptReproduction(
-  population: Population
-): Population {
+function attemptReproduction(population: Population): Population {
   let { desiredRate, requiredResources } = population.configuration.reproduction
   if (Math.random() < desiredRate && population.resources >= requiredResources) {
     let resources = population.resources - requiredResources

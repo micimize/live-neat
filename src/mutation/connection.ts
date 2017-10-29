@@ -1,18 +1,41 @@
+import * as I from 'immutable'
 import { ConnectionGene } from '../genome'
-import { should } from '../random-utils'
+import { should, within } from '../random-utils'
 import Configuration from './configuration'
+
+type Conn = { from: number, to: number }
+
+export function checkForCycle(connections: I.Set<Conn>, testing: Conn): boolean{
+  let visited = new Set<number>([ testing.from ])
+  while (true) {
+    let newVisits = 0
+    for (let { from, to } of connections){
+      if (visited.has(from) && !visited.has(to)) {
+        if (to === testing.to){
+          return true
+        }
+        visited.add(to)
+        newVisits += 1
+      }
+    }
+    if(!newVisits){
+      return false
+    }
+  }
+}
+
 
 function connectionMutations({ weightChange, reenable, disable }: Configuration['connection']){
   return {
     weight(weight: number): number {
-      return weight + (should(weightChange.probability) ?
-        (Math.random() * 2 - 1) * weightChange.power :
-        0)
+      return weight + (
+        should(weightChange.probability) ?
+          within(-1, 1) * weightChange.power :
+          0
+      )
     },
     active(active: boolean): boolean {
-      return active ?
-        !should(disable) :
-        should(reenable)
+      return active ? !should(disable) : should(reenable)
     }
   }
 }

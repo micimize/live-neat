@@ -1,5 +1,5 @@
 import { Record } from 'immutable'
-//import configuration from './configuration'
+import * as random from '../random-utils'
 
 interface PotentialConnection {
   from: number,
@@ -26,7 +26,7 @@ class ConnectionGene extends Record(empty) implements Connection {
     return [this.from, this.to].join(',')
   }
   static of(connection: PotentialConnection | Connection): ConnectionGene {
-    return new ConnectionGene({ weight: Math.random(), active: true, ...connection })
+    return new ConnectionGene({ weight: random.within(-1, 1), active: true, ...connection })
   }
 }
 
