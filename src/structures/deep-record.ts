@@ -1,29 +1,27 @@
-import { deepmerge } from 'deepmerge'
+import * as deepmerge from 'deepmerge'
+
+/*
+import * as Reader from 'fp-ts/lib/Reader'
+Reader.ask*/
 
 type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>
 }
 
-type Mergeable<T> = T & {
-  merge(partial: DeepPartial<T>): Mergeable<T>
-}
-
-type MR<T> = Mergeable<Readonly<T>>
-
 interface _DeepRecord<T> {
   (partial?: DeepPartial<T>): T & _DeepRecord<T>
+//set<K extends keyof T>(key: K, partial: T[K]): T & _DeepRecord<T>
 }
 
 type DeepRecord<T> = Readonly<T> & _DeepRecord<Readonly<T>>
 
-function DeepRecord<T>(_empty: T): DeepRecord<T> {
-  let callable = <DeepRecord<T>> function merge(
-    this: DeepRecord<T>,
-    partial: DeepPartial<T>
-  ): DeepRecord<T> {
-    return deepmerge(this, partial)
+function DeepRecord<T>(defaults: T): DeepRecord<T> {
+  const merge = <DeepRecord<T>> function merge(partial: DeepPartial<T> = {}){
+    return DeepRecord(deepmerge(defaults, partial))
   }
-  return deepmerge(callable, _empty)
+//merge.set = <K extends keyof T>(key: K, partial: T[K]) =>
+//  DeepRecord(deepmerge(defaults, { [key]: partial }))
+  return Object.assign(merge, defaults)
 }
 
 export { DeepRecord, DeepPartial }

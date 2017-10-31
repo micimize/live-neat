@@ -1,6 +1,6 @@
 import { DeepRecord } from '../structures/deep-record'
 
-export default DeepRecord({
+const Configuration = DeepRecord({
   newNodeProbability: 0.03,
   newConnectionProbability: 0.05,
   connection: {
@@ -19,3 +19,7 @@ export default DeepRecord({
     // recurrent: 0
   },
 })
+
+
+type Configuration = typeof Configuration
+export default Configuration

@@ -5,12 +5,18 @@ import { thread } from '../utils'
 import { bounder, adjuster } from '../utils'
 
 function adjustConfiguration(population: Population): Population {
-  let { speciesCount, compatibility } = population.configuration.speciation
+  let configuration = population.configuration
+  let { speciesCount, compatibility } = configuration.speciation
   let bound = bounder(compatibility.thresholdBounds)
   let adjust = adjuster(compatibility.modifier)
-  return population.setIn(
-    ['configuration', 'speciation', 'compatibility', 'threshold'],
-    bound( adjust( compatibility.threshold, population.livingSpecies.size - speciesCount ))
+  return population.set(
+    'configuration', configuration({
+      speciation: {
+        compatibility: {
+          threshold: bound( adjust( compatibility.threshold, population.livingSpecies.size - speciesCount ))
+        }
+      }
+    })
   )
 }
 

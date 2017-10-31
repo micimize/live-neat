@@ -58,6 +58,18 @@ class SimpleNetwork implements Network {
     return Boolean(this.outputs.filter(output => output != null).length)
   }
 
+  get depth(): number {
+    let _out = this.ranges.output
+    let out = [_out[0], _out[1] - 1]
+    let maxDepthFrom = (current, node: number) =>
+      (node < this.ranges.output[0]) ?
+        current :
+        Math.max(...Object.keys(
+          this.nodeList[node].from || <number>{}
+        ).map(n => maxDepthFrom(current, Number(n))))
+    return out.reduce(maxDepthFrom, 0)
+  }
+
   clear(): void {
     // TODO I'M A SINNER
     this.nodeList.forEach(node => {
@@ -97,7 +109,7 @@ class SimpleNetwork implements Network {
     }
   }
     
-  forward(inputs, count = 10): Array<Network.ActivationValue> {
+  forward(inputs, count = this.depth): Array<Network.ActivationValue> {
     /*
      *TODO 
      * It seems that in classification tasks you want to wait for the network to stabalize,

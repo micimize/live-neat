@@ -1,6 +1,6 @@
 import { DeepRecord } from '../structures/deep-record'
 
-export default DeepRecord({
+const Configuration = DeepRecord({
   speciesCount: 4,
   heroCount: 10,
   stagnation: {
@@ -26,3 +26,6 @@ export default DeepRecord({
     }
   }
 })
+
+type Configuration = typeof Configuration
+export default Configuration
