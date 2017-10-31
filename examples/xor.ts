@@ -11,7 +11,7 @@ class XORCreature extends Creature {
   }
 }
 
-let population = new Population({ Creature: XORCreature })
+let population = new Population({ Creature: XORCreature, configuration: { speciation: { speciesCount: 5 } } })
 
 const domain = [
   [ 0b0, 0b0 ],

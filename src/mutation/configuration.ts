@@ -1,6 +1,6 @@
-import { Record } from 'immutable'
+import { DeepRecord } from '../structures/deep-record'
 
-const mutation = {
+export default DeepRecord({
   newNodeProbability: 0.03,
   newConnectionProbability: 0.05,
   connection: {
@@ -18,10 +18,4 @@ const mutation = {
     canBeRecurrent: false
     // recurrent: 0
   },
-}
-
-type MutationConfiguration = typeof mutation
-
-const MutationConfiguration = Record<MutationConfiguration>(mutation)
-
-export default MutationConfiguration
+})

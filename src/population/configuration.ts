@@ -1,9 +1,9 @@
-import { Record } from 'immutable'
-import Innovation from '../innovation/configuration'
-import Mutation from '../mutation/configuration'
-import Speciation from '../species/configuration'
+import { DeepRecord, DeepPartial } from '../structures/deep-record'
+import innovation from '../innovation/configuration'
+import mutation from '../mutation/configuration'
+import speciation from '../species/configuration'
 
-const global = {
+const Configuration = DeepRecord({
   reproduction: {
     requiredResources: 100,
     desiredRate: 0.01,
@@ -26,13 +26,14 @@ const global = {
   creature: {
     ageSignificance: 1,// / 5,
   },
-  innovation: Innovation(),
-  mutation: Mutation(),
-  speciation: Speciation()
+  innovation,
+  mutation,
+  speciation
+})
+
+type Configuration = typeof Configuration
+namespace Configuration {
+  export type Partial = DeepPartial<Configuration>
 }
 
-type PopulationConfiguration = typeof global
-
-const PopulationConfiguration = Record<PopulationConfiguration>(global)
-
-export default PopulationConfiguration 
+export default Configuration

@@ -33,7 +33,7 @@ interface I {
 // TODO copy pasted
 type PI = Partial<{
   Creature: new (...rest: any[]) => Creature,
-  configuration: Partial<Configuration>,
+  configuration: Configuration.Partial,
   chronicle: InnovationChronicle,
   speciate: (species: SortedSet<Species>, creature: Creature) => SortedSet<Species>,
   express: Express,
@@ -46,7 +46,7 @@ let emptySpecies = SortedSet.of<Species>({ comparator })
 
 const empty = {
   Creature: Creature,
-  configuration: Configuration(),
+  configuration: Configuration,
   chronicle: InnovationChronicle.empty(),
   species: emptySpecies,
   speciate: (species: SortedSet<Species>, creature: Creature) => species,

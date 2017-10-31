@@ -1,4 +1,4 @@
-import { Record } from 'immutable'
+import { DeepRecord } from '../structures/deep-record'
 
 export const INPUT_VECTOR_SIZE = 2
 export const OUTPUT_VECTOR_SIZE = 1
@@ -18,7 +18,7 @@ interface InnovationConfiguration {
   }
 }
 
-const InnovationConfiguration = Record<InnovationConfiguration>({
+const InnovationConfiguration = DeepRecord<InnovationConfiguration>({
   chronicle: {
     initialize: {
       inputs: INPUT_VECTOR_SIZE,

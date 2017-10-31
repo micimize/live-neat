@@ -1,19 +1,6 @@
-import { Record } from 'immutable'
+import { DeepRecord } from '../structures/deep-record'
 
-function shouldBeRecord(value): boolean {
-  return (typeof value == 'object') && !Array.isArray(value)
-}
-export function DeepRecord<T extends {}, S = keyof T>(raw: T): Record.Factory<T> {
-  for (let key in raw){
-    let value = raw[key]
-    if(shouldBeRecord(value)){
-      raw[key] = DeepRecord(value)()
-    }
-  }
-  return Record(raw)
-}
-
-const speciation = {
+export default DeepRecord({
   speciesCount: 4,
   heroCount: 10,
   stagnation: {
@@ -38,10 +25,4 @@ const speciation = {
       }
     }
   }
-}
-
-const SpeciationConfiguration = DeepRecord(speciation)
-const def = SpeciationConfiguration()
-type SpeciationConfiguration = typeof def
-
-export default SpeciationConfiguration
+})
