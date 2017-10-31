@@ -41,29 +41,40 @@ function GeneSelecter(configuration: MutationConfiguration) {
   }
 }
 
-function mix([ a, b ]: Array<ConnectionGenes>): ConnectionGenes {
-  let [ longer, shorter ] = a.size > b.size ?
-    [ a, b ] :
-    [ b, a ]
-  let total = Math.ceil(
-    Math.min(a.size, b.size) + Math.abs(a.size - b.size) / 2
-  )
-  return random.submap(longer, Math.ceil(total)).merge(
-    random.submap(shorter, Math.floor(total)))
+const mix = {
+  even([ a, b ]: Array<ConnectionGenes>): ConnectionGenes {
+    let [ longer, shorter ] = a.size > b.size ?
+      [ a, b ] :
+      [ b, a ]
+    let total = Math.ceil(
+      Math.min(a.size, b.size) + Math.abs(a.size - b.size) / 2
+    )
+    return random.submap(longer, Math.ceil(total)).merge(
+      random.submap(shorter, Math.floor(total)))
+  },
+  left: ([ a, b ]) => a,
+  right: ([ a, b ]) => b,
 }
 
-function ConnectionCrossover(configuration: MutationConfiguration){
+function ConnectionCrossover(configuration: MutationConfiguration, [ a, b ]){
+  let mixDisjointValues = a.fitness > b.fitness ? mix.left  :
+                          a.fitness < b.fitness ? mix.right :
+                        /*a.fitness = b.fitness*/ mix.even
   return MapCrossover<ConnectionGenes, number, ConnectionGene>({
     chooseIntersectionValue: GeneSelecter(configuration),
-    mixDisjointValues: mix
+    mixDisjointValues
   })
 }
 
 function GenomeCrossover(configuration: MutationConfiguration = MutationConfiguration()){
-  let connectionCrossover = ConnectionCrossover(configuration)
-  return ([ a, b ]: Array<Genome>) => Genome.of({
-    connections: connectionCrossover([ a.connections, b.connections ])
-  })
+  // TODO a bit janky because of migration to fitness mattering in crossover
+  // refactor when implementing configuration injection via reader monad
+  return ([ a, b ]: Array<Genome>): Genome => {
+    let connectionCrossover = ConnectionCrossover(configuration, [ a, b ])
+    return Genome.of({
+      connections: connectionCrossover([ a.connections, b.connections ])
+    })
+  }
 }
 
 export default GenomeCrossover

@@ -121,7 +121,16 @@ function OnChangeLogger(){
   }
 }
 
-export function bounder({ minimum, maximum }: { minimum: number, maximum: number }){
+export function bounder(
+  { minimum, maximum, bounce = false }:
+  { minimum: number, maximum: number, bounce?: boolean }
+){
+  if (bounce){
+    return (value: number) =>
+      value < minimum ? minimum + (minimum - value) :
+      value > maximum ? maximum - (value - maximum) :
+      value
+  }
   return (value: number) =>
     value < minimum ? minimum :
     value > maximum ? maximum :

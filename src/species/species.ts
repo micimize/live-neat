@@ -14,6 +14,10 @@ const comparator = ss.Sort.Descending<Creature>('fitness')
 const empty = {
   id: NaN,
   age: 0,
+  stagnation: {
+    best: 0,
+    age: 0,
+  },
   creatures: new SortedSet<Creature>({ comparator }),
   heroes: new CompetitiveSet<Genome>({ limit: 4, comparator: ss.Sort.Descending<Genome>('fitness') })
 }
@@ -36,10 +40,15 @@ class Species extends Record(empty) {
     return this.creatures.size
   }
 
-  get fitness(): number {
+  private get averageCreatureFitness(): number {
     return !this.size ? 0 :
       (this.creatures.reduce((total, creature) =>
         total + creature.fitness, 0) / this.size)
+  }
+
+  get fitness(): number {
+    return this.averageCreatureFitness /
+    (this.stagnation.age > 20 ? 10 : 1)
   }
 
   // exposed functionality

@@ -14,8 +14,8 @@ export function DeepRecord<T extends {}, S = keyof T>(raw: T): Record.Factory<T>
 }
 
 const speciation = {
-  speciesCount: 5,
-  heroCount: 5,
+  speciesCount: 4,
+  heroCount: 10,
   stagnation: {
     acceptableGenerations: 20,
     cost: 10,

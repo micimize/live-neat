@@ -20,8 +20,8 @@ const global = {
     }
   },
   population: {
-    initialSize: 100,
-    minSize: 100,
+    initialSize: 150,
+    minSize: 150,
   },
   creature: {
     ageSignificance: 1,// / 5,

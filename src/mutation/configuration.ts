@@ -1,15 +1,19 @@
 import { Record } from 'immutable'
 
 const mutation = {
-  newNodeProbability: 0.2,
-  newConnectionProbability: 0.3,
+  newNodeProbability: 0.03,
+  newConnectionProbability: 0.05,
   connection: {
-    newProbability: 0.3,
     disable: 0.00,
     reenable: 0.00,
     weightChange: {
-      probability: 0.8,
-      power: 1
+      bounds: {
+        minimum: -30,
+        maximum: 30,
+        bounce: true // if would cross the boundary, bounce back instead
+      }, 
+      probability: 0.9,
+      power: 2.5
     },
     canBeRecurrent: false
     // recurrent: 0

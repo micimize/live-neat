@@ -38,14 +38,14 @@ function selectGenome(pool: GenePool, { not }: { not?: Genome } = {}): Genome | 
     return
   }
   // todo 0 fitness should probably be unselectable 
-  return weightedSelection(pool, h => h.fitness ** 2)
+  return weightedSelection(pool, g => g.fitness ** 2)
 }
 
 function mate(scope: MatingScope): Genome {
   let pool = genePool(scope)
   let a = selectGenome(pool)
   if (!a) {
-    /* TODO should be configurable
+    /* TODO should be configurable. Also, this might be unreachable atm
      * if there are no creatures, resurrect hero
      * this might not be as buggy as it seems -
      * the first dead creature will always be in the hero list.

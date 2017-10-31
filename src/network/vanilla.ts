@@ -98,12 +98,17 @@ class SimpleNetwork implements Network {
   }
     
   forward(inputs, count = 10): Array<Network.ActivationValue> {
+    /*
+     *TODO 
+     * It seems that in classification tasks you want to wait for the network to stabalize,
+     * but in control tasks the agent is "constantly" acting.
+     */
     this.setInputs(inputs)
-    while(!this.complete && (count-- > 0)){
+    while(count --> 0){
       this.tick()
     }
-    if(!count){
-      throw Error('DISCONNECTED!!??!?!???!!!?!?')
+    if(!this.complete){
+      //throw Error('DISCONNECTED!!??!?!???!!!?!?')
     }
     return this.outputs
   }

@@ -14,11 +14,23 @@ function incrementAge<
   return rec.set('age', rec.age + 1)
 }
 
+function ageSpecies(species: Species): Species {
+  // TODO hardcoded
+  let requiredImprovement = 0.01
+  let { best, age } = species.stagnation
+  let stagnation = (
+    species.stagnation.best + requiredImprovement
+  ) < species.fitness ?
+    { age: 0, best: species.fitness } :
+    { age: age + 1, best }
+  return incrementAge(species)
+    .map(incrementAge)
+    .set('stagnation', stagnation)
+}
+
 function age(population: Population): Population {
   return incrementAge(population)
-    .update('species', species => species.map(s =>
-      incrementAge(s).update('creatures', creatures =>
-        creatures.map(incrementAge))))
+    .update('species', species => species.map(ageSpecies))
 }
 
 function replaceDying(population: Population, dying: number): ChronicleAndCreatures {

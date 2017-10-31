@@ -1,4 +1,4 @@
-import { Population, Creature } from '../src'
+import { Population, Creature, Configuration } from '../src'
 import { Monitor, Experiment } from '../src/monitor'
 import { shuffle } from 'simple-statistics'
 
@@ -33,7 +33,7 @@ function CorrectnessWeighter(weights: Performance, exp: number = 2) {
 }
 
   // success is 2x more important than confidence
-const weighter = CorrectnessWeighter({ confidence: 1, success: 2 })
+const weighter = CorrectnessWeighter({ confidence: 1, success: 0 })
 
 function gotAnswer(actual: number, prediction: number): number {
   return Number(actual == Math.round(prediction))
