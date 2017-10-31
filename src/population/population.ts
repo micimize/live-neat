@@ -69,7 +69,6 @@ class Population extends Record<I>(empty) {
     ...population
   }: Partial<PI>) {
     let configuration = Configuration(partial)
-    debugger;
     let chronicle = c || fromConfiguration(configuration.innovation)
     let express = GeneExpresser({ chronicle })
     if(!species){

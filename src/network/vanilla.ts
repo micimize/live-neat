@@ -67,7 +67,7 @@ class SimpleNetwork implements Network {
         Math.max(...Object.keys(
           this.nodeList[node].from || <number>{}
         ).map(n => maxDepthFrom(current, Number(n))))
-    return out.reduce(maxDepthFrom, 0)
+    return out.reduce(maxDepthFrom, 1)
   }
 
   clear(): void {
