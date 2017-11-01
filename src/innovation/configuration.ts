@@ -13,7 +13,7 @@ interface InnovationConfiguration {
       // 'sigmoid', 'tanh', 'relu', 'gaussian', 'sin', 'cos', 'abs', 'mult', 'add', 'mult', 'add'
     },
     connections: {
-      unique: true
+      unique: boolean
     }
   }
 }
@@ -30,6 +30,6 @@ const InnovationConfiguration = DeepRecord<InnovationConfiguration>({
       unique: true
     }
   }
-})
+})()
 
 export default InnovationConfiguration

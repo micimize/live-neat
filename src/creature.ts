@@ -8,7 +8,7 @@ import PopConfiguration from './population/configuration'
 
 
 // TODO essentially hard coded
-const defaultConf = PopConfiguration().creature
+const defaultConf = PopConfiguration.creature
 
 export function distance(
   configuration: Configuration['compatibility']['distance'],

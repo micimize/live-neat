@@ -53,7 +53,8 @@ function newNode(
 }
 
 function existingConnection(chronicle: Chronicle, connection: PotentialConnection): ConnectionUpdate | false {
-  if (Configuration().chronicle.connections.unique) {
+  //TODO hard coded
+  if (Configuration.chronicle.connections.unique) {
     for (let [innovation, { from, to}] of chronicle.connections.entries()) {
       if(connection.from == from && connection.to == to){
         let connections = Chronicle.empty().connections.set(innovation, connection)
@@ -68,8 +69,8 @@ function newConnection(
   chronicle: Chronicle, 
   connection: PotentialConnection,
 ): ConnectionUpdate {
-  return existingConnection(chronicle, connection) ||
-    innovate(chronicle, 'connections', connection)
+  //existingConnection(chronicle, connection) ||
+  return innovate(chronicle, 'connections', connection)
 }
 
 

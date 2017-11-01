@@ -109,7 +109,7 @@ class SimpleNetwork implements Network {
     }
   }
     
-  forward(inputs, count = this.depth): Array<Network.ActivationValue> {
+  forward(inputs, count = 20 || this.depth): Array<Network.ActivationValue> {
     /*
      *TODO 
      * It seems that in classification tasks you want to wait for the network to stabalize,

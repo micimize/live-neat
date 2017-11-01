@@ -18,13 +18,14 @@ function selectSpecies(species: SortedSet<Species>): Species {
 
 function reproduce(population: Population): ChronicleAndCreature {
   let { mutation, reproduction } = population.configuration
+  let crossedOver = mate({
+    species: selectSpecies(population.species),
+    reproduction,
+    mutation,
+  })
   let { chronicle, genome } = mutate({
     chronicle: population.chronicle,
-    genome: mate({
-      species: selectSpecies(population.species),
-      reproduction,
-      mutation,
-    }),
+    genome: crossedOver,
     configuration: mutation,
   })
   let network = population.express({ chronicle, genome })
@@ -33,7 +34,7 @@ function reproduce(population: Population): ChronicleAndCreature {
 
 function litter(population: Population, batch: number): ChronicleAndCreatures  {
   let creatures = Set<Creature>().withMutations(creatures => {
-    while (batch-- > 0) {
+    while (batch --> 0) {
       let { creature, chronicle } = reproduce(population)
       creatures.add(creature)
       population = population.set('chronicle', chronicle)

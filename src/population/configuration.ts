@@ -29,7 +29,7 @@ const Configuration = DeepRecord({
   innovation,
   mutation,
   speciation
-})
+})()
 
 type Configuration = typeof Configuration
 namespace Configuration {

@@ -12,8 +12,8 @@ const Configuration = DeepRecord({
     minimumAge: 20
   },
   compatibility: {
-    threshold: 20.0,
-    modifier: 1,
+    threshold: 30.0,
+    modifier: 0.5,
     thresholdBounds: {
       minimum: 1,
       maximum: Infinity,
@@ -25,7 +25,7 @@ const Configuration = DeepRecord({
       }
     }
   }
-})
+})()
 
 type Configuration = typeof Configuration
 export default Configuration

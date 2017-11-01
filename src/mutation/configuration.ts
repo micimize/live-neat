@@ -18,8 +18,7 @@ const Configuration = DeepRecord({
     canBeRecurrent: false
     // recurrent: 0
   },
-})
-
+})()
 
 type Configuration = typeof Configuration
 export default Configuration

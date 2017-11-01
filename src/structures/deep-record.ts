@@ -1,13 +1,32 @@
 import * as deepmerge from 'deepmerge'
+import { Record } from 'immutable'
 
-
-/*
-import * as Reader from 'fp-ts/lib/Reader'
-Reader.ask*/
+function shouldBeRecord(value): boolean {
+  return (typeof value === 'object') && !Array.isArray(value) && !Record.isRecord(value)
+}
 
 type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>
 }
+
+function deepMergePartial(oldVal: any, newVal: any, key: any){
+
+}
+
+function DeepRecord<T extends {}>(raw: T): Record.Factory<T> {
+  for (let key in raw){
+    let value = raw[key]
+    if(shouldBeRecord(value)){
+      raw[key] = DeepRecord(value)()
+    }
+  }
+  return Record(raw)
+}
+
+
+/*
+import * as Reader from 'fp-ts/lib/Reader'
+Reader.ask
 
 interface _DeepRecord<T> {
   (partial?: DeepPartial<T>): T & _DeepRecord<T>,
@@ -38,5 +57,6 @@ function DeepRecord<T>(defaults: T): DeepRecord<T> {
 //  DeepRecord(deepmerge(defaults, { [key]: partial }))
   return Object.assign(merge, defaults)
 }
+*/
 
 export { DeepRecord, DeepPartial }

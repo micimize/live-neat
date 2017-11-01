@@ -30,5 +30,9 @@ class ConnectionGene extends Record(empty) implements Connection {
   }
 }
 
+namespace ConnectionGene {
+  export type Potential = PotentialConnection
+}
+
 export default ConnectionGene
-export { PotentialConnection }
+export { PotentialConnection, ConnectionGene }

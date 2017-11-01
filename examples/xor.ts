@@ -11,7 +11,28 @@ class XORCreature extends Creature {
   }
 }
 
-let population = new Population({ Creature: XORCreature, configuration: { speciation: { speciesCount: 5 } } })
+let population = new Population({
+  Creature: XORCreature,
+  configuration: {
+    reproduction: {
+      includeHeroGenesRate: 3.00
+    },
+    mutation: {
+      newNodeProbability: 0.02,
+      newConnectionProbability: 0.5,
+    },
+    innovation: {
+      chronicle: {
+        connections: {
+          unique: false
+        }
+      }
+    },
+    speciation: {
+      speciesCount: 8,
+    }
+  }
+})
 
 const domain = [
   [ 0b0, 0b0 ],
@@ -41,11 +62,13 @@ function gotAnswer(actual: number, prediction: number): number {
 
 function correctness(actual: number, prediction: number | null): number {
   if(prediction === null){
+    console.log('network somehow buggy')
     return 0
   }
-  let success = gotAnswer(actual, prediction) 
-  let confidence = 1 - (actual - prediction) ** 2
-  return weighter({ success, confidence })
+  //let success = gotAnswer(actual, prediction) 
+  return 1 - (actual - prediction) ** 2
+  //let confidence = 1 - (actual - prediction) ** 2
+  //return weighter({ success, confidence })
 }
 
 function evaluate(creature: XORCreature): XORCreature {

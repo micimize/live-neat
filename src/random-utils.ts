@@ -52,7 +52,6 @@ export function weightedChoice(weights: { [choice: string]: number }): string {
   throw Error(`weights somehow invalid`)
 }
 
-
 export function weightedSelection<T>(
   choices: Array<T>,
   weigh: (choice: T) => number

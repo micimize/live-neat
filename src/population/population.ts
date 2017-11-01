@@ -62,13 +62,13 @@ class Population extends Record<I>(empty) {
   // basically dumping complexity here to refactor the rest of the code base
   constructor({
     chronicle: c,
-    configuration: partial,
+    configuration: partial = {},
     express: _,
     Creature: C = empty.Creature,
     species = undefined,
     ...population
   }: Partial<PI>) {
-    let configuration = Configuration(partial)
+    let configuration = Configuration.mergeDeep(partial as Configuration)
     let chronicle = c || fromConfiguration(configuration.innovation)
     let express = GeneExpresser({ chronicle })
     if(!species){
@@ -85,6 +85,7 @@ class Population extends Record<I>(empty) {
       species = creatures.reduce(speciate.curry(configuration.speciation), emptySpecies)
     }
     super({
+      configuration,
       express,
       chronicle,
       species,
