@@ -1,5 +1,7 @@
+import { Range } from 'immutable'
 import { ConnectionGene } from '../genome'
 import { Network } from './network'
+import { connectedNodes } from './graph'
 
 type NodeReference = number
 
@@ -47,14 +49,23 @@ export default class NodeListPacker implements Network.Data {
     Object.assign(this, { translator, ranges, nodeList })
   }
 
+  private innovationsOf(type: 'output' | 'input'){
+    return Range(...this.ranges[type]).map(n => this.nodeList[n].innovation).toArray()
+  }
+
   fromConnections(connections: Array<ConnectionGene>, activations): Array<Network.Node> {
     let nodeList: Array<Network.Node> = this.nodeList.map(({ from, ...node }) =>
       Object.assign(from ? { from: Object.assign({}, from) } : {}, node))
     let translator = Object.assign({}, this.translator)
 
-    // add all "to" nodes 
-    connections.forEach(({ to: innovation }) => {
-      if (!translator[innovation]){
+    // add all valid "to" nodes 
+    connectedNodes({
+      inputs: this.innovationsOf('input'),
+      outputs: this.innovationsOf('output'),
+      connections
+    }).forEach(innovation => {
+      // skip input, bias, and output
+      if (translator[innovation] === undefined){
         // translate from innovation to index
         translator[innovation] = nodeList.push({
           innovation,
@@ -67,16 +78,14 @@ export default class NodeListPacker implements Network.Data {
 
     // only add "from" to node if it is relevant
     connections.forEach(({ from, to, weight }) => {
-      if (translator[from] !== undefined){
+      if (translator[from] !== undefined && translator[to] !== undefined){
         let node = nodeList[translator[to]]
         if (node.from) {
-          if(node.activation !== 'sigmoid'){
-            debugger;
-          }
           node.from[translator[from]] = weight
         }
       }
     })
+
     return nodeList
   }
 

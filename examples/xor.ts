@@ -14,12 +14,16 @@ class XORCreature extends Creature {
 let population = new Population({
   Creature: XORCreature,
   configuration: {
-  //reproduction: {
-  //  includeHeroGenesRate: 3.00
-  //},
+    reproduction: {
+      includeHeroGenesRate: 1.00
+    },
     mutation: {
-      newNodeProbability: 0.02,
-      newConnectionProbability: 0.5,
+      newNodeProbability: 0.03,
+      newConnectionProbability: 0.05,
+      connection: {
+        disable: 0.02,
+        reenable: 0.01,
+      },
     },
     innovation: {
       chronicle: {
@@ -29,18 +33,24 @@ let population = new Population({
       }
     },
     speciation: {
-  //  speciesCount: 8,
+      speciesCount: 5,
+      stagnation: {
+        cost: 1,
+      },
+      heroes: {
+        count: 10
+      }
     }
   }
 })
 
 const domain = [
-  [ 0b0, 0b0 ],
-  [ 0b0, 0b1 ],
-  [ 0b1, 0b0 ],
-  [ 0b1, 0b1 ],
-].map(([ a, b ]) =>
-  ([ [ a, b ], a ^ b ]))
+  [ [ 0, 0 ], 0 ],
+  [ [ 0, 1 ], 1 ],
+  [ [ 1, 0 ], 1 ],
+  [ [ 1, 1 ], 0 ]
+]/*.map(([ a, b ]) =>
+  ([ [ a, b ], a ^ b ]))*/
 
 type Performance = { confidence: number, success: number }
 
@@ -63,24 +73,25 @@ function gotAnswer(actual: number, prediction: number): number {
 function correctness(actual: number, prediction: number | null): number {
   if(prediction === null){
     console.log('network somehow buggy')
+    debugger
     return 0
   }
-  //let success = gotAnswer(actual, prediction) 
-  return 1 - (actual - prediction) ** 2
-  //let confidence = 1 - (actual - prediction) ** 2
-  //return weighter({ success, confidence })
+  let success = gotAnswer(actual, prediction) 
+  let confidence = 1 - (actual - prediction) ** 2
+  return weighter({ success, confidence })
 }
 
 function evaluate(creature: XORCreature): XORCreature {
   let fitness = shuffle(domain).reduce((total, [ input, output ]) =>
-    (total + correctness(output, creature.think(input)[0])), 0
-  ) / domain.length
+    (total + correctness(output, creature.think(input)[0])),
+    0
+  ) // domain.length
   return creature.step(fitness)
 }
 
 const formatters = {
   fitness(f){
-    return `${(f * 100).toFixed(2)}%`
+    return `${(f / 4 * 100).toFixed(2)}%`
   },
   performance(creature) {
     let total = shuffle(domain).reduce((total, [input, output]) =>

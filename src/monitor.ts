@@ -170,7 +170,7 @@ class Experiment {
   generation(population: Population): Population {
     return step(population).map(this.evaluate)
   }
-  epoch(population: Population, rounds = 100): Population {
+  epoch(population: Population, rounds = 10): Population {
     while (rounds --> 0){
       population = this.generation(population)
     }

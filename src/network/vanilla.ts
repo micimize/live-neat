@@ -1,3 +1,5 @@
+import { Range } from 'immutable'
+import { bounder } from '../utils'
 import { InnovationChronicle, getNodesOfType, hiddenNodeActivations } from '../innovation'
 import { Genome } from '../genome'
 import { Network } from './network'
@@ -7,9 +9,10 @@ type Chronicle = { chronicle: InnovationChronicle }
 
 import NodeListPacker from './node-list-packer'
 
+let bound = bounder({ minimum: -60, maximum: 60 })
 const activations = {
   sigmoid(t: number) {
-    return 1.0 / ( 1.0 + Math.exp( -t ))
+    return 1.0 / ( 1.0 + Math.exp( bound(-5 * t) ))
   }
 }
 
@@ -59,15 +62,20 @@ class SimpleNetwork implements Network {
   }
 
   get depth(): number {
-    let _out = this.ranges.output
-    let out = [_out[0], _out[1] - 1]
-    let maxDepthFrom = (current, node: number) =>
-      (node < this.ranges.output[0]) ?
-        current :
-        Math.max(...Object.keys(
-          this.nodeList[node].from || <number>{}
-        ).map(n => maxDepthFrom(current, Number(n))))
-    return out.reduce(maxDepthFrom, 1)
+    const maxDepthFromNode = (node: number): number => {
+      if(node < this.ranges.output[0]){
+        // static nodes have a depth of 0
+        return 0
+      }
+      let fromNodes = Object.keys(this.nodeList[node].from || <number>{})
+        .map(n => Number(n))
+      return 1 + Math.max(...fromNodes.map(maxDepthFromNode))
+    }
+    if (Math.max(...Range(...this.ranges.output).map(maxDepthFromNode)) < 0){
+      debugger
+
+    }
+    return Math.max(...Range(...this.ranges.output).map(maxDepthFromNode))
   }
 
   clear(): void {
@@ -80,19 +88,15 @@ class SimpleNetwork implements Network {
   }
 
   activate(node: Network.ToNode, nodeActivationValues): void {
-    let inputs = Object.keys(node.from)
-      .filter(from => nodeActivationValues[from] !== null)
-      .map(from => nodeActivationValues[from] * node.from[from])
-    if (inputs.length) {
-      try {
-        node.value = activations[node.activation](
-          inputs.reduce((sum, input) => sum + input)
-        )
-      } catch (e){
-        console.log(`cannot activate ${JSON.stringify(node)} with inputs ${inputs}`)
-        throw e
+    let inputSum = 0
+    for (let from of Object.keys(node.from)){
+      if(nodeActivationValues[from] === null){
+        // Can't activate yet
+        return
       }
+      inputSum += nodeActivationValues[from] * node.from[from]
     }
+    node.value = activations[node.activation](inputSum)
   }
 
   tick(){
@@ -109,7 +113,7 @@ class SimpleNetwork implements Network {
     }
   }
     
-  forward(inputs, count = 20 || this.depth): Array<Network.ActivationValue> {
+  forward(inputs, count = this.depth): Array<Network.ActivationValue> {
     /*
      *TODO 
      * It seems that in classification tasks you want to wait for the network to stabalize,

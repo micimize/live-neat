@@ -8,12 +8,12 @@ const Configuration = DeepRecord({
     reenable: 0.00,
     weightChange: {
       bounds: {
-        minimum: -30,
-        maximum: 30,
+        minimum: -10,
+        maximum: 10,
         bounce: true // if would cross the boundary, bounce back instead
       }, 
       probability: 0.9,
-      power: 2.5
+      power: 1.0
     },
     canBeRecurrent: false
     // recurrent: 0

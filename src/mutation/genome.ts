@@ -6,7 +6,7 @@ import { CERTAINLY_IS } from '../utils'
 import { Genome, ConnectionGenes, initialize } from '../genome'
 import ConnectionGene, { PotentialConnection } from '../genome/connection-gene'
 import Configuration from './configuration'
-import * as connection from './connection'
+import * as connectionMutations from './connections'
 
 type Mutation<A extends innovations.Innovatable> = { update?: innovations.Update<A> } & { genome: Genome }
 type InnovationScope = {
@@ -33,9 +33,18 @@ function getNodes(genome: Genome): Set<number> {
   )
 }
 
-function validToNode(chronicle: InnovationChronicle, node: number): boolean {
-  let { type = 'HIDDEN' } = chronicle.nodes.get(node) || {}
-  return !['INPUT', 'BIAS'].includes(type)
+const valid = {
+  toNode(chronicle: InnovationChronicle, node: number): boolean {
+    return !['INPUT', 'BIAS'].includes(
+      chronicle.nodes.get(node, { type: 'HIDDEN' }).type || 'HIDDEN')
+  },
+  fromNode(chronicle: InnovationChronicle, node: number): boolean {
+    return chronicle.nodes.get(node, {type: 'HIDDEN'}).type !== 'OUTPUT'
+  }
+}
+
+function nodePool(chronicle, nodes, validator){
+  return random.shuffle(Array.from(nodes).filter(node => validator(chronicle, node)))
 }
 
 function randomPotentialConnection(
@@ -49,11 +58,11 @@ function randomPotentialConnection(
     (testing.from !== testing.to) &&
     !connections.has(testing) && (
       canBeRecurrent ||
-      connection.checkForCycle(connections, testing)
+      connectionMutations.checkForCycle(connections, testing)
     )
   let nodes = getNodes(genome)
-  for (let from of random.shuffle(Array.from(nodes))) {
-    for (let to of random.shuffle(Array.from(nodes).filter(node => validToNode(chronicle, node)))) {
+  for (let from of nodePool(chronicle, nodes, valid.fromNode)){
+    for (let to of nodePool(chronicle, nodes, valid.toNode)) {
       if(isValid({ from, to })){
         return { from, to }
       }
@@ -104,7 +113,7 @@ function structural(scope: MutationScope): InnovationScope {
 function mutate({ genome, ...scope }: MutationScope): InnovationScope {
   return structural({
     ...scope,
-    genome: genome.map(connection.mutater(scope.configuration.connection))
+    genome: genome.update('connections', connectionMutations.mutater(scope.configuration.connection))
   })
 }
 

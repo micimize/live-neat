@@ -5,6 +5,7 @@ import { bounder } from '../utils'
 import Configuration from './configuration'
 
 type Conn = { from: number, to: number }
+type Connections = I.Map<number, ConnectionGene>
 
 export function checkForCycle(connections: I.Set<Conn>, testing: Conn): boolean{
   let visited = new Set<number>([ testing.from ])
@@ -26,6 +27,16 @@ export function checkForCycle(connections: I.Set<Conn>, testing: Conn): boolean{
 }
 
 
+function canDisable(connection: ConnectionGene, connections: Connections): boolean {
+  for(let { from, to } of connections.values()){
+    if (connection.from == from && !(connection.to == to)){
+      return true
+    }
+  }
+  return false
+}
+
+
 function connectionMutations({ weightChange, reenable, disable }: Configuration['connection']){
   let bound = bounder(weightChange.bounds)
   return {
@@ -36,18 +47,22 @@ function connectionMutations({ weightChange, reenable, disable }: Configuration[
           0
       ))
     },
-    active(active: boolean): boolean {
-      return active ? !should(disable) : should(reenable)
+    active(connection: ConnectionGene, connections: Connections): boolean {
+      return connection.active ?
+        !(should(disable) && canDisable(connection, connections)) :
+        should(reenable)
     }
   }
 }
 
+
 function mutater(configuration: Configuration['connection']){
   let { weight, active } = connectionMutations(configuration)
-  return function mutate(connection: ConnectionGene): ConnectionGene {
-    return connection
+  return function mutate(connections: Connections): Connections {
+    return connections.map(connection => connection
         .update('weight', weight)
-        .update('active', active)
+        .set('active', active(connection, connections))
+      )
   }
 }
 

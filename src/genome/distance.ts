@@ -16,12 +16,8 @@ function forcefulGetWeight(genes: ConnectionGenes, innovation: number){
 }
 
 function weightDifferences(shared: Set<number>, a: ConnectionGenes, b: ConnectionGenes){
-  return shared.reduce((difference, innovation) => 
-    difference + Math.abs(
-      forcefulGetWeight(a, innovation) - forcefulGetWeight(b, innovation)
-    ),
-    0
-  )
+  return shared.reduce((weightDifference, innovation) => 
+    weightDifference + Math.abs(forcefulGetWeight(a, innovation) - forcefulGetWeight(b, innovation)), 0)
 }
 
 // http://sharpneat.sourceforge.net/research/speciation-canonical-neat.html
@@ -35,27 +31,16 @@ export default function distance(
     innovationDifferenceCoefficient,
     weightDifferenceCoefficient
   }: Configuration['compatibility']['distance']['genome'],
-  [ _a, _b ]: Array<Genome>
+  [ a, b ]: Array<Genome>
 ): number {
   //let aInnovations = Object.keys(a)
   //let bInnovations = Object.keys(b)
   //let aMostRecentInnovation = Math.max(aInnovations)
   //let bMostRecentInnovation = Math.max(bInnovations)
   //let strandSize = Math.max(aInnovations.length, bInnovations.length)
-  let innovationDifferences = 0
-  let sharedWeightDifferences = 0
-  let a = _a.connections.asMutable()
-  let b = _b.connections.asMutable()
-  for (let [innovation, aConn] of a){
-    let bConn = b.get(innovation)
-    if(bConn){
-      sharedWeightDifferences += Math.abs(bConn.weight - aConn.weight)
-      b.delete(innovation)
-    } else {
-      innovationDifferences++
-    }
-  }
-  innovationDifferences += b.size
+  let { intersection, disjoint: [ uniqueToA, uniqueToB ] } = genomePools([ a, b ])
+  let innovationDifferences = uniqueToA.size + uniqueToB.size
+  let sharedWeightDifferences = weightDifferences(intersection, a.connections, b.connections)
   return (
     innovationDifferences * innovationDifferenceCoefficient +
     sharedWeightDifferences * weightDifferenceCoefficient
