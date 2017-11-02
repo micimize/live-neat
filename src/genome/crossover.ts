@@ -97,7 +97,7 @@ function ConnectionCrossover(configuration: MutationConfiguration, [ a, b ]){
   })
 }
 
-function GenomeCrossover(configuration: MutationConfiguration = MutationConfiguration()){
+function GenomeCrossover(configuration: MutationConfiguration){
   // TODO a bit janky because of migration to fitness mattering in crossover
   // refactor when implementing configuration injection via reader monad
   return ([ a, b ]: Array<Genome>): Genome => {

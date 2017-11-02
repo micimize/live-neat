@@ -91,8 +91,9 @@ class Population extends Record<I>(empty) {
     })
   }
 
+  // deprecated
   get livingSpecies(): Set<Species> {
-    return this.species.filter(s => Boolean(s.size))
+    return this.species
   }
 
   get size(): number {

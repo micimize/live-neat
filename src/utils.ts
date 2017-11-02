@@ -85,7 +85,7 @@ export function LeaderSelecter<T>({ limit, comparator }: { limit: number, compar
     // must be a last because !size < limit
     let last = leaders.last() 
     // Returns -1 (or any negative number) if value comes before last
-    if (!last || comparator(value, last) < 0) { 
+    if ((!last) || (comparator(value, last) < 0)) { 
       return leaders.push(value).sort(comparator).pop()
     }
     return leaders

@@ -61,7 +61,7 @@ function randomPotentialConnection(
   }
 }
 
-function insertNode({ chronicle, genome, configuration = Configuration() }: MutationScope): Mutation<'nodes' | 'connections'> {
+function insertNode({ chronicle, genome, configuration }: MutationScope): Mutation<'nodes' | 'connections'> {
   if (random.should(configuration.newNodeProbability)) {
     let old = randomConnection(genome)
     let update = innovations.insertNode(chronicle, old.connection)
@@ -77,7 +77,7 @@ function insertNode({ chronicle, genome, configuration = Configuration() }: Muta
   }
 }
 
-function newConnection({ chronicle, genome, configuration = Configuration() }: MutationScope): Mutation<'connections'> {
+function newConnection({ chronicle, genome, configuration }: MutationScope): Mutation<'connections'> {
   if (random.should(configuration.newConnectionProbability)) {
     let potentialConnection = randomPotentialConnection({ chronicle, genome, configuration })
     if (potentialConnection) {

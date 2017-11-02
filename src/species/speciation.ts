@@ -7,7 +7,7 @@ import Configuration from '../population/configuration'
 function CompatibilityChecker({ compatibility }: Configuration['speciation']) {
   // TODO dredge up old imperetive add code for this
   return function compatible(species, creature: Creature): boolean {
-    return species.creatures.some(member =>
+    return species.some(member =>
       distance(compatibility.distance, [ member, creature ]) < compatibility.threshold)
   }
 }

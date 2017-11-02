@@ -43,7 +43,9 @@ function replaceDying(population: Population, dying: number): ChronicleAndCreatu
   )
 }
 
+// unused
 function ComparatorDesc<T, C = { [P in keyof T]?: number }>(criteria: C){
+  // TODO allow for complex criteria, can't reduce over record?!
   let measure = (item: T) => Object.keys(criteria)
     .reduce((sum, key) => sum + criteria[key] * item[key], 0)
   return (a: T, b: T) => measure(b) - measure(a) 
@@ -52,7 +54,7 @@ function ComparatorDesc<T, C = { [P in keyof T]?: number }>(criteria: C){
 function HeroSelecter({ heroes }: Configuration['speciation']){
   return LeaderSelecter({
     limit: heroes.count,
-    comparator: ComparatorDesc<Genome>(heroes.criteria)
+    comparator: (a: Genome, b: Genome) => b.fitness - a.fitness //ComparatorDesc<Genome>(heroes.criteria)
   })
 }
 
@@ -68,11 +70,11 @@ function buryTheDead(population: Population): Population {
         return species.kill(dead, selecter)
       }, species)
   )
-  let dead = population.size - species.reduce((size, s) => size + s.size, 1)
+  let dead = population.size - species.reduce((size, s) => size + s.size, 0)
   let { chronicle, creatures } = replaceDying(population, dead)
   return population
     .set('chronicle', chronicle)
-    .set('species', species)
+    .set('species', species.filter(s => s.size))
     .set('heroes', heroes)
     .withMutations(population => {
       for( let baby of creatures ) {

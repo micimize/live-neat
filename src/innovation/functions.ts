@@ -62,7 +62,7 @@ function fromConfiguration(
         inputs, outputs, opener, activations
       }
     }
-  }: Configuration = Configuration()
+  }: Configuration
 ): Chronicle {
     let chronicle = activations.reduce((chronicle, a) => withInnovation(chronicle, 'activations', a),
       Chronicle.empty()

@@ -79,6 +79,15 @@ class Species extends Record(empty) {
     return this.set('creatures', this.creatures.map(f))
   }
 
+  some(predicate: (creature: Creature) => boolean): boolean {
+    for (let creature of this.creatures){
+      if(predicate(creature)){
+        return true
+      }
+    }
+    return false
+  }
+
 }
 
 export { Species }

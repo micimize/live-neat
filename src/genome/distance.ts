@@ -4,7 +4,7 @@ import { pool } from './gene-pooling'
 import Configuration from '../species/configuration'
 
 const genomePools = (genomes: Array<Genome>) =>
-  pool<number>(genomes.map(g => g.connections).map(m => Set(m.keys())))
+  pool<number>(genomes.map(g => Set(g.connections.keys())))
 
 
 function forcefulGetWeight(genes: ConnectionGenes, innovation: number){
@@ -16,8 +16,12 @@ function forcefulGetWeight(genes: ConnectionGenes, innovation: number){
 }
 
 function weightDifferences(shared: Set<number>, a: ConnectionGenes, b: ConnectionGenes){
-  return shared.reduce((weightDifference, innovation) => 
-    Math.abs(forcefulGetWeight(a, innovation) - forcefulGetWeight(b, innovation)), 0)
+  return shared.reduce((difference, innovation) => 
+    difference + Math.abs(
+      forcefulGetWeight(a, innovation) - forcefulGetWeight(b, innovation)
+    ),
+    0
+  )
 }
 
 // http://sharpneat.sourceforge.net/research/speciation-canonical-neat.html
@@ -27,21 +31,31 @@ function weightDifferences(shared: Set<number>, a: ConnectionGenes, b: Connectio
 // TODO should distance be a custom module?
 // otherwise, the configuration for genome distance should exist in /genome
 export default function distance(
-  configuration: Configuration['compatibility']['distance']['genome'],
-  [ a, b ]: Array<Genome>
+  {
+    innovationDifferenceCoefficient,
+    weightDifferenceCoefficient
+  }: Configuration['compatibility']['distance']['genome'],
+  [ _a, _b ]: Array<Genome>
 ): number {
   //let aInnovations = Object.keys(a)
   //let bInnovations = Object.keys(b)
   //let aMostRecentInnovation = Math.max(aInnovations)
   //let bMostRecentInnovation = Math.max(bInnovations)
   //let strandSize = Math.max(aInnovations.length, bInnovations.length)
-  let { intersection, disjoint: [ uniqueToA, uniqueToB ] } = genomePools([ a, b ])
-  let innovationDifferences = uniqueToA.size + uniqueToB.size
-  let sharedWeightDifferences = weightDifferences(intersection, a.connections, b.connections)
-  let {
-    innovationDifferenceCoefficient,
-    weightDifferenceCoefficient
-  } = configuration
+  let innovationDifferences = 0
+  let sharedWeightDifferences = 0
+  let a = _a.connections.asMutable()
+  let b = _b.connections.asMutable()
+  for (let [innovation, aConn] of a){
+    let bConn = b.get(innovation)
+    if(bConn){
+      sharedWeightDifferences += Math.abs(bConn.weight - aConn.weight)
+      b.delete(innovation)
+    } else {
+      innovationDifferences++
+    }
+  }
+  innovationDifferences += b.size
   return (
     innovationDifferences * innovationDifferenceCoefficient +
     sharedWeightDifferences * weightDifferenceCoefficient
