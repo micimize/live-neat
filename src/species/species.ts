@@ -1,6 +1,5 @@
-import { Record } from 'immutable'
-import SortedSet, * as ss from '../structures/SortedSet'
-import CompetitiveSet, * as cs from '../structures/CompetitiveSet'
+import { Record, List, Set } from 'immutable'
+import { LeaderSelecter } from '../utils'
 import { Creature } from '../creature'
 import { Genome } from '../genome'
 
@@ -9,8 +8,6 @@ export type Args = {
   creatures: Creature | Array<Creature>
 }
 
-const comparator = ss.Sort.Descending<Creature>('fitness')
-
 const empty = {
   id: NaN,
   age: 0,
@@ -18,8 +15,8 @@ const empty = {
     best: 0,
     age: 0,
   },
-  creatures: new SortedSet<Creature>({ comparator }),
-  heroes: new CompetitiveSet<Genome>({ limit: 4, comparator: ss.Sort.Descending<Genome>('fitness') })
+  creatures: Set<Creature>(),
+  heroes: List<Genome>()
 }
 
 type S = typeof empty
@@ -52,33 +49,27 @@ class Species extends Record(empty) {
   }
 
   // exposed functionality
-  add(creature: ss.Concatable<Creature>): Species {
-    return this.set('creatures', this.creatures.concat(creature))
+  add(creature: Creature): Species {
+    return this.set('creatures', this.creatures.add(creature))
   }
 
-  addHero(genome: cs.Concatable<Genome>): Species {
-    return this.set('heroes', this.heroes.concat(genome))
+  addHero(genome: Genome, selecter: (leaders: List<Genome>, g: Genome) => List<Genome>): Species {
+    return this.set('heroes', selecter(this.heroes, genome))
   }
 
-  concat({ heroes, creatures }: Species): Species {
-    return this
-      .addHero(heroes)
-      .add(creatures)
-  }
-
-  kill(creature: Creature): Species {
+  kill(creature: Creature, selecter): Species {
     if (!this.creatures.has(creature)) {
       throw Error('creature does not belong to this species')
     }
     return this
       .set('creatures', this.creatures.delete(creature))
-      .addHero(creature.genome)
+      .addHero(creature.genome, selecter)
   }
 
   static of({
     id,
     creature,
-    creatures = SortedSet.of<Creature>({ comparator, values: creature ? [ creature ] : [] }),
+    creatures = Set<Creature>(creature ? [ creature ] : []),
     ...species
   }: Partial<S> & { creature?: Creature }): Species {
     return new Species({ creatures, ...species })

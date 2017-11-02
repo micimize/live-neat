@@ -131,7 +131,7 @@ const defaultFormatters = {
     return chalk.blue(
       `${new Date().toISOString()} gen: ${pop.age}, ${conf}, ${pop.livingSpecies.size} species: [`
     ) +
-      pop.livingSpecies.unwrap().map(s => this.species(s)).join(', ') +
+      pop.livingSpecies.map(s => this.species(s)).join(', ') +
     chalk.blue(']')
   }
 

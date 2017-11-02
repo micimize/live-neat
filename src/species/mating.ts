@@ -15,7 +15,9 @@ type MatingScope = PoolScope & {
 
 function selectElite({ species: { creatures }, reproduction }: PoolScope): GenePool {
   let eliteCount = Math.ceil(reproduction.survivalThreshold * creatures.size)
-  return creatures.unwrap()
+  return creatures
+    .sort((a, b) => b.fitness - a.fitness)
+    .toArray()
     .slice(0, eliteCount)
     .map(c => c.genome)
 }
@@ -23,13 +25,12 @@ function selectElite({ species: { creatures }, reproduction }: PoolScope): GeneP
 function genePool({ species, reproduction }: PoolScope): GenePool {
   let livingPool = selectElite({ species, reproduction })
   let heroes = species.heroes.map(
-    g => g.set('fitness', reproduction.includeHeroGenesRate * g.fitness)
-  ).unwrap()
-  return livingPool.concat(heroes)
+    g => g.set('fitness', reproduction.includeHeroGenesRate * g.fitness))
+  return livingPool.concat(heroes.toArray())
 }
 
 function selectHero(species: Species): Genome {
-  return weightedSelection(species.heroes.unwrap(), g => g.fitness ** 2)
+  return weightedSelection(species.heroes.toArray(), g => g.fitness ** 2)
 }
 
 function selectGenome(pool: GenePool, { not }: { not?: Genome } = {}): Genome | void {

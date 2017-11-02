@@ -2,64 +2,6 @@
 # yarn lockfile v1
 
 
-"@collectable/core@4.0.2":
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/@collectable/core/-/core-4.0.2.tgz#a3ba1294729c41e117895239bb8ab1965a798289"
-  dependencies:
-    "@frptools/core" "^3.0.1"
-
-"@collectable/list@4.4.0":
-  version "4.4.0"
-  resolved "https://registry.yarnpkg.com/@collectable/list/-/list-4.4.0.tgz#33acb7ce9cd15c02832bff69e1a8b0889f90bd18"
-  dependencies:
-    "@collectable/core" "4.0.2"
-
-"@collectable/map@3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@collectable/map/-/map-3.1.0.tgz#509a110e74b2401da1ff7880b5e15bed53b34000"
-  dependencies:
-    "@collectable/core" "4.0.2"
-
-"@collectable/red-black-tree@4.2.0":
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/@collectable/red-black-tree/-/red-black-tree-4.2.0.tgz#a4dbcdf4d79f1ef705d00e5b0e4d83b15fd11498"
-  dependencies:
-    "@collectable/core" "4.0.2"
-
-"@collectable/set@3.1.0":
-  version "3.1.0"
-  resolved "https://registry.yarnpkg.com/@collectable/set/-/set-3.1.0.tgz#c3a8d4904472f02e20d3acab7de839377028370f"
-  dependencies:
-    "@collectable/core" "4.0.2"
-    "@collectable/map" "3.1.0"
-    "@typed/curry" "^1.0.1"
-
-"@collectable/sorted-map@2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@collectable/sorted-map/-/sorted-map-2.2.0.tgz#6e5151feb646e24e2db2a77115a82c5d4d59eaa7"
-  dependencies:
-    "@collectable/core" "4.0.2"
-    "@collectable/map" "3.1.0"
-    "@collectable/red-black-tree" "4.2.0"
-    "@typed/curry" "^1.0.1"
-
-"@collectable/sorted-set@2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@collectable/sorted-set/-/sorted-set-2.2.0.tgz#22954133a7752d9ec6b1cd081f6239bf2755b39c"
-  dependencies:
-    "@collectable/core" "4.0.2"
-    "@collectable/map" "3.1.0"
-    "@collectable/red-black-tree" "4.2.0"
-    "@typed/curry" "^1.0.1"
-
-"@frptools/core@^3.0.1":
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/@frptools/core/-/core-3.0.1.tgz#f7f5363d2d62db68ffcd2750ba267f989cecbbe2"
-
-"@typed/curry@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@typed/curry/-/curry-1.0.1.tgz#555d4624b0cbf09e101945326d3bb9ffcaba3655"
-
 "@types/chai@^4.0.4":
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.0.4.tgz#fe86315d9a66827feeb16f73bc954688ec950e18"
@@ -495,19 +437,6 @@ co@^4.6.0:
 code-point-at@^1.0.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/code-point-at/-/code-point-at-1.1.0.tgz#0d070b4d043a5bea33a2f1a40e2edb3d9a4ccf77"
-
-collectable@^0.23.0:
-  version "0.23.0"
-  resolved "https://registry.yarnpkg.com/collectable/-/collectable-0.23.0.tgz#8b75ddd711db32a7ddf2ca0545ae896839d3cdd1"
-  dependencies:
-    "@collectable/core" "4.0.2"
-    "@collectable/list" "4.4.0"
-    "@collectable/map" "3.1.0"
-    "@collectable/red-black-tree" "4.2.0"
-    "@collectable/set" "3.1.0"
-    "@collectable/sorted-map" "2.2.0"
-    "@collectable/sorted-set" "2.2.0"
-    "@typed/curry" "^1.0.1"
 
 color-convert@^1.9.0:
   version "1.9.0"

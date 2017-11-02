@@ -2,7 +2,10 @@ import { DeepRecord } from '../structures/deep-record'
 
 const Configuration = DeepRecord({
   speciesCount: 4,
-  heroCount: 10,
+  heroes: {
+    count: 10,
+    criteria: { fitness: 1 }
+  },
   stagnation: {
     acceptableGenerations: 20,
     cost: 10,

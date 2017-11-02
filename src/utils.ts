@@ -1,4 +1,4 @@
-import { SortedSet } from 'immutable-sorted'
+import { List } from 'immutable'
 
 interface Living { fitness: number }
 
@@ -77,36 +77,18 @@ export function thread<V, R>(value: V, first: (v: V) => R, second: (r: R) => R, 
   return compose(second, ...rest)(first(value))
 }
 
-export function CompetitiveTuple<T>(limit: number, comparator: (a: T, b: T) => number) {
-  return {
-    limit,
-    comparator,
-    tuple: new Array<T>(),
-    sort(){
-      this.tuple.sort(this.comparator)
-    },
-    get size(): number {
-      return this.tuple.length
-    },
-    get last(): T {
-      return this.tuple[this.size - 1]
-    },
-    set last(a: T) {
-      this.tuple[this.size - 1] = a
-    },
-    add(a: T): boolean {
-      let { size, comparator } = this
-      if (this.size < this.limit) {
-        this.tuple.push(a)
-        this.sort()
-        return true
-      } else if (this.comparator(this.last, a) > 0) {
-        this.last = a
-        this.sort()
-        return true
-      }
-      return false
+export function LeaderSelecter<T>({ limit, comparator }: { limit: number, comparator: (a: T, b: T) => number }){
+  return (leaders: List<T> = List<T>(), value: T): List<T> => {
+    if (leaders.size < limit) {
+      return leaders.push(value).sort(comparator)
     }
+    // must be a last because !size < limit
+    let last = leaders.last() 
+    // Returns -1 (or any negative number) if value comes before last
+    if (!last || comparator(value, last) < 0) { 
+      return leaders.push(value).sort(comparator).pop()
+    }
+    return leaders
   }
 }
 

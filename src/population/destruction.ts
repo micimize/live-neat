@@ -1,9 +1,12 @@
 import { Population } from './population'
+import Configuration from './configuration'
 import { Record, Map, Set } from 'immutable'
 import { InnovationChronicle } from '../innovation'
+import { LeaderSelecter } from '../utils'
 import { weightedSelection } from '../random-utils'
 import { Species } from '../species'
 import { Creature } from '../creature'
+import { Genome } from '../genome'
 import { litter } from './reproduction'
 
 type ChronicleAndCreatures = { chronicle: InnovationChronicle, creatures: Set<Creature> }
@@ -40,18 +43,37 @@ function replaceDying(population: Population, dying: number): ChronicleAndCreatu
   )
 }
 
+function ComparatorDesc<T, C = { [P in keyof T]?: number }>(criteria: C){
+  let measure = (item: T) => Object.keys(criteria)
+    .reduce((sum, key) => sum + criteria[key] * item[key], 0)
+  return (a: T, b: T) => measure(b) - measure(a) 
+}
+
+function HeroSelecter({ heroes }: Configuration['speciation']){
+  return LeaderSelecter({
+    limit: heroes.count,
+    comparator: ComparatorDesc<Genome>(heroes.criteria)
+  })
+}
+
 function buryTheDead(population: Population): Population {
-  // TODO select dead, handle keep alives, then kill
+  // TODO? select dead, handle keep alives, then kill
+  let selecter = HeroSelecter(population.configuration.speciation)
+  let heroes = population.heroes.asMutable()
   let species = population.species.map(species =>
     species.creatures
       .filter(creature => creature.energy <= 0)
-      .reduce((s, dead) => species.kill(dead), species)
+      .reduce((s, dead) => {
+        heroes = selecter(heroes, dead.genome)
+        return species.kill(dead, selecter)
+      }, species)
   )
   let dead = population.size - species.reduce((size, s) => size + s.size, 1)
   let { chronicle, creatures } = replaceDying(population, dead)
   return population
     .set('chronicle', chronicle)
     .set('species', species)
+    .set('heroes', heroes)
     .withMutations(population => {
       for( let baby of creatures ) {
         population.add(baby)

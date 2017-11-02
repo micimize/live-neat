@@ -14,9 +14,9 @@ class XORCreature extends Creature {
 let population = new Population({
   Creature: XORCreature,
   configuration: {
-    reproduction: {
-      includeHeroGenesRate: 3.00
-    },
+  //reproduction: {
+  //  includeHeroGenesRate: 3.00
+  //},
     mutation: {
       newNodeProbability: 0.02,
       newConnectionProbability: 0.5,
@@ -29,7 +29,7 @@ let population = new Population({
       }
     },
     speciation: {
-      speciesCount: 8,
+  //  speciesCount: 8,
     }
   }
 })

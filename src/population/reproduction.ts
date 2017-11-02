@@ -6,20 +6,18 @@ import { Species, mate } from '../species'
 import { Creature } from '../creature'
 import { mutate, seed } from '../mutation'
 
-import { SortedSet } from '../structures'
-
 type ChronicleAndCreature = { chronicle: InnovationChronicle, creature: Creature }
 type ChronicleAndCreatures = { chronicle: InnovationChronicle, creatures: Set<Creature> }
 
 
-function selectSpecies(species: SortedSet<Species>): Species {
+function selectSpecies(species: Set<Species>): Species {
   return weightedSelection(Array.from(species), s => s.fitness ** 2)
 }
 
 function reproduce(population: Population): ChronicleAndCreature {
   let { mutation, reproduction } = population.configuration
   let crossedOver = mate({
-    species: selectSpecies(population.species),
+    species: selectSpecies(population.livingSpecies),
     reproduction,
     mutation,
   })
@@ -33,14 +31,15 @@ function reproduce(population: Population): ChronicleAndCreature {
 } 
 
 function litter(population: Population, batch: number): ChronicleAndCreatures  {
+  let pop = population.asMutable()
   let creatures = Set<Creature>().withMutations(creatures => {
     while (batch --> 0) {
-      let { creature, chronicle } = reproduce(population)
+      let { creature, chronicle } = reproduce(pop)
       creatures.add(creature)
-      population = population.set('chronicle', chronicle)
+      pop.set('chronicle', chronicle)
     }
   })
-  return { chronicle: population.chronicle, creatures }
+  return { chronicle: pop.chronicle, creatures }
 }
 
 function attemptReproduction(population: Population): Population {
