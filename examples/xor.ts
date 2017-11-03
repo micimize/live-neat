@@ -21,8 +21,8 @@ let population = new Population({
       newNodeProbability: 0.03,
       newConnectionProbability: 0.05,
       connection: {
-        disable: 0.02,
-        reenable: 0.01,
+        disable: 0.01,
+        reenable: 0.00,
       },
     },
     innovation: {
@@ -33,12 +33,12 @@ let population = new Population({
       }
     },
     speciation: {
-      speciesCount: 5,
+      speciesCount: 4,
       stagnation: {
-        cost: 1,
+        cost: 1.5,
       },
       heroes: {
-        count: 10
+        count: 12
       }
     }
   }

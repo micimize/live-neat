@@ -51,14 +51,14 @@ function randomPotentialConnection(
   { chronicle, genome, configuration }: MutationScope
 ): PotentialConnection | void {
   let { canBeRecurrent } = configuration.connection
-  let connections: Set<PotentialConnection> = Set(genome.connectionList.map(
-    ({ from, to }) => ({ from, to })
-  ))
+  let connections: Set<string> = Set(
+    genome.connectionList.map(c => c.signature)
+  )
   let isValid = (testing: PotentialConnection) =>
     (testing.from !== testing.to) &&
-    !connections.has(testing) && (
+    !connections.has([testing.from, testing.to].join(',')) && (
       canBeRecurrent ||
-      connectionMutations.checkForCycle(connections, testing)
+      connectionMutations.checkForCycle(genome.connectionList, testing)
     )
   let nodes = getNodes(genome)
   for (let from of nodePool(chronicle, nodes, valid.fromNode)){

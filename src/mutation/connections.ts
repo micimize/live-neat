@@ -7,7 +7,7 @@ import Configuration from './configuration'
 type Conn = { from: number, to: number }
 type Connections = I.Map<number, ConnectionGene>
 
-export function checkForCycle(connections: I.Set<Conn>, testing: Conn): boolean{
+export function checkForCycle(connections: Array<Conn>, testing: Conn): boolean{
   let visited = new Set<number>([ testing.from ])
   while (true) {
     let newVisits = 0
@@ -27,9 +27,9 @@ export function checkForCycle(connections: I.Set<Conn>, testing: Conn): boolean{
 }
 
 
-function canDisable(connection: ConnectionGene, connections: Connections): boolean {
-  for(let { from, to } of connections.values()){
-    if (connection.from == from && !(connection.to == to)){
+function canDisable(disabling: ConnectionGene, connections: Connections): boolean {
+  for(let { from, to, active } of connections.values()){
+    if (disabling.from == from && disabling.to !== to && active){
       return true
     }
   }
@@ -58,11 +58,15 @@ function connectionMutations({ weightChange, reenable, disable }: Configuration[
 
 function mutater(configuration: Configuration['connection']){
   let { weight, active } = connectionMutations(configuration)
-  return function mutate(connections: Connections): Connections {
-    return connections.map(connection => connection
-        .update('weight', weight)
-        .set('active', active(connection, connections))
-      )
+  return function mutate(conns: Connections): Connections {
+    return conns.withMutations(connections => {
+      for(let [innovation, connection] of connections){
+        // need to mutate connections to avoid batch disabling otherwise canDisable connections
+        connections.set(innovation, connection
+          .update('weight', weight)
+          .set('active', active(connection, connections)))
+      }
+    })
   }
 }
 

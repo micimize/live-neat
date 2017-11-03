@@ -46,20 +46,20 @@ function GeneSelecter(configuration: MutationConfiguration) {
 function randomlyExtractShared([ a, b ]: Array<ConnectionGenes>) {
   a = a.asMutable()
   let shared = Map<number, ConnectionGene>().asMutable()
-  let seenInA = a.reduce((s, { from, to }, innovation) =>
-    s.set({from, to}, innovation),
-    Map<ConnectionGene.Potential, number>()
+  let seenInA = a.reduce((s, { signature }, innovation) =>
+    s.set(signature, innovation),
+    Map<string, number>()
   )
   b = b.filter((conn, innovation) => {
-    let { from , to } = conn
-    if (seenInA.has({ from, to })){
+    if (seenInA.has(conn.signature)){
+      let signature = conn.signature
       if(Math.random() > 0.50){
-        let aIn = seenInA.get({ from, to }) || NaN // TODO THE HACKS
+        let aIn = seenInA.get(signature, innovation) // TODO THE HACKS
         shared.set(aIn, a.get(aIn) || conn)
       } else {
         shared.set(innovation, conn)
       }
-      a.remove(seenInA.get({ from, to }) || NaN)
+      a.remove(seenInA.get(signature) || NaN)
       return false
     }
     return true
