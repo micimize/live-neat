@@ -1,5 +1,5 @@
 # live-neat
-extensible, online rtNEAT implementation with sane deployment strategies built in
+An rtNEAT neuroevolution engine written in typescript. While it functions offline, the goal was to make a distributed, embeddable solution. Thus this project is incomplete.
 
 ### notes
 * the _true_ core data structure is the connection gene
